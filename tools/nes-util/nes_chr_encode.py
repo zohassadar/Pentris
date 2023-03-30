@@ -46,7 +46,7 @@ def parse_arguments():
     if not os.path.isfile(args.input_file):
         sys.exit("Input file not found.")
     if os.path.exists(args.output_file):
-        sys.exit("Output file already exists.")
+        print("Output file already exists and will be overwritten.")
     if len(set(decode_color_code(c) for c in args.palette)) < 4:
         sys.exit("All colors in --palette must be distinct.")
 
@@ -99,7 +99,8 @@ def prepare_image(img, palette):
     if img.height == 0 or img.height % 8:
         sys.exit("Invalid image height.")
     if img.mode not in ("P", "L", "RGB"):
-        sys.exit('The mode of the image must be "P", "L" or "RGB".')
+        img = img.convert('RGB')
+        print(f'The image mode has been converted to RGB')
     validate_number_of_colors(img)
 
     # convert grayscale/RGB image into indexed color
