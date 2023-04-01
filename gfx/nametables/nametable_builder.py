@@ -4,6 +4,7 @@ import logging
 import pprint
 import re
 import sys
+from collections import Counter
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -50,7 +51,7 @@ class Args(argparse.Namespace):
     action: str
     output: str
     nametable: str
-    filler: str
+    characters: str
     skip_attrs: bool
 
 
@@ -64,7 +65,7 @@ def extract_bytes_from_nametable(
     lengths = []
     data = []
     nametable = open(nametable_filename, "rb").read()
-    logger.info(f"Original file length is {len(nametable)}")
+    logger.debug(f"Original file length is {len(nametable)}")
     original_sha1sum = hashlib.sha1(nametable).hexdigest()
     logger.info(f"Original sha1sum is {original_sha1sum}")
 
@@ -79,9 +80,9 @@ def extract_bytes_from_nametable(
             length = chunk[2]
             lengths.append(length)
             data.extend(list(file.read(length)))
-    logger.info(f"Read {len(start_addresses)} starting addresses")
-    logger.info(f"Read {len(lengths)} lengths")
-    logger.info(f"Read {len(data)} data")
+    logger.debug(f"Read {len(start_addresses)} starting addresses")
+    logger.debug(f"Read {len(lengths)} lengths")
+    logger.debug(f"Read {len(data)} data")
     return (
         start_addresses,
         lengths,
@@ -139,11 +140,11 @@ def restore_attribute_table(attr_table):
     return attrs
 
 
-def format_characters(filler_raw: str):
+def format_characters(characters_raw: str):
     output = []
     output.append("characters = (")
     output.append("    #0123456789ABCDEF")
-    for i, line in enumerate(filler_raw.splitlines()):
+    for i, line in enumerate(characters_raw.splitlines()):
         index = f"#{i:x}".upper()
         output.append(f'    "{line}" {index}')
     output.append(")  # fmt: skip")
@@ -151,12 +152,13 @@ def format_characters(filler_raw: str):
 
 
 def break_nametable(args: Args):
-    filler_raw = open(args.filler).read()
+    characters_raw = open(args.characters).read()
 
-    logger.info(f"Opening filler file {args.filler}")
-    logger.info(f"Filler contains {len(filler_raw)} characters")
-    filler = FINDALL_NON_NEWLINES(filler_raw)
-    logger.info(f"Filler length is {len(filler)}")
+    logger.debug(f"Opening characters file {args.characters}")
+    logger.debug(f"characters is {len(characters_raw)} characters long")
+    characters = FINDALL_NON_NEWLINES(characters_raw)
+    validate_characters(characters)
+    logger.debug(f"characters length is {len(characters)}")
 
     starting_addresses, lengths, data, original_sha1sum = extract_bytes_from_nametable(
         args.nametable
@@ -172,7 +174,7 @@ def break_nametable(args: Args):
     for length in lengths:
         row = data[:length]
         data = data[length:]
-        text_row = "".join(filler[byte] for byte in row)
+        text_row = "".join(characters[byte] for byte in row)
         nametable_output.append(text_row)
 
     with open(args.output or args.nametable.replace(".bin", ".py"), "w+") as file:
@@ -180,7 +182,7 @@ def break_nametable(args: Args):
 
         print(f'original_sha1sum = "{original_sha1sum}"\n', file=file)
 
-        print(format_characters(filler_raw), end="\n\n", file=file)
+        print(format_characters(characters_raw), end="\n\n", file=file)
 
         print(f'table = """', file=file)
         print("\n".join(nametable_output), end='"""\n\n', file=file)
@@ -208,6 +210,25 @@ def get_reverse_index(
     return {c: i for i, c in enumerate(index)}
 
 
+def validate_characters(characters: list[str]):
+    characters_len = len(characters)
+    if characters_len != 256:
+        print(
+            f"Characters text needs 256 characters.  Received {characters_len}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    unique_characters_len = len(set(characters))
+    if unique_characters_len != 256:
+        count = Counter(characters)
+        duplicates = [k for k, v in count.items() if v > 1]
+        print(
+            f"Characters text needs 256 unique character.  Duplicates: {duplicates!r}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def build_nametable(
     output: str,
     table: str,
@@ -217,19 +238,20 @@ def build_nametable(
     lengths: list[int],
     starting_addresses: list[tuple[int, int]],
 ) -> None:
-    logger.info(f"Read {len(lengths)} lengths")
-    logger.info(f"Read {len(starting_addresses)} starting addresses")
+    validate_characters(characters)
+    logger.debug(f"Read {len(lengths)} lengths")
+    logger.debug(f"Read {len(starting_addresses)} starting addresses")
 
     attribute_bytes = restore_attribute_table(attributes)
-    logger.info(f"Read {len(attribute_bytes)} bytes from attributes")
+    logger.debug(f"Read {len(attribute_bytes)} bytes from attributes")
 
     table_chars = re.findall(r"[^\n]", table)
     reverse_index = get_reverse_index(characters)
     table_bytes = [reverse_index[t] for t in table_chars]
-    logger.info(f"Read {len(table_bytes)} bytes from table")
+    logger.debug(f"Read {len(table_bytes)} bytes from table")
 
     table_bytes.extend(attribute_bytes)
-    logger.info(f"Read {len(table_bytes)} bytes total")
+    logger.debug(f"Read {len(table_bytes)} bytes total")
 
     output_bytes = []
     for length, starting_address in zip(lengths, starting_addresses):
@@ -265,7 +287,7 @@ def get_args():
     )
 
     break_parser.add_argument(
-        "filler",
+        "characters",
         type=str,
         help="Text file that contains 256 unique characters (newlines ignored)",
     )
