@@ -5,3 +5,6 @@
 tetris.lst
 tetris.lbl
 tetris.dbg
+
+gfx/nametables/*.bin
+!gfx/nametables/*_original.bin
