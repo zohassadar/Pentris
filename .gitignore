@@ -6,5 +6,10 @@ tetris.lst
 tetris.lbl
 tetris.dbg
 
+*.nl
+*.deb
+*.sav
+tools/cTools/scan_includes
+
+
 gfx/nametables/*.bin
-!gfx/nametables/*_original.bin
