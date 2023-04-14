@@ -524,7 +524,7 @@ gameMode_legalScreen:
         ldx     #$02
         ldy     #$02
         jsr     memset_page
-        lda     #$FF
+        lda     #$00
         jsr     sleep_for_a_vblanks
         lda     #$FF
         sta     generalCounter
