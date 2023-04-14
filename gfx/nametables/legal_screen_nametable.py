@@ -1,4 +1,3 @@
-
 import pathlib
 import sys
 
@@ -49,9 +48,9 @@ _____V/O_ELECTRONORGTECHNICA____
 ________________________________
 ___________(‟ELORG‟)____________
 ________________________________
-___TETRIS_LICENSED_TO_NINTENDO__
+__PENTRIS_LICENSED_TO_NINTENDO__
 ________________________________
-_______©_1989_NINTENDO__________
+_______©_2023_NINTENDO__________
 ________________________________
 ______ALL_RIGHTS_RESERVED_______
 ________________________________
@@ -114,4 +113,3 @@ if __name__ == "__main__":
             f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
         )
         sys.exit(1)
-

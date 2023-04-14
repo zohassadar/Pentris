@@ -1,4 +1,3 @@
-
 import pathlib
 import sys
 
@@ -49,7 +48,7 @@ wß¾╣________________________╠ÞÌÍ
 ÞÜy╣________________________╠ÜíÜ
 ¼½Þ╣_______YOU_ARE_A________╠¾üß
 ÌÍ¾╣________________________╠üÝß
-¼½Î╣_____TETRIS_MASTER._____╠¾¾¾
+¼½Î╣____PENTRIS_MASTER._____╠¾¾¾
 ÌÍÎ╣________________________╠ÎÎw
 ÜíÞ╣________________________╠ÎÎÞ
 ¾üß╣_PLEASE_ENTER_YOUR_NAME_╠ÞÞ¾
@@ -114,4 +113,3 @@ if __name__ == "__main__":
             f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
         )
         sys.exit(1)
-
