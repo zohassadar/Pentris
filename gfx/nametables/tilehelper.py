@@ -97,7 +97,7 @@ class TileHelper:
             self.nametable_data[index] = (self.nametable_data[index] + 1) % 255
             if self.nametable_data[index] in self.selected_tiles:
                 break
-        self.render_nametable()
+        self.render_tile(index)
 
     def chrmap_frame_setup(self):
         self.chr_elements: dict[int, tk.Canvas] = {}
@@ -226,14 +226,18 @@ class TileHelper:
         if not self.chrmap_images:
             self.print("can't render.  chrmap not yet loaded")
             return
-        for index, d in enumerate(self.nametable_data[:960]):
-            y, x = divmod(index, 32)
-            self.nametable_canvas.create_image(
-                x * TILE_DISPLAY,
-                y * TILE_DISPLAY,
-                anchor=tk.NW,
-                image=self.chrmap_images[d],
-            )
+        for index in range(960):
+            self.render_tile(index)
+
+    def render_tile(self, index: int):
+        tile = self.nametable_data[index]
+        y, x = divmod(index, 32)
+        self.nametable_canvas.create_image(
+            x * TILE_DISPLAY,
+            y * TILE_DISPLAY,
+            anchor=tk.NW,
+            image=self.chrmap_images[tile],
+        )
 
         # showinfo("This is something", message=len(filename.read()))
         # image = tk.PhotoImage(data=filename.read(), format="png")
