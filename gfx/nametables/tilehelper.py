@@ -1,81 +1,35 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import filedialog as fd
-
-from tkinter.messagebox import showinfo
 import pathlib
-
-from PIL import Image, ImageTk
+import tkinter as tk
+from collections import deque
+from tkinter import filedialog as fd
+from tkinter import ttk
+from tkinter.messagebox import showinfo
 
 import nametable_builder
 import numpy as np
-import itertools
+from PIL import Image, ImageTk
 
-import sys
+TILE_DISPLAY = 24
+
+SCROLLBACK = 10
 
 
 class TileHelper:
-    def log_button(self, event):
-        print(f"button clicked! -> {event}", file=sys.stderr)
-
-    def chrmap_frame_setup(self):
-        self.chr_elements = {}
-        self.row_index = {}
-        self.col_index = {}
-        self.chrmap_frame = tk.Frame(bg="blue")
-        self.chrmap_frame.grid(column=1, row=1, rowspan=17)
-        for row in range(16):
-            self.row_index[row] = tk.Label(self.chrmap_frame, text=f"{row:x}".upper())
-            self.row_index[row].grid(row=0, column=row + 1)
-
-        for column in range(16):
-            label = tk.Label(
-                self.chrmap_frame,
-                text=f"{column:x}".upper(),
-            )
-            label.grid(row=column + 1, column=0)
-
-            self.col_index[column] = label
-
-        for y in range(16):
-            for x in range(16):
-                # label =
-                index = (y * 16) + x
-                canvas = tk.Canvas(
-                    self.chrmap_frame,
-                    width=32,
-                    height=32,
-                    bg="green"
-                    # border=1,
-                    # highlightthickness=0,
-                )
-                canvas.bind("<Button 1>", self.log_button)
-                canvas.grid(
-                    row=y + 1,
-                    column=x + 1,
-                    sticky=tk.NSEW,
-                )
-
-                self.chr_elements[index] = canvas
-
-    def nametable_frame_setup(self):
-        self.nt_elements = {}
-        self.nametable_canvas = tk.Canvas(
-            self.root,
-            width=32 * 32,
-            height=30 * 32,
-            bg="blue",
-        )
-        self.nametable_canvas.grid(column=2, row=1)
-
     def __init__(self):
+        self.scroll = deque(maxlen=SCROLLBACK)
+        self.selected_tiles = []
         self.root = tk.Tk()
         self.root.title("Tkinter Open File Dialog")
         self.root.resizable(width=True, height=True)
 
         self.chrmap_frame_setup()
         self.nametable_frame_setup()
+        self.chrmap_button_setup()
+        self.nametable_button_setup()
+        self.textbox_setup()
+        self.root.mainloop()
 
+    def chrmap_button_setup(self):
         self.chrmap_button = ttk.Button(
             self.root,
             text="Open CHR Map",
@@ -87,6 +41,7 @@ class TileHelper:
             sticky=tk.NSEW,
         )
 
+    def nametable_button_setup(self):
         self.nametable_button = ttk.Button(
             self.root,
             text="Open Nametable",
@@ -99,29 +54,117 @@ class TileHelper:
             sticky=tk.NSEW,
         )
 
-        self.root.grid_columnconfigure(1, weight=1)
-        self.root.grid_columnconfigure(2, weight=1)
-        self.root.grid_columnconfigure(3, weight=1)
-        self.root.grid_rowconfigure(1, weight=1)
-        self.root.grid_rowconfigure(2, weight=1)
-        self.root.mainloop()
-
-    def load_chrmap_og(self):
-        filetypes = (
-            ("PNG File", "*.png"),
-            ("All files", "*.*"),
+    def textbox_setup(self):
+        self.text = tk.Label(
+            self.root,
+            width=((TILE_DISPLAY + 5) * 18) // 4,
+            height=SCROLLBACK,
+            bg="black",
+            fg="white",
+            text="",
+            font=("Consolas", 10),
+            anchor=tk.W,
+            justify=tk.LEFT,
         )
+        self.text.grid(row=18, column=1, columnspan=3)
 
-        filename = fd.askopenfile(
-            "rb",
-            title="Open a file",
-            initialdir=pathlib.Path.cwd() / "gfx",
-            filetypes=filetypes,
+    def print(self, message):
+        self.scroll.append(message)
+        self.text.config(text="\n".join(self.scroll))
+
+    def tile_click(self, event: tk.Event):
+        self.print(f"button clicked! -> {event}")
+        state = event.widget.cget("state")
+        self.print(f"{state=}")
+        if state == "disabled":
+            event.widget.configure(bg="yellow", state="normal")
+        else:
+            event.widget.configure(bg="green", state="disabled")
+        self.selected_tiles = [
+            i for i, c in self.chr_elements.items() if c.cget("state") == "normal"
+        ]
+        self.print(str(self.selected_tiles))
+
+    def nametable_click(self, event: tk.Event):
+        y = event.y // TILE_DISPLAY
+        x = event.x // TILE_DISPLAY
+        index = y * 32 + x
+        self.print(f"Clicked on {index}")
+        if not self.selected_tiles:
+            self.print(f"Nothing is selected!")
+            return
+        while True:
+            self.nametable_data[index] = (self.nametable_data[index] + 1) % 255
+            if self.nametable_data[index] in self.selected_tiles:
+                break
+        self.render_nametable()
+
+    def chrmap_frame_setup(self):
+        self.chr_elements: dict[int, tk.Canvas] = {}
+        self.row_indexex = {}
+        self.col_indexex = {}
+        self.chrmap_frame = tk.Frame(
+            bg="blue",
         )
+        self.chrmap_frame.grid(
+            column=1,
+            row=1,
+            rowspan=17,
+        )
+        for row in range(16):
+            label = tk.Label(
+                self.chrmap_frame,
+                text=f"{row:x}".upper(),
+            )
+            label.grid(
+                row=0,
+                column=row + 1,
+            )
+            self.row_indexex[row] = label
 
-        self.image = tk.PhotoImage(data=filename.read(), format="png")
-        self.chrmap.create_image(0, 0, anchor=tk.NW, image=self.image)
-        self.nametable_button.configure(state=tk.ACTIVE)
+        for column in range(16):
+            label = tk.Label(
+                self.chrmap_frame,
+                text=f"{column:x}".upper(),
+            )
+            label.grid(
+                row=column + 1,
+                column=0,
+            )
+            self.col_indexex[column] = label
+
+        for y in range(16):
+            for x in range(16):
+                # label =
+                index = (y * 16) + x
+                canvas = tk.Canvas(
+                    self.chrmap_frame,
+                    width=TILE_DISPLAY,
+                    height=TILE_DISPLAY,
+                    bg="green",
+                    border=1,
+                    state="disabled",
+                    # highlightthickness=1,
+                )
+                canvas.bind("<Button 1>", self.tile_click)
+                canvas.grid(
+                    row=y + 1,
+                    column=x + 1,
+                    sticky=tk.NSEW,
+                )
+
+                self.chr_elements[index] = canvas
+
+    def nametable_frame_setup(self):
+        self.nt_elements = {}
+        self.nametable_canvas = tk.Canvas(
+            self.root,
+            width=32 * TILE_DISPLAY,
+            height=30 * TILE_DISPLAY,
+            bg="blue",
+        )
+        self.nametable_canvas.bind("<Button 1>", self.nametable_click)
+        self.nametable_canvas.grid(column=2, row=1)
 
     def load_chrmap(self):
         self.chrmap_images = {}
@@ -147,12 +190,13 @@ class TileHelper:
                 tile = Image.fromarray(
                     array[slice_y : slice_y + 8, slice_x : slice_x + 8]
                 )
-                resized = tile.resize((32, 32))
-                self.chrmap_images[index] = ImageTk.PhotoImage(resized)
+                resized = tile.resize((TILE_DISPLAY, TILE_DISPLAY))
+                image = ImageTk.PhotoImage(resized)
+                self.chrmap_images[index] = image
                 self.chr_elements[index].create_image(
-                    0,
-                    0,
-                    anchor=tk.NW,
+                    TILE_DISPLAY // 2,
+                    TILE_DISPLAY // 2,
+                    anchor=tk.CENTER,
                     image=self.chrmap_images[index],
                 )
 
@@ -175,12 +219,18 @@ class TileHelper:
             data,
             original_sha1sum,
         ) = nametable_builder.extract_bytes_from_nametable(filename)
+        self.nametable_data = data
+        self.render_nametable()
 
-        for index, d in enumerate(data[:960]):
+    def render_nametable(self):
+        if not self.chrmap_images:
+            self.print("can't render.  chrmap not yet loaded")
+            return
+        for index, d in enumerate(self.nametable_data[:960]):
             y, x = divmod(index, 32)
             self.nametable_canvas.create_image(
-                x * 32,
-                y * 32,
+                x * TILE_DISPLAY,
+                y * TILE_DISPLAY,
                 anchor=tk.NW,
                 image=self.chrmap_images[d],
             )
