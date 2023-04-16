@@ -12,9 +12,10 @@ TILE_DISPLAY = 29
 
 SCROLLBACK = 10
 
-HELP_TEXT = """Arrow keys to move around or something
-something else
-
+HELP_TEXT = """Arrow Keys:  Move around nametable
+WASD: Change tile
+Enter:  Commit change to nametable
+Ctrl+Z: Undo (TBD!)
 """
 
 
@@ -131,6 +132,35 @@ class TileHelper:
             y = 0
         new_tile = y * 16 + x
         self.highlight_chr_tile(new_tile)
+        self.nametable_data_displayed[self.current_nt_tile] = new_tile
+        self.update_nt_tile()
+
+    def change_nt_tile(self, x: int = 0, y: int = 0):
+        old_y, old_x = divmod(self.current_nt_tile, 32)
+        x, y = old_x + x, old_y + y
+        if x < 0:
+            x = 31
+        if x > 31:
+            x = 0
+        if y < 0:
+            y = 29
+        if y > 29:
+            y = 0
+        self.nametable_data_displayed[
+            self.current_nt_tile
+        ] = self.nametable_data_modified[self.current_nt_tile]
+        self.clear_nt_tile_highlight()
+        self.current_nt_tile = y * 32 + x
+        self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
+        self.update_nt_tile()
+
+    def commit_tile(self):
+        self.print(
+            f"Committing nametable tile #{self.current_nt_tile} to chr index #{self.current_chr_tile}"
+        )
+        self.nametable_data_modified[
+            self.current_nt_tile
+        ] = self.nametable_data_displayed[self.current_nt_tile]
 
     def on_key_press(self, event: tk.Event):
         match event.keycode, event.char:
@@ -148,14 +178,18 @@ class TileHelper:
                 self.change_chr_tile(x=1)
             case (111, _):
                 self.print("tile up")
+                self.change_nt_tile(y=-1)
             case (113, _):
                 self.print("tile left")
+                self.change_nt_tile(x=-1)
             case (116, _):
                 self.print("tile down")
+                self.change_nt_tile(y=1)
             case (114, _):
                 self.print("tile right")
+                self.change_nt_tile(x=1)
             case (36, _):
-                self.print("enter pressed")
+                self.commit_tile()
             case (37, ""):
                 pass  # Control pressed by itself
             case (52, "\x1a"):
@@ -352,9 +386,9 @@ class TileHelper:
         if not filename:
             self.print(f"No filename selected!")
             return
-        self.nametable_data_displayed = (
-            self.nametable_data_modified
-        ) = self.nametable_data_original = data
+        self.nametable_data_displayed = data
+        self.nametable_data_modified = data.copy()
+        self.nametable_data_original = data.copy()
         self.render_nametable()
         self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
 
@@ -372,6 +406,26 @@ class TileHelper:
             image = self.highlighted_images[tile]
         else:
             image = self.chrmap_images[tile]
+        self.nametable_canvas.create_image(
+            x * TILE_DISPLAY,
+            y * TILE_DISPLAY,
+            anchor=tk.NW,
+            image=image,
+        )
+
+    def clear_nt_tile_highlight(self):
+        y, x = divmod(self.current_nt_tile, 32)
+        image = self.chrmap_images[self.nametable_data_modified[self.current_nt_tile]]
+        self.nametable_canvas.create_image(
+            x * TILE_DISPLAY,
+            y * TILE_DISPLAY,
+            anchor=tk.NW,
+            image=image,
+        )
+
+    def update_nt_tile(self):
+        y, x = divmod(self.current_nt_tile, 32)
+        image = self.highlighted_images[self.current_chr_tile]
         self.nametable_canvas.create_image(
             x * TILE_DISPLAY,
             y * TILE_DISPLAY,
