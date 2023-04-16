@@ -14,8 +14,8 @@ SCROLLBACK = 10
 
 HELP_TEXT = """Arrow Keys:  Move around nametable
 WASD: Change tile
-Enter:  Commit change to nametable
-Ctrl+Z: Undo (TBD!)
+Ctrl+Z: Undo
+Ctrl+Alt+R: Restore original
 """
 
 
@@ -136,6 +136,7 @@ class TileHelper:
         self.update_nt_tile()
 
     def change_nt_tile(self, x: int = 0, y: int = 0):
+        self.commit_tile()
         old_y, old_x = divmod(self.current_nt_tile, 32)
         x, y = old_x + x, old_y + y
         if x < 0:
@@ -208,15 +209,21 @@ class TileHelper:
             case (114, _):
                 self.print("tile right")
                 self.change_nt_tile(x=1)
-            case (36, _):
-                self.commit_tile()
             case (37, ""):
                 pass  # Control pressed by itself
             case (52, "\x1a"):
                 self.print("Undo")  # ctrl+z
                 self.undo()
+            case (27, "\x12"):  # ctrl + alt + r
+                self.restore_original()
             case _:
                 self.print(f"Something else: {event.char=} {event.keycode=}")
+
+    def restore_original(self):
+        self.print("Restoring original")
+        self.nametable_data_modified = self.nametable_data_original.copy()
+        self.nametable_data_displayed = self.nametable_data_original.copy()
+        self.render_nametable()
 
     def print(self, message):
         self.scroll.extend(message.splitlines())
