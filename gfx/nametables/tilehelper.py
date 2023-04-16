@@ -88,7 +88,7 @@ class TileHelper:
         self.nametable_data_displayed = []
         self.nametable_data_modified = []
         self.nametable_data_original = []
-
+        self.undo_bucket = []
         self.highlighted_overlay = Image.new(
             size=(TILE_DISPLAY, TILE_DISPLAY),
             color=(255, 255, 0),
@@ -154,9 +154,29 @@ class TileHelper:
         self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
         self.update_nt_tile()
 
+    def undo(self):
+        self.clear_nt_tile_highlight()
+        old_tile, old_nt_location = self.undo_bucket.pop()
+        self.current_nt_tile = old_nt_location
+        self.nametable_data_displayed[
+            self.current_nt_tile
+        ] = self.nametable_data_modified[self.current_nt_tile] = old_tile
+        self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
+        self.update_nt_tile()
+
     def commit_tile(self):
+        if (
+            self.nametable_data_modified[self.current_nt_tile]
+            == self.nametable_data_displayed[self.current_nt_tile]
+        ):
+            self.print(f"Nothing has changed.  Skipping")
+            return
+        old_tile = self.nametable_data_modified[self.current_nt_tile]
+        old_nt_location = self.current_nt_tile
+        undo = (old_tile, old_nt_location)
+        self.undo_bucket.append(undo)
         self.print(
-            f"Committing nametable tile #{self.current_nt_tile} to chr index #{self.current_chr_tile}"
+            f"Committing nametable tile #{self.current_nt_tile} to chr index #{self.current_chr_tile}. {undo=}"
         )
         self.nametable_data_modified[
             self.current_nt_tile
@@ -194,6 +214,7 @@ class TileHelper:
                 pass  # Control pressed by itself
             case (52, "\x1a"):
                 self.print("Undo")  # ctrl+z
+                self.undo()
             case _:
                 self.print(f"Something else: {event.char=} {event.keycode=}")
 
