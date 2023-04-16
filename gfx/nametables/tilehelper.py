@@ -115,16 +115,37 @@ class TileHelper:
         self.helpbox_setup()
         self.root.mainloop()
 
+    def change_chr_tile(self, x: int = 0, y: int = 0):
+        if self.current_chr_tile is None:
+            self.print(f"change_chr_tiled called without a current_chr_tile set")
+            return
+        old_y, old_x = divmod(self.current_chr_tile, 16)
+        x, y = old_x + x, old_y + y
+        if x < 0:
+            x = 15
+        if x > 15:
+            x = 0
+        if y < 0:
+            y = 15
+        if y > 15:
+            y = 0
+        new_tile = y * 16 + x
+        self.highlight_chr_tile(new_tile)
+
     def on_key_press(self, event: tk.Event):
         match event.keycode, event.char:
             case (_, "w"):
                 self.print("chr up")
+                self.change_chr_tile(y=-1)
             case (_, "a"):
                 self.print("chr left")
+                self.change_chr_tile(x=-1)
             case (_, "s"):
                 self.print("chr down")
+                self.change_chr_tile(y=1)
             case (_, "d"):
                 self.print("chr right")
+                self.change_chr_tile(x=1)
             case (111, _):
                 self.print("tile up")
             case (113, _):
@@ -282,6 +303,17 @@ class TileHelper:
                 self.render_chr_tile(index)
         self.nametable_button.configure(state=tk.ACTIVE)
 
+    def highlight_chr_tile(self, index: int):
+        self.print(f"old: {self.current_chr_tile} new: {self.current_chr_tile}")
+        if index == self.current_chr_tile:
+            self.print(f"Old is same as new ({index=} {self.current_chr_tile=})")
+            return
+        old_chr_tile = self.current_chr_tile
+        self.current_chr_tile = index
+        self.render_chr_tile(self.current_chr_tile)
+        if old_chr_tile is not None:
+            self.render_chr_tile(old_chr_tile)
+
     def render_chr_tile(self, index: int):
         y, x = divmod(index, 16)
         if self.chrmap_images.get(index) is None:
@@ -289,7 +321,9 @@ class TileHelper:
             return
         if index == self.current_chr_tile:
             image = self.highlighted_images[index]
+            self.print(f"Rendering highlighted tile {index}")
         else:
+            self.print(f"Rendering non-highlighted tile {index}")
             image = self.chrmap_images[index]
         self.chrmap_frame.create_image(
             x * TILE_DISPLAY,
@@ -322,6 +356,7 @@ class TileHelper:
             self.nametable_data_modified
         ) = self.nametable_data_original = data
         self.render_nametable()
+        self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
 
     def render_nametable(self):
         if not self.chrmap_images:
