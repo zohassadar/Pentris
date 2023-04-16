@@ -156,6 +156,9 @@ class TileHelper:
         self.update_nt_tile()
 
     def undo(self):
+        if not self.undo_bucket:
+            self.print(f"Nothing to undo")
+            return
         self.clear_nt_tile_highlight()
         old_tile, old_nt_location = self.undo_bucket.pop()
         self.current_nt_tile = old_nt_location
@@ -396,7 +399,7 @@ class TileHelper:
 
     def load_nametable(self):
         filetypes = (
-            ("Binary file", "*.bin"),
+            ("Binary file", ".bin .bak"),
             ("All files", "*.*"),
         )
 
