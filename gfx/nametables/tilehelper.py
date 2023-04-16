@@ -3,11 +3,10 @@ import tkinter as tk
 from collections import deque
 from tkinter import filedialog as fd
 from tkinter import ttk
-from tkinter.messagebox import showinfo
 
 import nametable_builder
 import numpy as np
-from PIL import Image, ImageTk, ImageOps, ImageColor
+from PIL import Image, ImageTk
 
 TILE_DISPLAY = 29
 
@@ -83,22 +82,10 @@ class TileHelper:
         self.scroll = deque(maxlen=SCROLLBACK)
         self.chrmap_images = {}
         self.selected_images = {}
-        self.current_images = {}
-        self.selected_and_current = {}
         self.nametable_data = []
         self.selected_overlay = Image.new(
             size=(TILE_DISPLAY, TILE_DISPLAY),
-            color=(0, 0, 255),
-            mode="RGB",
-        )
-        self.current_overlay = Image.new(
-            size=(TILE_DISPLAY, TILE_DISPLAY),
             color=(255, 255, 0),
-            mode="RGB",
-        )
-        self.selected_and_current_overlay = Image.new(
-            size=(TILE_DISPLAY, TILE_DISPLAY),
-            color=(0, 255, 0),
             mode="RGB",
         )
         self.nt_elements = {}
@@ -228,9 +215,9 @@ class TileHelper:
 
     def chrmap_frame_setup(self):
         self.chrmap_frame = tk.Canvas(
-            bg="blue",
-            width=(TILE_DISPLAY * 16) + 4,
-            height=(TILE_DISPLAY * 16) + 4,
+            # bg="blue",
+            width=TILE_DISPLAY * 16,
+            height=TILE_DISPLAY * 16,
         )
         self.chrmap_frame.bind(
             "<Button 1>",
@@ -245,8 +232,8 @@ class TileHelper:
     def nametable_frame_setup(self):
         self.nametable_canvas = tk.Canvas(
             self.root,
-            width=(32 * TILE_DISPLAY) + 4,
-            height=(30 * TILE_DISPLAY) + 4,
+            width=32 * TILE_DISPLAY,
+            height=30 * TILE_DISPLAY,
             bg="blue",
         )
         self.nametable_canvas.bind("<Button 1>", self.nametable_click)
@@ -285,12 +272,14 @@ class TileHelper:
                     array[slice_y : slice_y + 8, slice_x : slice_x + 8]
                 )
                 resized = tile.resize((TILE_DISPLAY, TILE_DISPLAY))
-                resized = resized.convert("RGB")
 
                 image = ImageTk.PhotoImage(resized)
                 self.chrmap_images[index] = image
+                self.print(f"{resized.mode=} {self.selected_overlay.mode=}")
 
-                selected = Image.blend(self.selected_overlay, resized, 0.7)
+                selected = Image.blend(
+                    self.selected_overlay, resized.convert("RGB"), 0.7
+                )
                 selected_image = ImageTk.PhotoImage(selected)
                 self.selected_images[index] = selected_image
 
@@ -307,8 +296,8 @@ class TileHelper:
         else:
             image = self.chrmap_images[index]
         self.chrmap_frame.create_image(
-            (x * TILE_DISPLAY) + 2,
-            (y * TILE_DISPLAY) + 2,
+            x * TILE_DISPLAY,
+            y * TILE_DISPLAY,
             anchor=tk.NW,
             image=image,
         )
@@ -347,8 +336,8 @@ class TileHelper:
         tile = self.nametable_data[index]
         y, x = divmod(index, 32)
         self.nametable_canvas.create_image(
-            (x * TILE_DISPLAY) + 2,
-            (y * TILE_DISPLAY) + 2,
+            x * TILE_DISPLAY,
+            y * TILE_DISPLAY,
             anchor=tk.NW,
             image=self.chrmap_images[tile],
         )
