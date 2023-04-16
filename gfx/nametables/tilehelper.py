@@ -7,29 +7,58 @@ from tkinter.messagebox import showinfo
 
 import nametable_builder
 import numpy as np
-from PIL import Image, ImageTk, ImageOps
+from PIL import Image, ImageTk, ImageOps, ImageColor
 
-TILE_DISPLAY = 24
+TILE_DISPLAY = 29
 
 SCROLLBACK = 10
+
+HELP_TEXT = """Arrow keys to move around or something
+something else
+
+"""
 
 
 class TileHelper:
     def __init__(self):
         self.scroll = deque(maxlen=SCROLLBACK)
         self.chrmap_images = {}
-        self.highlighted_images = {}
+        self.selected_images = {}
+        self.current_images = {}
+        self.selected_and_current = {}
+        self.selected_overlay = Image.new(
+            size=(TILE_DISPLAY, TILE_DISPLAY),
+            color=(0, 0, 255),
+            mode="RGB",
+        )
+        self.current_overlay = Image.new(
+            size=(TILE_DISPLAY, TILE_DISPLAY),
+            color=(255, 255, 0),
+            mode="RGB",
+        )
+        self.selected_and_current_overlay = Image.new(
+            size=(TILE_DISPLAY, TILE_DISPLAY),
+            color=(0, 255, 0),
+            mode="RGB",
+        )
         self.nt_elements = {}
         self.selected_tiles = [False for _ in range(256)]
         self.root = tk.Tk()
         self.root.title("Tkinter Open File Dialog")
         self.root.resizable(width=True, height=True)
-
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_columnconfigure(2, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_rowconfigure(2, weight=1)
+        self.root.grid_rowconfigure(3, weight=1)
         self.chrmap_frame_setup()
         self.nametable_frame_setup()
         self.chrmap_button_setup()
         self.nametable_button_setup()
         self.textbox_setup()
+        self.helpbox_setup()
         self.root.mainloop()
 
     def chrmap_button_setup(self):
@@ -39,8 +68,8 @@ class TileHelper:
             command=self.load_chrmap,
         )
         self.chrmap_button.grid(
-            column=3,
-            row=3,
+            column=2,
+            row=2,
             sticky=tk.NSEW,
         )
 
@@ -52,28 +81,46 @@ class TileHelper:
             state=tk.DISABLED,
         )
         self.nametable_button.grid(
-            column=3,
-            row=4,
+            column=2,
+            row=3,
             sticky=tk.NSEW,
         )
 
-    def textbox_setup(self):
-        self.text = tk.Label(
+    def helpbox_setup(self):
+        self.help = tk.Text(
             self.root,
-            width=((TILE_DISPLAY + 5) * 18) // 4,
-            height=SCROLLBACK,
-            bg="black",
-            fg="white",
-            text="",
-            font=("Consolas", 10),
-            anchor=tk.W,
-            justify=tk.LEFT,
+            height=10,
+            # bg="green",
+            # foreground="white",
         )
-        self.text.grid(row=18, column=1, columnspan=3)
+        self.help.grid(
+            row=0,
+            column=0,
+            sticky=tk.NSEW,
+        )
+        self.help.bind("<Key>", lambda e: "break")
+        self.help.insert("1.0", HELP_TEXT)
+
+    def textbox_setup(self):
+        self.text = tk.Text(
+            self.root,
+            bg="green",
+            foreground="white",
+            height=SCROLLBACK,
+        )
+        self.text.grid(
+            row=2,
+            column=0,
+            columnspan=2,
+            rowspan=2,
+            sticky=tk.W + tk.E,
+        )
+        self.text.bind("<Key>", lambda e: "break")
 
     def print(self, message):
+        self.text.delete("1.0", tk.END)
         self.scroll.append(message)
-        self.text.config(text="\n".join(self.scroll))
+        self.text.insert("1.0", "\n".join(self.scroll))
 
     def tile_click(self, event: tk.Event):
         y = event.y // TILE_DISPLAY
@@ -84,7 +131,9 @@ class TileHelper:
         self.render_chr(index)
 
     def nametable_click(self, event: tk.Event):
-        selected = [index for index, tile in enumerate(self.selected_tiles) if tile]
+        selected = [
+            index for index, tile in enumerate(self.selected_tiles) if tile is not False
+        ]
         y = event.y // TILE_DISPLAY
         x = event.x // TILE_DISPLAY
         index = y * 32 + x
@@ -93,9 +142,16 @@ class TileHelper:
             self.print(f"Nothing is selected!")
             return
         while True:
-            self.nametable_data[index] = (self.nametable_data[index] + 1) % 255
+            next_square = self.nametable_data[index] + 1
+            if next_square == 256:
+                next_square = 0
+            elif next_square != 255:
+                next_square %= 255
+            print(f"{next_square=}")
+            self.nametable_data[index] = next_square
             if self.nametable_data[index] in selected:
                 break
+        self.print(str(selected))
         self.render_tile(index)
 
     def chrmap_frame_setup(self):
@@ -109,8 +165,9 @@ class TileHelper:
             self.tile_click,
         )
         self.chrmap_frame.grid(
-            column=1,
+            column=0,
             row=1,
+            sticky=tk.NSEW,
         )
 
     def nametable_frame_setup(self):
@@ -121,7 +178,12 @@ class TileHelper:
             bg="blue",
         )
         self.nametable_canvas.bind("<Button 1>", self.nametable_click)
-        self.nametable_canvas.grid(column=2, row=1)
+        self.nametable_canvas.grid(
+            column=1,
+            row=0,
+            rowspan=2,
+            columnspan=2,
+        )
 
     def load_chrmap(self):
         filetypes = (
@@ -135,6 +197,7 @@ class TileHelper:
             filetypes=filetypes,
         )
         self.pillow_image = Image.open(filename)
+        self.print(f"Opened: {self.pillow_image}")
 
         array = np.asarray(self.pillow_image, dtype=np.uint8)
 
@@ -147,12 +210,14 @@ class TileHelper:
                     array[slice_y : slice_y + 8, slice_x : slice_x + 8]
                 )
                 resized = tile.resize((TILE_DISPLAY, TILE_DISPLAY))
+                resized = resized.convert("RGB")
+
                 image = ImageTk.PhotoImage(resized)
                 self.chrmap_images[index] = image
 
-                highlighted = ImageOps.colorize(resized, black="blue", white="red")
-                highlighted_image = ImageTk.PhotoImage(highlighted)
-                self.highlighted_images[index] = highlighted_image
+                selected = Image.blend(self.selected_overlay, resized, 0.7)
+                selected_image = ImageTk.PhotoImage(selected)
+                self.selected_images[index] = selected_image
 
                 self.render_chr(index)
         self.nametable_button.configure(state=tk.ACTIVE)
@@ -160,7 +225,7 @@ class TileHelper:
     def render_chr(self, index: int):
         y, x = divmod(index, 16)
         if self.selected_tiles[index]:
-            image = self.highlighted_images[index]
+            image = self.selected_images[index]
         else:
             image = self.chrmap_images[index]
         self.chrmap_frame.create_image(
@@ -206,11 +271,6 @@ class TileHelper:
             anchor=tk.NW,
             image=self.chrmap_images[tile],
         )
-
-        # showinfo("This is something", message=len(filename.read()))
-        # image = tk.PhotoImage(data=filename.read(), format="png")
-        # self.chrmap.create_image(0, 0, anchor=tk.NW, image=image)
-        # self.open_nametable.configure(state=tk.ACTIVE)
 
 
 TileHelper()
