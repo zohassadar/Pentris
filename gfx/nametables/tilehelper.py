@@ -88,6 +88,13 @@ class TileHelper:
         self.nametable_data_displayed = []
         self.nametable_data_modified = []
         self.nametable_data_original = []
+
+        # Used to rebuild:
+        self.lengths: list[int] = []
+        self.start_addresses: list[tuple[int, int]] = []
+        self.original_sha1sum: str = ""
+        self.characters_raw: str = ""
+
         self.undo_bucket = []
         self.highlighted_overlay = Image.new(
             size=(TILE_DISPLAY, TILE_DISPLAY),
@@ -104,6 +111,7 @@ class TileHelper:
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
+        self.root.grid_columnconfigure(3, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_rowconfigure(2, weight=1)
@@ -112,6 +120,8 @@ class TileHelper:
         self.nametable_frame_setup()
         self.chrmap_button_setup()
         self.nametable_button_setup()
+        self.chars_button_setup()
+        self.save_as_button_setup()
         self.textbox_setup()
         self.helpbox_setup()
         self.root.mainloop()
@@ -230,10 +240,10 @@ class TileHelper:
 
     def print(self, message):
         self.scroll.extend(message.splitlines())
-        self.text.config(state="normal")
+        self.text.config(state=tk.NORMAL)
         self.text.delete("1.0", tk.END)
         self.text.insert("1.0", "\n".join(self.scroll))
-        self.text.config(state="disabled")
+        self.text.config(state=tk.DISABLED)
 
     def nametable_click(self, event: tk.Event):
         if not self.nametable_data_displayed:
@@ -243,6 +253,54 @@ class TileHelper:
         x = event.x // TILE_DISPLAY
         index = y * 32 + x
         self.print(f"Clicked on {index}")
+
+    def chars_button_setup(self):
+        self.characters_button = ttk.Button(
+            self.root,
+            text="Open Chars Text",
+            command=self.load_characters,
+            state=tk.DISABLED,
+        )
+        self.characters_button.grid(
+            column=3,
+            row=2,
+            sticky=tk.NSEW,
+        )
+
+    def save_as(self):
+        filetypes = (("python file", "*.py"),)
+
+        filename = fd.asksaveasfilename(
+            title="Save as",
+            initialdir=pathlib.Path.cwd() / "gfx" / "nametables",
+            filetypes=filetypes,
+        )
+        if not filename:
+            self.print(f"No filename selected!")
+            return
+        nametable_builder.break_nametable(
+            filename,
+            self.start_addresses,
+            self.nametable_data_modified,
+            self.lengths,
+            self.original_sha1sum,
+            skip_attrs=False,
+            characters_raw=self.characters_raw,
+        )
+        self.print(f"saving as {filename}")
+
+    def save_as_button_setup(self):
+        self.save_as_button = ttk.Button(
+            self.root,
+            text="Save As",
+            command=self.save_as,
+            state=tk.DISABLED,
+        )
+        self.save_as_button.grid(
+            column=3,
+            row=3,
+            sticky=tk.NSEW,
+        )
 
     def chrmap_button_setup(self):
         self.chrmap_button = ttk.Button(
@@ -282,7 +340,7 @@ class TileHelper:
             sticky=tk.NSEW,
         )
         self.help.insert("1.0", HELP_TEXT)
-        self.help.config(state="disabled")
+        self.help.config(state=tk.DISABLED)
 
     def textbox_setup(self):
         self.text = tk.Text(
@@ -323,8 +381,26 @@ class TileHelper:
             column=1,
             row=0,
             rowspan=2,
-            columnspan=2,
+            columnspan=3,
         )
+
+    def load_characters(self):
+        filetypes = (
+            ("TXT File", "*.txt"),
+            ("All files", "*.*"),
+        )
+
+        filename = fd.askopenfilename(
+            title="Open a file",
+            initialdir=pathlib.Path.cwd() / "gfx" / "nametables",
+            filetypes=filetypes,
+        )
+        if not filename:
+            self.print(f"No filename selected!")
+            return
+        self.characters_raw = open(filename).read()
+        self.print(f"Opened: {filename}")
+        self.save_as_button.configure(state=tk.ACTIVE)
 
     def load_chrmap(self):
         filetypes = (
@@ -409,10 +485,10 @@ class TileHelper:
             filetypes=filetypes,
         )
         (
-            start_addresses,
-            lengths,
+            self.start_addresses,
+            self.lengths,
             data,
-            original_sha1sum,
+            self.original_sha1sum,
         ) = nametable_builder.extract_bytes_from_nametable(filename)
         if not filename:
             self.print(f"No filename selected!")
@@ -422,6 +498,7 @@ class TileHelper:
         self.nametable_data_original = data.copy()
         self.render_nametable()
         self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
+        self.characters_button.configure(state=tk.ACTIVE)
 
     def render_nametable(self):
         if not self.chrmap_images:
