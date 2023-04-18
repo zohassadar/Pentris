@@ -4,14 +4,14 @@ import logging
 import pprint
 import re
 import sys
+import pathlib
 from collections import Counter
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-BUILD_HEADER = '''
-import pathlib
+BUILD_HEADER = '''import pathlib
 import sys
 
 import nametable_builder
@@ -41,10 +41,9 @@ if __name__ == "__main__":
         )
     except Exception as exc:
         print(
-            f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
+            f"Unable to build nametable: {type(exc).__name__}: {exc!s}", file=sys.stderr
         )
-        sys.exit(1)
-"""
+        sys.exit(1)"""
 
 FINDALL_NON_NEWLINES = re.compile(r"[^\n]").findall
 
@@ -153,21 +152,42 @@ def format_characters(characters_raw: str):
     return "\n".join(output)
 
 
-def break_nametable(args: Args):
-    characters_raw = open(args.characters).read()
-
+def break_nametable_from_args(args: Args):
     logger.debug(f"Opening characters file {args.characters}")
+    characters_raw = open(args.characters).read()
     logger.debug(f"characters is {len(characters_raw)} characters long")
-    characters = FINDALL_NON_NEWLINES(characters_raw)
-    validate_characters(characters)
-    logger.debug(f"characters length is {len(characters)}")
 
     starting_addresses, lengths, data, original_sha1sum = extract_bytes_from_nametable(
         args.nametable
     )
 
+    output_file = args.output or args.nametable.replace(".bin", ".py")
+    break_nametable(
+        output_file,
+        starting_addresses,
+        data,
+        lengths,
+        original_sha1sum,
+        args.skip_attrs,
+        characters_raw,
+    )
+
+
+def break_nametable(
+    output_file: str,
+    starting_addresses: list[tuple[int, int]],
+    data: list[int],
+    lengths: list[int],
+    original_sha1sum: str,
+    skip_attrs: bool,
+    characters_raw: str,
+):
+    characters = FINDALL_NON_NEWLINES(characters_raw)
+    validate_characters(characters)
+    logger.debug(f"characters length is {len(characters)}")
+
     attributes_output = []
-    if not args.skip_attrs:
+    if not skip_attrs:
         attributes_raw = data[-64:]
         attributes_output = break_out_attribute_table(attributes_raw)
         data = data[:-64]
@@ -179,7 +199,7 @@ def break_nametable(args: Args):
         text_row = "".join(characters[byte] for byte in row)
         nametable_output.append(text_row)
 
-    with open(args.output or args.nametable.replace(".bin", ".py"), "w+") as file:
+    with open(output_file, "w+") as file:
         print(BUILD_HEADER, file=file)
 
         print(f'original_sha1sum = "{original_sha1sum}"\n', file=file)
@@ -232,7 +252,7 @@ def validate_characters(characters: list[str]):
 
 
 def build_nametable(
-    output: str,
+    output: str | pathlib.Path,
     table: str,
     attributes: str,
     characters: str,
@@ -312,7 +332,7 @@ def get_args():
 
 def main():
     actions = {
-        "break": break_nametable,
+        "break": break_nametable_from_args,
     }
     args = get_args()
     actions[args.action](args)
