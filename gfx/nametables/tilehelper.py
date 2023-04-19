@@ -1,6 +1,7 @@
 import pathlib
 import tkinter as tk
 from collections import deque
+from itertools import chain
 from tkinter import filedialog as fd
 from tkinter import ttk
 
@@ -35,6 +36,8 @@ palette_rgb = [
     [0, 60, 0],
     [0, 50, 60],
     [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
     [152, 150, 152],
     [8, 76, 196],
     [48, 50, 236],
@@ -48,6 +51,8 @@ palette_rgb = [
     [8, 124, 0],
     [0, 118, 40],
     [0, 102, 120],
+    [0, 0, 0],
+    [0, 0, 0],
     [0, 0, 0],
     [236, 238, 236],
     [76, 154, 236],
@@ -63,6 +68,8 @@ palette_rgb = [
     [56, 204, 108],
     [56, 180, 204],
     [60, 60, 60],
+    [0, 0, 0],
+    [0, 0, 0],
     [236, 238, 236],
     [168, 204, 236],
     [188, 188, 236],
@@ -77,6 +84,8 @@ palette_rgb = [
     [152, 226, 180],
     [160, 214, 228],
     [160, 162, 160],
+    [0, 0, 0],
+    [0, 0, 0],
 ]
 
 
@@ -416,7 +425,14 @@ class TileHelper:
         if not filename:
             self.print(f"No filename selected!")
             return
-        self.pillow_image = Image.open(filename)
+        self.pillow_image = Image.open(filename).convert("P")
+
+        palette = [
+            palette_rgb[0x0D],
+            palette_rgb[0x3D],
+            palette_rgb[0x30],
+            palette_rgb[0x00],
+        ]
         self.print(f"Opened: {self.pillow_image}")
 
         array = np.asarray(self.pillow_image, dtype=np.uint8)
@@ -430,6 +446,7 @@ class TileHelper:
                     array[slice_y : slice_y + 8, slice_x : slice_x + 8]
                 )
                 resized = tile.resize((TILE_DISPLAY, TILE_DISPLAY))
+                resized.putpalette(chain.from_iterable(palette))
 
                 image = ImageTk.PhotoImage(resized)
                 self.chrmap_images[index] = image
