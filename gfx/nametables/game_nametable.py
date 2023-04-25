@@ -1,4 +1,3 @@
-
 import pathlib
 import sys
 
@@ -37,10 +36,10 @@ characters = (
 )  # fmt: skip
 
 table = """
-ÖÃÓÓÎÕÖÔÑÖÃÓÔßÔßÓãÃÔÏãÌÍÃãÔÑÖÎÖÃ
-ÎßãÓãÃÔÏãÎßãÔÕÕÖãÔàÖÞÖÜÝÞÕÖãÔßÔá
-ãÎÖãÔàÖÞÖãÃ╔╧╧╧╧╧╧╧╧╧╧╗╔╧╧╧╧╧╧╗ã
-ÃÓ╔╧╧╧╧╧╧╗Ó╣_LINES-___╠╣______╠Ã
+ÌÑÖÓÎÕÖÔÑÖÃÓÔßÔßÓãÃÔÏãÌÍÃãÔÑÖÎÖÃ
+ÜÝÓÓãÃÔÏãÎßãÔÕÕÖãÔàÖÞÖÜÝÞÕÖãÔßÔá
+ÃÎÝãÔàÖÞÖãÃ╔╧╧╧╧╧╧╧╧╧╧╗╔╧╧╧╧╧╧╗ã
+ÓÓ╔╧╧╧╧╧╧╗Ó╣_LINES-___╠╣______╠Ã
 Óã╣_-TYPE╠Ó╚╤╤╤╤╤╤╤╤╤╤╝╣TOP___╠Ó
 ÜÖ╚╤╤╤╤╤╤╝ãghhhhhhhhhhi╣000000╠Ó
 ÔÕÕÖÃÌÍÃÔÕÏj__________k╣______╠ã
@@ -111,7 +110,6 @@ if __name__ == "__main__":
         )
     except Exception as exc:
         print(
-            f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
+            f"Unable to build nametable: {type(exc).__name__}: {exc!s}", file=sys.stderr
         )
         sys.exit(1)
-
