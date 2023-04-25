@@ -10,7 +10,7 @@ import numpy as np
 from PIL import Image, ImageTk
 
 TILE_DISPLAY = 29
-
+EMBIGGENED_MULTIPLIER = 10
 SCROLLBACK = 10
 
 HELP_TEXT = """Arrow Keys:  Move around nametable
@@ -94,6 +94,7 @@ class TileHelper:
         self.scroll = deque(maxlen=SCROLLBACK)
         self.chrmap_images = {}
         self.highlighted_images = {}
+        self.embiggened_images = {}
         self.nametable_data_displayed = []
         self.nametable_data_modified = []
         self.nametable_data_original = []
@@ -121,11 +122,13 @@ class TileHelper:
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
         self.root.grid_columnconfigure(3, weight=1)
+        self.root.grid_columnconfigure(4, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_rowconfigure(1, weight=1)
         self.root.grid_rowconfigure(2, weight=1)
         self.root.grid_rowconfigure(3, weight=1)
         self.chrmap_frame_setup()
+        self.embiggened_frame_setup()
         self.nametable_frame_setup()
         self.chrmap_button_setup()
         self.nametable_button_setup()
@@ -271,7 +274,7 @@ class TileHelper:
             state=tk.DISABLED,
         )
         self.characters_button.grid(
-            column=3,
+            column=4,
             row=2,
             sticky=tk.NSEW,
         )
@@ -306,7 +309,7 @@ class TileHelper:
             state=tk.DISABLED,
         )
         self.save_as_button.grid(
-            column=3,
+            column=4,
             row=3,
             sticky=tk.NSEW,
         )
@@ -318,7 +321,7 @@ class TileHelper:
             command=self.load_chrmap,
         )
         self.chrmap_button.grid(
-            column=2,
+            column=3,
             row=2,
             sticky=tk.NSEW,
         )
@@ -331,7 +334,7 @@ class TileHelper:
             state=tk.DISABLED,
         )
         self.nametable_button.grid(
-            column=2,
+            column=3,
             row=3,
             sticky=tk.NSEW,
         )
@@ -346,6 +349,7 @@ class TileHelper:
         self.help.grid(
             row=0,
             column=0,
+            columnspan=2,
             sticky=tk.NSEW,
         )
         self.help.insert("1.0", HELP_TEXT)
@@ -361,7 +365,7 @@ class TileHelper:
         self.text.grid(
             row=2,
             column=0,
-            columnspan=2,
+            columnspan=3,
             rowspan=2,
             sticky=tk.W + tk.E,
         )
@@ -387,10 +391,22 @@ class TileHelper:
         )
         self.nametable_canvas.bind("<Button 1>", self.nametable_click)
         self.nametable_canvas.grid(
-            column=1,
+            column=2,
             row=0,
             rowspan=2,
             columnspan=3,
+        )
+
+    def embiggened_frame_setup(self):
+        self.embiggened_canvas = tk.Canvas(
+            self.root,
+            width=TILE_DISPLAY * EMBIGGENED_MULTIPLIER,
+            height=TILE_DISPLAY * EMBIGGENED_MULTIPLIER,
+            bg="brown",
+        )
+        self.embiggened_canvas.grid(
+            column=1,
+            row=1,
         )
 
     def load_characters(self):
@@ -445,8 +461,22 @@ class TileHelper:
                 tile = Image.fromarray(
                     array[slice_y : slice_y + 8, slice_x : slice_x + 8]
                 )
-                resized = tile.resize((TILE_DISPLAY, TILE_DISPLAY))
+                resized = tile.resize(
+                    (TILE_DISPLAY, TILE_DISPLAY),
+                    Image.NEAREST,
+                )
                 resized.putpalette(chain.from_iterable(palette))
+
+                embiggened = tile.resize(
+                    (
+                        TILE_DISPLAY * EMBIGGENED_MULTIPLIER,
+                        TILE_DISPLAY * EMBIGGENED_MULTIPLIER,
+                    ),
+                    Image.NEAREST,
+                )
+                embiggened.putpalette(chain.from_iterable(palette))
+                embiggened_image = ImageTk.PhotoImage(embiggened)
+                self.embiggened_images[index] = embiggened_image
 
                 image = ImageTk.PhotoImage(resized)
                 self.chrmap_images[index] = image
@@ -462,6 +492,12 @@ class TileHelper:
         self.nametable_button.configure(state=tk.ACTIVE)
 
     def highlight_chr_tile(self, index: int):
+        self.embiggened_canvas.create_image(
+            0,
+            0,
+            anchor=tk.NW,
+            image=self.embiggened_images[index],
+        )
         self.print(f"old: {self.current_chr_tile} new: {self.current_chr_tile}")
         if index == self.current_chr_tile:
             self.print(f"Old is same as new ({index=} {self.current_chr_tile=})")
