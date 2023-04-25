@@ -116,7 +116,7 @@ class TileHelper:
         self.current_chr_tile = None
         self.root = tk.Tk()
         self.root.bind("<KeyPress>", self.on_key_press)
-        self.root.title("Tkinter Open File Dialog")
+        self.root.title("Tetris Nametable Tile Rearranger")
         self.root.resizable(width=True, height=True)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
