@@ -11,7 +11,7 @@ from PIL import Image, ImageTk
 
 TILE_DISPLAY = 29
 EMBIGGENED_MULTIPLIER = 10
-SCROLLBACK = 10
+SCROLLBACK = 8
 
 HELP_TEXT = """Arrow Keys:  Move around nametable
 WASD: Change tile
