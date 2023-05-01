@@ -13,7 +13,7 @@ Unless modified, it will reproduce the original.
 file = pathlib.Path(__file__)
 output = file.parent / file.name.replace(".py", ".bin")
 
-original_sha1sum = "c7285a27cf683130dc1aeef2e2594daac5b79fd4"
+original_sha1sum = "8d1605cd58884bf2d7b25cf33ca84edc1274bbff"
 
 characters = (
     #0123456789ABCDEF
@@ -46,10 +46,10 @@ wß¾ghhhhhhhhhhhhi¾Ìß¾Î¼zßÞ¾ÞÎÞÞÎ
 ÞwÏìÍ¾Î╔╧╧╧╧╧╧╧╧╗¾Î╔╧╧╧╧╧╧╧╧╗ÌÍÎ
 ÜýÜýÜyÞ╣_A-TYPE_╠ÎÞ╣_B-TYPE_╠¾ÜÍ
 ìÏ¼½¾Î¾╚╤╤╤╤╤╤╤╤╝üí╚╤╤╤╤╤╤╤╤╝þÏ¾
-ÎÜxÍÎÞüíÜ½ÜÝzß¼½¼½ÞìÝß¾Ü½ìÝßÜýÜy
-ÎìÝßüÝßÌßÌÝßÞÜxÍÌyÜÍÜÝxßÎÎ¾ÜzÝßÎ
-ÞÎ¾ghhhhhhhhhhhhiÞ¾Ü½Ü½ÜÍÞÌ½ÞÜíÞ
-¾ÞÎj_MUSIC_TYPE_kÜϒÏÎ¾ÎÜÝ½¾ÎìÏü½
+ÎÜxÍÎÞüíÜ½ÜÝzß¼½¼½ÞìÝß¾Ü½ìÝ½Üý¾Î
+ÎìÝßüÝßÌßÌÝßÞÜxÍÌyÜÍÜÝxßÎÞ¾ÞìÝ^Î
+ÞÎ¾ghhhhhhhhhhhhiÞ¾Ü½Ü½ÜÍ¾Ì½ÞÜíÌ
+¾ÞÎj_MUSIC_TYPE_kÜϒÏÎ¾ÎÜÝî¾ÎìÏü½
 Î¼^lmmmmmmmmmmmmn¾ÞÜÍÎÌß¾ÞÎÞÎÜ½Þ
 ÎÞ¾ÜÝ½ÜzÝßÜÝÝÝßÜßüÝÝßÌÝßÎÜxßÎ¾wß
 ÎÜxÝßÎ¾ÞÜÝ½¾┌━━━━━━━━━━┐ÌÝß¾ÞÎÞ¾

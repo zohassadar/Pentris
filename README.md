@@ -2,17 +2,17 @@
 
 Todo:
 
-modify title & legal screen - DONE!
-modify board to 14x22 (2x 7x22)
-modify rotation logic to use 3 tables
-modify sprite staging to stage based on otable
-change rng to make number 0-17
-add new orientations for 18 pieces
-modify positionchecker, spritestager and squarelocker to accomodate 5
-come up with scoring to accomodate 1 to 5 line clears
-come up with stats alternative
-modify game background according to stats & score
-change tetris background pattern to pentris pattern ??
+* modify title & legal screen - DONE!
+* change tetris background pattern to pentris pattern for all screens except game - DONE
+* modify rotation logic to use 3 tables
+* change rng to make number 0-17
+* add new orientations for 18 pieces
+* modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5
+* modify next box sprite staging to otable based
+* come up with scoring to accomodate 1 to 5 line clears
+* come up with stats alternative
+* test 10,12,14 & 16 width boards
+* modify game background
 
 
 Original readme:
