@@ -1426,12 +1426,14 @@ rotate_tetrimino:
         sta     currentPiece
 @ret:   rts
 
+; ORIENTATION
 rotationTable:
         .byte   $03,$01,$00,$02,$01,$03,$02,$00
         .byte   $07,$05,$04,$06,$05,$07,$06,$04
         .byte   $09,$09,$08,$08,$0A,$0A,$0C,$0C
         .byte   $0B,$0B,$10,$0E,$0D,$0F,$0E,$10
         .byte   $0F,$0D,$12,$12,$11,$11
+
 drop_tetrimino:
         lda     autorepeatY
         bpl     @notBeginningOfGame
@@ -1653,6 +1655,7 @@ stageSpriteForCurrentPiece:
         bne     @stageMino
         rts
 
+; ORIENTATION
 orientationTable:
         .byte    $00,$7B,$FF,$00,$7B,$00,$00,$7B,$01,$FF,$7B,$00 ; T
         .byte    $FF,$7B,$00,$00,$7B,$00,$00,$7B,$01,$01,$7B,$00
@@ -1681,6 +1684,7 @@ orientationTable:
         .byte    $00,$7B,$FE,$00,$7B,$FF,$00,$7B,$00,$00,$7B,$01
 
         .byte    $00,$FF,$00,$00,$FF,$00,$00,$FF,$00,$00,$FF,$00
+
         lda     spriteIndexInOamContentLookup
         asl     a
         asl     a
@@ -1737,10 +1741,12 @@ stageSpriteForNextPiece:
 @ret:   rts
 
 ; Only cares about orientations selected by spawnTable
+; ORIENTATION
 orientationToSpriteTable:
         .byte   $00,$00,$06,$00,$00,$00,$00,$09
         .byte   $08,$00,$0B,$07,$00,$00,$0A,$00
         .byte   $00,$00,$0C
+
 ; Same as orientationToSpriteTable except sprites have different offsets
 unreferenced_orientationToSpriteTable:
         .byte   $00,$00,$0F,$00,$00,$00,$00,$12
@@ -3132,6 +3138,7 @@ L9934:  tax
 useNewSpawnID:
         sta     spawnID
         rts
+; ORIENTATION
 tetriminoTypeFromOrientation:
         .byte   $00,$00,$00,$00 ; T  0,1,2,3
         .byte   $01,$01,$01,$01 ; J  4,5,6,7
@@ -3141,13 +3148,16 @@ tetriminoTypeFromOrientation:
         .byte   $05,$05,$05,$05 ; L  13,14,15,16
         .byte   $06,$06         ; I  17,18
 
+; ORIENTATION
 spawnTable:
         .byte   $02,$07,$08,$0A,$0B,$0E,$12
         .byte   $02
+; ORIENTATION
 spawnOrientationFromOrientation:
         .byte   $02,$02,$02,$02,$07,$07,$07,$07
         .byte   $08,$08,$0A,$0B,$0B,$0E,$0E,$0E
         .byte   $0E,$12,$12
+
 incrementPieceStat:
         tax
         lda     tetriminoTypeFromOrientation,x
