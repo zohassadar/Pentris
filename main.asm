@@ -32,6 +32,9 @@ startHeight     := $0059
 garbageHole     := $005A                        ; Position of hole in received garbage
 
 completedRow    := $0060                        ; Row which has been cleared. 0 if none complete
+currentOrientationY := $0065
+currentOrientationX := $0067
+currentOrientationTile := $0069
 ; player1_tetriminoX:= $0060
 ; player1_tetriminoY:= $0061
 ; player1_currentPiece:= $0062
@@ -140,7 +143,7 @@ currentPpuMask  := $00FE
 currentPpuCtrl  := $00FF
 stack           := $0100
 oamStaging      := $0200                        ; format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM
-statsByType     := $03F0
+statsByType     := $0380
 playfield       := $0400
 playfieldForSecondPlayer:= $0500
 musicStagingSq1Lo:= $0680
@@ -1394,14 +1397,14 @@ rotate_tetrimino:
         sta     originalY
         clc
         lda     currentPiece
-        asl     a
+        ; asl     a
         tax
         lda     newlyPressedButtons
         and     #$80
         cmp     #$80
         bne     @aNotPressed
-        inx
-        lda     rotationTable,x
+        ; inx
+        lda     rotationTableNext,x
         sta     currentPiece
         jsr     isPositionValid
         bne     @restoreOrientationID
@@ -1414,7 +1417,7 @@ rotate_tetrimino:
         and     #$40
         cmp     #$40
         bne     @ret
-        lda     rotationTable,x
+        lda     rotationTablePrevious,x
         sta     currentPiece
         jsr     isPositionValid
         bne     @restoreOrientationID
@@ -1589,6 +1592,7 @@ stageSpriteForCurrentPiece:
         adc     #$2F
         sta     generalCounter4 ; y position of center block
         lda     currentPiece
+        jsr     setOrientationTable
 
         ; sta     generalCounter5  ; This doesn't need to be stored
         ; clc                      ; Carry bit doesn't matter if using ASL
@@ -1600,73 +1604,74 @@ stageSpriteForCurrentPiece:
         ; rol     a
         ; adc     generalCounter   ; This block of code is multiplying the currentPiece by 12
 
-        asl
-        asl                        ; multiply currentPiece by 5 using asl
-        clc
-        adc     currentPiece
+        ; asl
+        ; asl                        ; multiply currentPiece by 5 using asl
+        ; clc
+        ; adc     currentPiece
 
-        tax                        ; x contains index into orientation table
+        ldy    #$00                        ; y contains index into orientation table
 
-        ldy     oamStagingLength
+        ldx     oamStagingLength
         lda     #$05
         sta     generalCounter2 ; iterate through all five minos
 @stageMino:
-        lda     orientationTableY,x ; Y offset
+        lda     (currentOrientationY),y ; Y offset
         asl     a
         asl     a
         asl     a
         clc
         adc     generalCounter4
-        sta     oamStaging,y ; stage y coordinate of mino
+        sta     oamStaging,x ; stage y coordinate of mino
         sta     originalY
         inc     oamStagingLength
-        iny
+        inx
         ; inx                           ; x no longer needs incremented
-        lda     orientationTableTile,x  ; Tile index
-        sta     oamStaging,y ; stage block type of mino
+        lda     (currentOrientationTile),y  ; Tile index
+        sta     oamStaging,x ; stage block type of mino
         inc     oamStagingLength
-        iny
+        inx
         ; inx                           ; x no longer needs incremented
         lda     #$02
-        sta     oamStaging,y ; stage palette/front priority
+        sta     oamStaging,x ; stage palette/front priority
         lda     originalY
         cmp     #$2F ; compares with smallest allowed y position on the screen, not the field
         bcs     @validYCoordinate
         inc     oamStagingLength
-        dey
+        dex
         lda     #$FF
-        sta     oamStaging,y ; make tile invisible
-        iny
-        iny
+        sta     oamStaging,x ; make tile invisible
+        inx
+        inx
         lda     #$00
-        sta     oamStaging,y ; make x coordinate 0 for some reason
+        sta     oamStaging,x ; make x coordinate 0 for some reason
         jmp     @finishLoop
 
 @validYCoordinate:
         inc     oamStagingLength
-        iny
-        lda     orientationTableX,x ; X offset
+        inx
+        lda     (currentOrientationX),y ; X offset
         asl     a
         asl     a
         asl     a
         clc
         adc     generalCounter3
-        sta     oamStaging,y ; stage actual x coordinate
+        sta     oamStaging,x ; stage actual x coordinate
 @finishLoop:
         inc     oamStagingLength
-        iny
-        inx                         ; This moves x to the next tile
+        inx
+        iny                         ; This moves x to the next tile
         dec     generalCounter2
         bne     @stageMino
         rts
 
 ; ORIENTATION
-orientationTable:
-.include "orientation/orientation_table.asm"
+; orientationTable:
+
 
 stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
+
         lda     #$CC
         ldx     nextPiece
         clc
@@ -1675,45 +1680,43 @@ stageSpriteForNextPiece:
         lda     #$78
         sta     generalCounter4
         txa
-        asl     a
-        asl     a
-        clc
-        adc     nextPiece  ; mult by 5
+        lda     nextPiece
+        jsr     setOrientationTable
 
-        tax ; x contains index into orientation table
-        ldy     oamStagingLength
+        ldy     #$00 ; y contains index into orientation table
+        ldx     oamStagingLength
         lda     #$05
         sta     generalCounter2 ; iterate through all five minos
 @stageMino:
-        lda     orientationTableY,x
+        lda     (currentOrientationY),y
         asl     a
         asl     a
         asl     a
         clc
         adc     generalCounter4
-        sta     oamStaging,y ; stage y coordinate of mino
-        iny
+        sta     oamStaging,x ; stage y coordinate of mino
+        inx
 
-        lda     orientationTableTile,x
-        sta     oamStaging,y ; stage block type of mino
-        iny
+        lda     (currentOrientationTile),y
+        sta     oamStaging,x ; stage block type of mino
+        inx
 
         lda     #$02
-        sta     oamStaging,y ; stage palette/front priority
-        iny
-        lda     orientationTableX,x
+        sta     oamStaging,x ; stage palette/front priority
+        inx
+        lda     (currentOrientationX),y
         asl     a
         asl     a
         asl     a
         clc
         adc     generalCounter3
-        sta     oamStaging,y ; stage actual x coordinate
+        sta     oamStaging,x ; stage actual x coordinate
 @finishLoop:
-        iny
         inx
+        iny
         dec     generalCounter2
         bne     @stageMino
-        tya
+        txa
         sta     oamStagingLength
 @ret:   rts
 
@@ -1941,46 +1944,46 @@ sprite0EHighScoreNameCursor:
         .byte   $00,$FC,$21,$00,$FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite0FTPieceOffset:
-        .byte   $02,$7B,$02,$FC
-        .byte   $02,$7B,$02,$04
-        .byte   $02,$7B,$02,$0C
-        .byte   $0A,$7B,$02,$04
-        .byte   $FF
+        ; .byte   $02,$7B,$02,$FC
+        ; .byte   $02,$7B,$02,$04
+        ; .byte   $02,$7B,$02,$0C
+        ; .byte   $0A,$7B,$02,$04
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite10SPieceOffset:
-        .byte   $00,$7D,$02,$06
-        .byte   $00,$7D,$02,$0E
-        .byte   $08,$7D,$02,$FE
-        .byte   $08,$7D,$02,$06
-        .byte   $FF
+        ; .byte   $00,$7D,$02,$06
+        ; .byte   $00,$7D,$02,$0E
+        ; .byte   $08,$7D,$02,$FE
+        ; .byte   $08,$7D,$02,$06
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite11ZPieceOffset:
-        .byte   $00,$7C,$02,$FA
-        .byte   $00,$7C,$02,$02
-        .byte   $08,$7C,$02,$02
-        .byte   $08,$7C,$02,$0A
-        .byte   $FF
+        ; .byte   $00,$7C,$02,$FA
+        ; .byte   $00,$7C,$02,$02
+        ; .byte   $08,$7C,$02,$02
+        ; .byte   $08,$7C,$02,$0A
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite12JPieceOffset:
-        .byte   $08,$7D,$02,$00
-        .byte   $08,$7D,$02,$08
-        .byte   $08,$7D,$02,$10
-        .byte   $10,$7D,$02,$10
-        .byte   $FF
+        ; .byte   $08,$7D,$02,$00
+        ; .byte   $08,$7D,$02,$08
+        ; .byte   $08,$7D,$02,$10
+        ; .byte   $10,$7D,$02,$10
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite13LPieceOffset:
-        .byte   $08,$7C,$02,$F8
-        .byte   $08,$7C,$02,$00
-        .byte   $08,$7C,$02,$08
-        .byte   $10,$7C,$02,$F8
-        .byte   $FF
+        ; .byte   $08,$7C,$02,$F8
+        ; .byte   $08,$7C,$02,$00
+        ; .byte   $08,$7C,$02,$08
+        ; .byte   $10,$7C,$02,$F8
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite14OPieceOffset:
-        .byte   $00,$7B,$02,$00
-        .byte   $00,$7B,$02,$08
-        .byte   $08,$7B,$02,$00
-        .byte   $08,$7B,$02,$08
-        .byte   $FF
+        ; .byte   $00,$7B,$02,$00
+        ; .byte   $00,$7B,$02,$08
+        ; .byte   $08,$7B,$02,$00
+        ; .byte   $08,$7B,$02,$08
+        ; .byte   $FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite15IPieceOffset:
         .byte   $08,$7B,$02,$F8
@@ -2513,27 +2516,28 @@ isPositionValid:
         adc     tetriminoX
         sta     generalCounter
         lda     currentPiece
-        asl     a
-        asl     a
-        clc
-        adc     currentPiece
+        jsr     setOrientationTable
+        ; asl     a
+        ; asl     a
+        ; clc
+        ; adc     currentPiece
         ; sta     generalCounter2
         ; asl     a
         ; clc
         ; adc     generalCounter2     ; Commenting this out changes *12 to *4
-        tax                           ; x contains index into orientation tables
+        ; tax                           ; x contains index into orientation tables
         ldy     #$00
         lda     #$05
         sta     generalCounter3
 ; Checks one square within the tetrimino
 @checkSquare:
-        lda     orientationTableY,x   ; Y offset
+        lda     (currentOrientationY),y   ; Y offset
         clc
         adc     tetriminoY
         adc     #$02
         cmp     #$16
         bcs     @invalid
-        lda     orientationTableY,x   ; Y offset
+        lda     (currentOrientationY),y  ; Y offset
         asl     a
         sta     generalCounter4
         asl     a
@@ -2545,19 +2549,19 @@ isPositionValid:
         sta     selectingLevelOrHeight
         ; inx                           ; This increased twice to skip over tile index
         ; inx                           ; and is no longer necessary
-        lda     orientationTableX,x     ; X offset
+        lda     (currentOrientationX),y     ; X offset
         clc
         adc     selectingLevelOrHeight
-        tay
-        lda     (playfieldAddr),y
+        tax
+        lda     playfield,x
         cmp     #$EF
         bcc     @invalid
-        lda     orientationTableX,x    ; X offset
+        lda     (currentOrientationX),y    ; X offset
         clc
         adc     tetriminoX
         cmp     #$0A
         bcs     @invalid
-        inx                            ; This moves x to the next tile
+        iny                            ; This moves x to the next tile
         dec     generalCounter3
         bne     @checkSquare
         lda     #$00
@@ -2733,7 +2737,7 @@ render_mode_play_and_demo:
         ; cmp     #$02
         ; beq     @renderTetrisFlashAndSound
         lda     outOfDateRenderFlags
-        and     #$40
+        and     #$00   ; disable stats render
         beq     @renderTetrisFlashAndSound
         lda     #$00
         sta     tmpCurrentPiece
@@ -3090,9 +3094,9 @@ pickRandomTetrimino:
         lda     rng_seed
         clc
         adc     spawnCount
-        and     #$07
-        cmp     #$07
-        beq     @invalidIndex
+        and     #$1F
+        cmp     #$12
+        bcs     @invalidIndex
         tax
         lda     spawnTable,x
         cmp     spawnID
@@ -3102,13 +3106,13 @@ pickRandomTetrimino:
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
-        and     #$07
+        and     #$1F
         clc
         adc     spawnID
-L992A:  cmp     #$07
+L992A:  cmp     #$12
         bcc     L9934
         sec
-        sbc     #$07
+        sbc     #$11
         jmp     L992A
 
 L9934:  tax
@@ -3184,24 +3188,26 @@ playState_lockTetrimino:
         adc     generalCounter
         adc     tetriminoX
         sta     generalCounter
-        lda     currentPiece
-        asl     a
-        asl     a
-        clc
-        adc     currentPiece
+        ; lda     currentPiece
+        ; asl     a
+        ; asl     a
+        ; clc
+        ; adc     currentPiece
         ; sta     generalCounter2
         ; asl     a
         ; clc
         ; adc     generalCounter2
         ; adc     generalCounter2     ; Commenting this out changes *12 to *4
+        ; tay                           ; x contains index into orientation tables
+        lda     currentPiece
+        jsr     setOrientationTable
 
-        tax                           ; x contains index into orientation tables
         ldy     #$00
         lda     #$05
         sta     generalCounter3
 ; Copies a single square of the tetrimino to the playfield
 @lockSquare:
-        lda     orientationTableY,x         ; Y offset
+        lda     (currentOrientationY),y         ; Y offset
         asl     a
         sta     generalCounter4
         asl     a
@@ -3212,16 +3218,16 @@ playState_lockTetrimino:
         adc     generalCounter
         sta     selectingLevelOrHeight
         ; inx
-        lda     orientationTableTile,x      ; Tile index
+        lda     (currentOrientationTile),y      ; Tile index
         sta     generalCounter5
         ; inx
-        lda     orientationTableX,x         ; X offset
+        lda     (currentOrientationX),y         ; X offset
         clc
         adc     selectingLevelOrHeight
-        tay
+        tax
         lda     generalCounter5
-        sta     (playfieldAddr),y
-        inx                                  ; this moves x to the next tile
+        sta     playfield,x
+        iny                                  ; this moves x to the next tile
         dec     generalCounter3
         bne     @lockSquare
         lda     #$00
@@ -5854,14 +5860,32 @@ type_b_ending_nametable:
 type_a_ending_nametable:
         .incbin "gfx/nametables/type_a_ending_nametable.bin"
 
+
+setOrientationTable:
+        asl
+        tax
+        lda    orientationTablesY,x
+        sta    currentOrientationY
+        lda    orientationTablesX,x
+        sta    currentOrientationX
+        lda    orientationTablesTile,x
+        sta    currentOrientationTile
+        inx
+        lda    orientationTablesY,x
+        sta    currentOrientationY+1
+        lda    orientationTablesX,x
+        sta    currentOrientationX+1
+        lda    orientationTablesTile,x
+        sta    currentOrientationTile+1
+        rts
+
 ; End of "PRG_chunk1" segment
 .code
 
 
 .segment        "unreferenced_data1": absolute
 
-unreferenced_data1:
-        .incbin "data/unreferenced_data1.bin"
+.include "orientation/orientation_table.asm"
 
 ; End of "unreferenced_data1" segment
 .code
