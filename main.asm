@@ -1660,59 +1660,55 @@ stageSpriteForCurrentPiece:
 orientationTable:
 .include "orientation/orientation_table.asm"
 
-        lda     spriteIndexInOamContentLookup
-        asl     a
-        asl     a
-        sta     generalCounter
-        asl     a
-        clc
-        adc     generalCounter
-        tay
-        ldx     oamStagingLength
-        lda     #$04
-        sta     generalCounter2
-L8B9D:  lda     orientationTable,y
-        clc
-        asl     a
-        asl     a
-        asl     a
-        adc     spriteYOffset
-        sta     oamStaging,x
-        inx
-        iny
-        lda     orientationTable,y
-        sta     oamStaging,x
-        inx
-        iny
-        lda     #$02
-        sta     oamStaging,x
-        inx
-        lda     orientationTable,y
-        clc
-        asl     a
-        asl     a
-        asl     a
-        adc     spriteXOffset
-        sta     oamStaging,x
-        inx
-        iny
-        dec     generalCounter2
-        bne     L8B9D
-        stx     oamStagingLength
-        rts
-
 stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
-        lda     #$C8
-        sta     spriteXOffset
-        lda     #$77
-        sta     spriteYOffset
+        lda     #$BB
         ldx     nextPiece
-        lda     orientationToSpriteTable,x
-        sta     spriteIndexInOamContentLookup
-        jmp     loadSpriteIntoOamStaging
+        clc
+        adc     orientationToNextOffsetTable,x
+        sta     generalCounter3
+        lda     #$78
+        sta     generalCounter4
+        txa
+        asl     a
+        asl     a
 
+        tax ; x contains index into orientation table
+        ldy     oamStagingLength
+        lda     #$04
+        sta     generalCounter2 ; iterate through all four minos
+@stageMino:
+        lda     orientationTableY,x
+        asl     a
+        asl     a
+        asl     a
+        clc
+        adc     generalCounter4
+        sta     oamStaging,y ; stage y coordinate of mino
+        iny
+
+        lda     orientationTableTile,x
+        sta     oamStaging,y ; stage block type of mino
+        iny
+
+        lda     #$02
+        sta     oamStaging,y ; stage palette/front priority
+        iny
+        lda     orientationTableX,x
+        asl     a
+        asl     a
+        asl     a
+        clc
+        adc     generalCounter3
+        sta     oamStaging,y ; stage actual x coordinate
+@finishLoop:
+        iny
+        inx
+        dec     generalCounter2
+        bne     @stageMino
+        tya
+        sta     oamStagingLength
 @ret:   rts
 
 ; Only cares about orientations selected by spawnTable
@@ -1723,10 +1719,15 @@ orientationToSpriteTable:
         .byte   $00,$00,$0C
 
 ; Same as orientationToSpriteTable except sprites have different offsets
-unreferenced_orientationToSpriteTable:
-        .byte   $00,$00,$0F,$00,$00,$00,$00,$12
-        .byte   $11,$00,$14,$10,$00,$00,$13,$00
-        .byte   $00,$00,$15
+orientationToNextOffsetTable:
+        .byte   $11,$11,$11,$11
+        .byte   $11,$11,$11,$11
+        .byte   $11,$11
+        .byte   $16
+        .byte   $11,$11
+        .byte   $11,$11,$11,$11
+        .byte   $15,$15
+        
 unreferenced_data2:
         .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF
         .byte   $00,$01,$02,$03,$04,$05,$06,$07
