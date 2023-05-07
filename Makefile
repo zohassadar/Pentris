@@ -65,9 +65,23 @@ $(tetris_obj): %.o: %.asm $$(dep)
 %.bin: %.py
 		$(pythonExecutable) $?
 
+%.asm: %.py
+		$(pythonExecutable) $?
+
 %.chr: %.png
 		$(nesChrEncode) $< $@
 
+orientation/orientation_table.py: orientation/orientations.py
+		touch orientation/orientation_table.py
 
+orientation/spawn_table.py: orientation/orientations.py
+		touch orientation/spawn_table.py
+	
+orientation/rotation_table.py: orientation/orientations.py
+		touch orientation/rotation_table.py
 
+orientation/spawn_from_orientation.py: orientation/orientations.py
+		touch orientation/spawn_from_orientation.py
 
+orientation/type_from_orientation.py: orientation/orientations.py
+		touch orientation/type_from_orientation.py
