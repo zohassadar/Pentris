@@ -36,6 +36,7 @@ class Orientation(OrientationBase):
     orientation: str
     name: str
     spawn: bool = False
+    next_offset: int = 0
     is_hidden = False
 
     def groups(self):

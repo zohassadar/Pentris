@@ -1663,7 +1663,7 @@ orientationTable:
 stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
-        lda     #$BB
+        lda     #$CC
         ldx     nextPiece
         clc
         adc     orientationToNextOffsetTable,x
@@ -1720,13 +1720,7 @@ orientationToSpriteTable:
 
 ; Same as orientationToSpriteTable except sprites have different offsets
 orientationToNextOffsetTable:
-        .byte   $11,$11,$11,$11
-        .byte   $11,$11,$11,$11
-        .byte   $11,$11
-        .byte   $16
-        .byte   $11,$11
-        .byte   $11,$11,$11,$11
-        .byte   $15,$15
+        .include "orientation/orientation_to_next_offset.asm"
         
 unreferenced_data2:
         .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF

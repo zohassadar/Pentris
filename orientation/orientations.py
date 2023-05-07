@@ -134,6 +134,7 @@ o_solo = Orientation(
      "....."),
     name="O Solo",
     spawn=True,
+    next_offset=5,
 )  # fmt: skip
 
 
@@ -243,6 +244,7 @@ i_vertical = Orientation(
      "....."),
     name="I Horizontal",
     spawn=True,
+    next_offset=4,
 )  # fmt: skip
 
 i = Piece(

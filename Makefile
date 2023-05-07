@@ -85,3 +85,6 @@ orientation/spawn_from_orientation.py: orientation/orientations.py
 
 orientation/type_from_orientation.py: orientation/orientations.py
 		touch orientation/type_from_orientation.py
+
+orientation/orientation_to_next_offset.py: orientation/orientations.py
+		touch orientation/orientation_to_next_offset.py
