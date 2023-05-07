@@ -35,6 +35,7 @@ completedRow    := $0060                        ; Row which has been cleared. 0 
 currentOrientationY := $0065
 currentOrientationX := $0067
 currentOrientationTile := $0069
+statsPatchAddress := $006B
 ; player1_tetriminoX:= $0060
 ; player1_tetriminoY:= $0061
 ; player1_currentPiece:= $0062
@@ -143,7 +144,7 @@ currentPpuMask  := $00FE
 currentPpuCtrl  := $00FF
 stack           := $0100
 oamStaging      := $0200                        ; format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM
-statsByType     := $0380
+statsByType     := $0300
 playfield       := $0400
 playfieldForSecondPlayer:= $0500
 musicStagingSq1Lo:= $0680
@@ -2738,25 +2739,58 @@ render_mode_play_and_demo:
         ; beq     @renderTetrisFlashAndSound
         lda     outOfDateRenderFlags
         and     #$40   ; disable stats render
+        ; and     #$00   ; disable stats render
         beq     @renderTetrisFlashAndSound
-        lda     #$00
-        sta     tmpCurrentPiece
-@renderPieceStat:
-        lda     tmpCurrentPiece
-        asl     a
+        ldx     currentPiece
+        lda     tetriminoTypeFromOrientation,x
+        cmp     #$11
+        beq     @renderLongBarStat
+        asl
         tax
-        lda     pieceToPpuStatAddr,x
+        lda     #$21
         sta     PPUADDR
-        lda     pieceToPpuStatAddr+1,x
+        lda     #$C3
         sta     PPUADDR
         lda     statsByType+1,x
         sta     PPUDATA
         lda     statsByType,x
         jsr     twoDigsToPPU
-        inc     tmpCurrentPiece
-        lda     tmpCurrentPiece
-        cmp     #$07
-        bne     @renderPieceStat
+        lda     statsPatchAddresses,x
+        sta     statsPatchAddress
+        inx
+        lda     statsPatchAddresses,x
+        sta     statsPatchAddress+1
+@renderPieceStat:
+        ldy     #$00
+@nextPpuAddress:
+        lda     (statsPatchAddress),y
+        iny
+        sta     PPUADDR
+        lda     (statsPatchAddress),y
+        iny
+        sta     PPUADDR
+@nextPpuData:
+        lda     (statsPatchAddress),y
+        iny
+        cmp     #$FE
+        beq     @nextPpuAddress
+        cmp     #$FD
+        beq     @endOfPpuPatching
+        sta     PPUDATA
+        jmp     @nextPpuData
+        jmp       @endOfPpuPatching
+@renderLongBarStat:
+        asl
+        tax
+        lda     #$22
+        sta     PPUADDR
+        lda     #$43
+        sta     PPUADDR
+        lda     statsByType+1,x
+        sta     PPUDATA
+        lda     statsByType,x
+        jsr     twoDigsToPPU
+@endOfPpuPatching:
         lda     outOfDateRenderFlags
         and     #$BF
         sta     outOfDateRenderFlags
@@ -2820,25 +2854,7 @@ twoDigsToPPU:
         sta     PPUDATA
         rts
 
-        ldx     #$00
-@nextPpuAddress:
-        lda     game_typeb_nametable_patch,x
-        inx
-        sta     PPUADDR
-        lda     game_typeb_nametable_patch,x
-        inx
-        sta     PPUADDR
-@nextPpuData:
-        lda     game_typeb_nametable_patch,x
-        inx
-        cmp     #$FE
-        beq     @nextPpuAddress
-        cmp     #$FD
-        beq     @endOfPpuPatching
-        sta     PPUDATA
-        jmp     @nextPpuData
 
-@endOfPpuPatching:
 
 statsPatchAddresses:
     .addr statsPatchForF1
@@ -2861,73 +2877,73 @@ statsPatchAddresses:
 
 
 statsPatchForF1:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$00,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$00,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$00,$7D,$7C,$7B,$7D,$FD
 statsPatchForF2:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$01,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$01,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$01,$7D,$7C,$7B,$7D,$FD
 statsPatchForJ:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$02,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$02,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$02,$7D,$7C,$7B,$7D,$FD
 statsPatchForL:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$03,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$03,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$03,$7D,$7C,$7B,$7D,$FD
 statsPatchForX:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$04,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$04,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$04,$7D,$7C,$7B,$7D,$FD
 statsPatchForS:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$05,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$05,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$05,$7D,$7C,$7B,$7D,$FD
 statsPatchForZ:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$06,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$06,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$06,$7D,$7C,$7B,$7D,$FD
 statsPatchForP1:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$07,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$07,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$07,$7D,$7C,$7B,$7D,$FD
 statsPatchForP2:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$08,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$08,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$08,$7D,$7C,$7B,$7D,$FD
 statsPatchForN1:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$09,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$09,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$09,$7D,$7C,$7B,$7D,$FD
 statsPatchForN2:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0A,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0A,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0A,$7D,$7C,$7B,$7D,$FD
 statsPatchForT:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0B,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0B,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0B,$7D,$7C,$7B,$7D,$FD
 statsPatchForU:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0C,$7D,$7C,$7B,$7D,$FD
 statsPatchForV:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0D,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0D,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0D,$7D,$7C,$7B,$7D,$FD
 statsPatchForW:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0E,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0E,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0E,$7D,$7C,$7B,$7D,$FD
 statsPatchForY1:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$0F,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$0F,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$0F,$7D,$7C,$7B,$7D,$FD
 statsPatchForY2:
-        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$10,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$10,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$10,$7D,$7C,$7B,$7D,$FD
 
 
 copyPlayfieldRowToVRAM:
