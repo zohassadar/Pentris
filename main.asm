@@ -1042,15 +1042,15 @@ gameModeState_initGameBackground:
         .addr   game_nametable
         lda     #$20
         sta     PPUADDR
-        lda     #$83
+        lda     #$82
         sta     PPUADDR
         lda     gameType
         bne     @typeB
         lda     #$0A
         sta     PPUDATA
-        lda     #$20
+        lda     #$21
         sta     PPUADDR
-        lda     #$B8
+        lda     #$98
         sta     PPUADDR
         lda     highScoreScoresA
         jsr     twoDigsToPPU
@@ -1062,9 +1062,9 @@ gameModeState_initGameBackground:
 
 @typeB: lda     #$0B
         sta     PPUDATA
-        lda     #$20
+        lda     #$21
         sta     PPUADDR
-        lda     #$B8
+        lda     #$98
         sta     PPUADDR
         lda     highScoreScoresB
         jsr     twoDigsToPPU
@@ -1672,12 +1672,12 @@ stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
 
-        lda     #$CC
+        lda     #$D1
         ldx     nextPiece
         clc
         adc     orientationToNextOffsetTable,x
         sta     generalCounter3
-        lda     #$78
+        lda     #$24
         sta     generalCounter4
         txa
         lda     nextPiece
@@ -2661,7 +2661,7 @@ render_mode_play_and_demo:
         ; beq     @renderLinesTwoPlayers
         lda     #$20
         sta     PPUADDR
-        lda     #$73
+        lda     #$72
         sta     PPUADDR
         lda     lines+1
         sta     PPUDATA
@@ -2721,7 +2721,7 @@ render_mode_play_and_demo:
         beq     @renderStats
         lda     #$21
         sta     PPUADDR
-        lda     #$18
+        lda     #$F8
         sta     PPUADDR
         lda     score+2
         jsr     twoDigsToPPU
@@ -2737,7 +2737,7 @@ render_mode_play_and_demo:
         ; cmp     #$02
         ; beq     @renderTetrisFlashAndSound
         lda     outOfDateRenderFlags
-        and     #$00   ; disable stats render
+        and     #$40   ; disable stats render
         beq     @renderTetrisFlashAndSound
         lda     #$00
         sta     tmpCurrentPiece
@@ -2819,6 +2819,116 @@ twoDigsToPPU:
         and     #$0F
         sta     PPUDATA
         rts
+
+        ldx     #$00
+@nextPpuAddress:
+        lda     game_typeb_nametable_patch,x
+        inx
+        sta     PPUADDR
+        lda     game_typeb_nametable_patch,x
+        inx
+        sta     PPUADDR
+@nextPpuData:
+        lda     game_typeb_nametable_patch,x
+        inx
+        cmp     #$FE
+        beq     @nextPpuAddress
+        cmp     #$FD
+        beq     @endOfPpuPatching
+        sta     PPUDATA
+        jmp     @nextPpuData
+
+@endOfPpuPatching:
+
+statsPatchAddresses:
+    .addr statsPatchForF1
+    .addr statsPatchForF2
+    .addr statsPatchForJ
+    .addr statsPatchForL
+    .addr statsPatchForX
+    .addr statsPatchForS
+    .addr statsPatchForZ
+    .addr statsPatchForP1
+    .addr statsPatchForP2
+    .addr statsPatchForN1
+    .addr statsPatchForN2
+    .addr statsPatchForT
+    .addr statsPatchForU
+    .addr statsPatchForV
+    .addr statsPatchForW
+    .addr statsPatchForY1
+    .addr statsPatchForY2
+
+
+statsPatchForF1:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForF2:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForJ:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForL:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForX:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForS:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForZ:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForP1:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForP2:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForN1:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForN2:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForT:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForU:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForV:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForW:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForY1:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+statsPatchForY2:
+        .byte   $21,$42,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$62,$7C,$7D,$7C,$7B,$7D,$FE
+        .byte   $21,$82,$7C,$7D,$7C,$7B,$7D,$FD
+
 
 copyPlayfieldRowToVRAM:
         ldx     vramRow
