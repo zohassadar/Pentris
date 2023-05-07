@@ -1427,12 +1427,7 @@ rotate_tetrimino:
 
 ; ORIENTATION
 rotationTable:
-        .byte   $03,$01,$00,$02,$01,$03,$02,$00
-        .byte   $07,$05,$04,$06,$05,$07,$06,$04
-        .byte   $09,$09,$08,$08,$0A,$0A,$0C,$0C
-        .byte   $0B,$0B,$10,$0E,$0D,$0F,$0E,$10
-        .byte   $0F,$0D,$12,$12,$11,$11
-
+.include "orientation/rotation_table.asm"
 drop_tetrimino:
         lda     autorepeatY
         bpl     @notBeginningOfGame
@@ -1663,104 +1658,7 @@ stageSpriteForCurrentPiece:
 
 ; ORIENTATION
 orientationTable:
-;         .byte    $00,$7B,$FF,$00,$7B,$00,$00,$7B,$01,$FF,$7B,$00 ; T
-;         .byte    $FF,$7B,$00,$00,$7B,$00,$00,$7B,$01,$01,$7B,$00
-;         .byte    $00,$7B,$FF,$00,$7B,$00,$00,$7B,$01,$01,$7B,$00
-;         .byte    $FF,$7B,$00,$00,$7B,$FF,$00,$7B,$00,$01,$7B,$00
-
-;         .byte    $FF,$7D,$00,$00,$7D,$00,$01,$7D,$FF,$01,$7D,$00 ; J
-;         .byte    $FF,$7D,$FF,$00,$7D,$FF,$00,$7D,$00,$00,$7D,$01
-;         .byte    $FF,$7D,$00,$FF,$7D,$01,$00,$7D,$00,$01,$7D,$00
-;         .byte    $00,$7D,$FF,$00,$7D,$00,$00,$7D,$01,$01,$7D,$01
-
-;         .byte    $00,$7C,$FF,$00,$7C,$00,$01,$7C,$00,$01,$7C,$01 ; Z
-;         .byte    $FF,$7C,$01,$00,$7C,$00,$00,$7C,$01,$01,$7C,$00
-
-;         .byte    $00,$7B,$FF,$00,$7B,$00,$01,$7B,$FF,$01,$7B,$00 ; 0
-
-;         .byte    $00,$7D,$00,$00,$7D,$01,$01,$7D,$FF,$01,$7D,$00 ; S
-;         .byte    $FF,$7D,$00,$00,$7D,$00,$00,$7D,$01,$01,$7D,$01
-
-;         .byte    $FF,$7C,$00,$00,$7C,$00,$01,$7C,$00,$01,$7C,$01 ; L
-;         .byte    $00,$7C,$FF,$00,$7C,$00,$00,$7C,$01,$01,$7C,$FF
-;         .byte    $FF,$7C,$FF,$FF,$7C,$00,$00,$7C,$00,$01,$7C,$00
-;         .byte    $FF,$7C,$01,$00,$7C,$FF,$00,$7C,$00,$00,$7C,$01
-
-;         .byte    $FE,$7B,$00,$FF,$7B,$00,$00,$7B,$00,$01,$7B,$00 ; I
-;         .byte    $00,$7B,$FE,$00,$7B,$FF,$00,$7B,$00,$00,$7B,$01
-
-;         .byte    $00,$FF,$00,$00,$FF,$00,$00,$FF,$00,$00,$FF,$00
-
-orientationTableY:
-        .byte    $00,$00,$00,$FF ; T
-        .byte    $FF,$00,$00,$01
-        .byte    $00,$00,$00,$01
-        .byte    $FF,$00,$00,$01
-        .byte    $FF,$00,$01,$01 ; J
-        .byte    $FF,$00,$00,$00
-        .byte    $FF,$FF,$00,$01
-        .byte    $00,$00,$00,$01
-        .byte    $00,$00,$01,$01 ; Z
-        .byte    $FF,$00,$00,$01
-        .byte    $00,$00,$01,$01 ; O
-        .byte    $00,$00,$01,$01 ; S
-        .byte    $FF,$00,$00,$01
-        .byte    $FF,$00,$01,$01 ; L
-        .byte    $00,$00,$00,$01
-        .byte    $FF,$FF,$00,$01
-        .byte    $FF,$00,$00,$00
-        .byte    $FE,$FF,$00,$01 ; I
-        .byte    $00,$00,$00,$00
-        .byte    $00,$00,$00,$00 ; Blank used during line clears & game over
-
-orientationTableTile:
-        .byte    $7B,$7B,$7B,$7B ; T
-        .byte    $7B,$7B,$7B,$7B
-        .byte    $7B,$7B,$7B,$7B
-        .byte    $7B,$7B,$7B,$7B
-        .byte    $7D,$7D,$7D,$7D ; J
-        .byte    $7D,$7D,$7D,$7D
-        .byte    $7D,$7D,$7D,$7D
-        .byte    $7D,$7D,$7D,$7D
-        .byte    $7C,$7C,$7C,$7C ; Z
-        .byte    $7C,$7C,$7C,$7C
-        .byte    $7B,$7B,$7B,$7B ; O
-        .byte    $7D,$7D,$7D,$7D ; S
-        .byte    $7D,$7D,$7D,$7D 
-        .byte    $7C,$7C,$7C,$7C ; L
-        .byte    $7C,$7C,$7C,$7C
-        .byte    $7C,$7C,$7C,$7C
-        .byte    $7C,$7C,$7C,$7C
-        .byte    $7B,$7B,$7B,$7B ; I 
-        .byte    $7B,$7B,$7B,$7B
-        .byte    $FF,$FF,$FF,$FF ; Blank used during line clears & game over
-
-orientationTableX:
-        .byte    $FF,$00,$01,$00 ; T
-        .byte    $00,$00,$01,$00
-        .byte    $FF,$00,$01,$00
-        .byte    $00,$FF,$00,$00
-        .byte    $00,$00,$FF,$00 ; J
-        .byte    $FF,$FF,$00,$01
-        .byte    $00,$01,$00,$00
-        .byte    $FF,$00,$01,$01
-        .byte    $FF,$00,$00,$01 ; Z
-        .byte    $01,$00,$01,$00
-        .byte    $FF,$00,$FF,$00 ; O
-        .byte    $00,$01,$FF,$00 ; S
-        .byte    $00,$00,$01,$01
-        .byte    $00,$00,$00,$01 ; L
-        .byte    $FF,$00,$01,$FF
-        .byte    $FF,$00,$00,$00
-        .byte    $01,$FF,$00,$01
-        .byte    $00,$00,$00,$00 ; I
-        .byte    $FE,$FF,$00,$01
-        .byte    $00,$00,$00,$00 ; Blank used during line clears & game over
-
-
-
-; This block of code references the orientation table but is not used.
-; Was most likely the original direction for staging the next piece sprite
+.include "orientation/orientation_table.asm"
 
         lda     spriteIndexInOamContentLookup
         asl     a
@@ -3217,24 +3115,15 @@ useNewSpawnID:
         rts
 ; ORIENTATION
 tetriminoTypeFromOrientation:
-        .byte   $00,$00,$00,$00 ; T  0,1,2,3
-        .byte   $01,$01,$01,$01 ; J  4,5,6,7
-        .byte   $02,$02         ; S  8,9
-        .byte   $03             ; O  10
-        .byte   $04,$04         ; Z  11,12
-        .byte   $05,$05,$05,$05 ; L  13,14,15,16
-        .byte   $06,$06         ; I  17,18
+.include "orientation/type_from_orientation.asm"
 
 ; ORIENTATION
 spawnTable:
-        .byte   $02,$07,$08,$0A,$0B,$0E,$12
+.include "orientation/spawn_table.asm"
         .byte   $02
 ; ORIENTATION
 spawnOrientationFromOrientation:
-        .byte   $02,$02,$02,$02,$07,$07,$07,$07
-        .byte   $08,$08,$0A,$0B,$0B,$0E,$0E,$0E
-        .byte   $0E,$12,$12
-
+.include "orientation/spawn_from_orientation.asm"
 incrementPieceStat:
         tax
         lda     tetriminoTypeFromOrientation,x

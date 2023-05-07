@@ -11,5 +11,5 @@ tetris.dbg
 *.sav
 tools/cTools/scan_includes
 
-
+orientation/*.asm
 gfx/nametables/*.bin
