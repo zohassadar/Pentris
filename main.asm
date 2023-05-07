@@ -19,7 +19,7 @@ autorepeatX     := $0046
 startLevel      := $0047
 playState       := $0048
 vramRow         := $0049                        ; Next playfield row to copy. Set to $20 when playfield copy is complete
-completedRow    := $004A                        ; Row which has been cleared. 0 if none complete
+
 autorepeatY     := $004E
 holdDownPoints  := $004F
 lines           := $0050
@@ -30,6 +30,8 @@ lineIndex       := $0057                        ; Iteration count of playState_c
 curtainRow      := $0058
 startHeight     := $0059
 garbageHole     := $005A                        ; Position of hole in received garbage
+
+completedRow    := $0060                        ; Row which has been cleared. 0 if none complete
 ; player1_tetriminoX:= $0060
 ; player1_tetriminoY:= $0061
 ; player1_currentPiece:= $0062
@@ -2873,7 +2875,7 @@ updateLineClearingAnimation:
         bne     @ret
         lda     #$00
         sta     generalCounter3
-@whileCounter3LessThan4:
+@whileCounter3LessThan5:
         ldx     generalCounter3
         lda     completedRow,x
         beq     @nextRow
@@ -2929,8 +2931,8 @@ updateLineClearingAnimation:
 @nextRow:
         inc     generalCounter3
         lda     generalCounter3
-        cmp     #$04
-        bne     @whileCounter3LessThan4
+        cmp     #$05
+        bne     @whileCounter3LessThan5
         inc     rowY
         lda     rowY
         cmp     #$05
@@ -3612,7 +3614,7 @@ L9C94:  dec     generalCounter
 
 pointsTable:
         .word   $0000,$0040,$0100,$0300
-        .word   $1200
+        .word   $1000,$2400
 updatePlayfield:
         ldx     tetriminoY
         dex
