@@ -1126,11 +1126,11 @@ gameModeState_initGameState:
         ldx     #$04
         ldy     #$04
         jsr     memset_page
-        ldx     #$0F
+        ldx     #$24
         lda     #$00
 ; statsByType
 @initStatsByType:
-        sta     $03EF,x
+        sta     $0300,x
         dex
         bne     @initStatsByType
         lda     #$05
@@ -1673,7 +1673,7 @@ stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
 
-        lda     #$D1
+        lda     #$D3
         ldx     nextPiece
         clc
         adc     orientationToNextOffsetTable,x
@@ -2877,73 +2877,73 @@ statsPatchAddresses:
 
 
 statsPatchForF1:
-        .byte   $21,$42,$00,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$00,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$00,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$7B,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$FF,$7B,$FF,$FD
 statsPatchForF2:
-        .byte   $21,$42,$01,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$01,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$01,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+        .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
 statsPatchForJ:
-        .byte   $21,$42,$02,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$02,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$02,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$7D,$7D,$7D,$7D,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
 statsPatchForL:
-        .byte   $21,$42,$03,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$03,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$03,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7B,$7B,$7B,$7B,$FE
+        .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
 statsPatchForX:
-        .byte   $21,$42,$04,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$04,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$04,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
 statsPatchForS:
-        .byte   $21,$42,$05,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$05,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$05,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$7D,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
 statsPatchForZ:
-        .byte   $21,$42,$06,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$06,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$06,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$7B,$FF,$FE
+        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+        .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
 statsPatchForP1:
-        .byte   $21,$42,$07,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$07,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$07,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+        .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
 statsPatchForP2:
-        .byte   $21,$42,$08,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$08,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$08,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$7D,$7D,$FF,$FD
 statsPatchForN1:
-        .byte   $21,$42,$09,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$09,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$09,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$7B,$7B,$7B,$FF,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$7B,$7B,$FF,$FD
 statsPatchForN2:
-        .byte   $21,$42,$0A,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0A,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0A,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$FF,$7C,$7C,$7C,$FE
+        .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
 statsPatchForT:
-        .byte   $21,$42,$0B,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0B,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0B,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$7D,$7D,$7D,$FF,$FE
+        .byte   $21,$62,$FF,$FF,$7D,$FF,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
 statsPatchForU:
-        .byte   $21,$42,$0C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0C,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0C,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+        .byte   $21,$82,$FF,$7B,$FF,$7B,$FF,$FD
 statsPatchForV:
-        .byte   $21,$42,$0D,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0D,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0D,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$7C,$7C,$7C,$FF,$FE
+        .byte   $21,$62,$FF,$7C,$FF,$FF,$FF,$FE
+        .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
 statsPatchForW:
-        .byte   $21,$42,$0E,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0E,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0E,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$7D,$7D,$FF,$FE
+        .byte   $21,$62,$FF,$7D,$7D,$FF,$FF,$FE
+        .byte   $21,$82,$FF,$7D,$FF,$FF,$FF,$FD
 statsPatchForY1:
-        .byte   $21,$42,$0F,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$0F,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$0F,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$7C,$7C,$7C,$7C,$FF,$FE
+        .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
 statsPatchForY2:
-        .byte   $21,$42,$10,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$62,$10,$7D,$7C,$7B,$7D,$FE
-        .byte   $21,$82,$10,$7D,$7C,$7B,$7D,$FD
+        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+        .byte   $21,$62,$FF,$7D,$7D,$7D,$7D,$FE
+        .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
 
 
 copyPlayfieldRowToVRAM:

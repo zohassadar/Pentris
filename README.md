@@ -8,11 +8,13 @@ Todo:
 * change rng to make number 0-17 - DONE??
 * add new orientations for 18 pieces - DONE!
 * modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5 - DONE
-* modify next box sprite staging to otable based - not quite done
+* modify next box sprite staging to otable based - DONE!
 * come up with scoring to accomodate 1 to 5 line clears -DONE??
-* come up with stats alternative
-* test 10,12,14 & 16 width boards
-* modify game background
+* come up with stats alternative - DONE!
+* widen to 12
+* modify game background - halfway Done
+* fine tune next piece placement with offsets
+* add y offset for 3 high pieces
 
 
 Original readme:
