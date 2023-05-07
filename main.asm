@@ -1599,13 +1599,15 @@ stageSpriteForCurrentPiece:
         ; adc     generalCounter   ; This block of code is multiplying the currentPiece by 12
 
         asl
-        asl                        ; multiply currentPiece by 4 using asl
+        asl                        ; multiply currentPiece by 5 using asl
+        clc
+        adc     currentPiece
 
         tax                        ; x contains index into orientation table
 
         ldy     oamStagingLength
-        lda     #$04
-        sta     generalCounter2 ; iterate through all four minos
+        lda     #$05
+        sta     generalCounter2 ; iterate through all five minos
 @stageMino:
         lda     orientationTableY,x ; Y offset
         asl     a
@@ -1673,11 +1675,13 @@ stageSpriteForNextPiece:
         txa
         asl     a
         asl     a
+        clc
+        adc     nextPiece  ; mult by 5
 
         tax ; x contains index into orientation table
         ldy     oamStagingLength
-        lda     #$04
-        sta     generalCounter2 ; iterate through all four minos
+        lda     #$05
+        sta     generalCounter2 ; iterate through all five minos
 @stageMino:
         lda     orientationTableY,x
         asl     a
@@ -2509,13 +2513,15 @@ isPositionValid:
         lda     currentPiece
         asl     a
         asl     a
+        clc
+        adc     currentPiece
         ; sta     generalCounter2
         ; asl     a
         ; clc
         ; adc     generalCounter2     ; Commenting this out changes *12 to *4
         tax                           ; x contains index into orientation tables
         ldy     #$00
-        lda     #$04
+        lda     #$05
         sta     generalCounter3
 ; Checks one square within the tetrimino
 @checkSquare:
@@ -3179,6 +3185,8 @@ playState_lockTetrimino:
         lda     currentPiece
         asl     a
         asl     a
+        clc
+        adc     currentPiece
         ; sta     generalCounter2
         ; asl     a
         ; clc
@@ -3187,7 +3195,7 @@ playState_lockTetrimino:
 
         tax                           ; x contains index into orientation tables
         ldy     #$00
-        lda     #$04
+        lda     #$05
         sta     generalCounter3
 ; Copies a single square of the tetrimino to the playfield
 @lockSquare:
@@ -3343,7 +3351,7 @@ playState_checkForCompletedRows:
 @incrementLineIndex:
         inc     lineIndex
         lda     lineIndex
-        cmp     #$04
+        cmp     #$05
         bmi     @ret
         ldy     completedLines
         lda     garbageLines,y

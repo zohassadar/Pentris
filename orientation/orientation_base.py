@@ -77,9 +77,9 @@ def validate_table(table: OrientationTable):
         if piece.hidden:
             continue
         orientations_length = len(piece.orientations)
-        if orientations_length > 4:
+        if orientations_length > 5:
             raise InvalidPiece(
-                f"Piece cannot have more than 4 orientations.  {piece.name} has {orientations_length}"
+                f"Piece cannot have more than 5 orientations.  {piece.name} has {orientations_length}"
             )
 
         spawn_lengths = len([o for o in piece.orientations if o.spawn])
@@ -106,7 +106,7 @@ def validate_table(table: OrientationTable):
                 )
 
             squares_chars_len = len([c for c in orientation.orientation if c == "X"])
-            if squares_chars_len != 4:
+            if squares_chars_len != 5:
                 raise InvalidPiece(
-                    f"Orientation must contain 4 squares.  {orientation.name} has {squares_chars_len}"
+                    f"Orientation must contain 5 squares.  {orientation.name} has {squares_chars_len}"
                 )

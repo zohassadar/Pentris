@@ -4,7 +4,7 @@ t_up = Orientation(
     ("....."
      "..X.."
      ".XXX."
-     "....."
+     "...X."
      "....."),
     name="T Up",
 )  # fmt: skip
@@ -13,14 +13,14 @@ t_right = Orientation(
     ("....."
      "..X.."
      "..XX."
-     "..X.."
+     ".XX.."
      "....."),
     name="T Right",
 )  # fmt: skip
 
 t_down = Orientation(
     ("....."
-     "....."
+     ".X..."
      ".XXX."
      "..X.."
      "....."),
@@ -30,7 +30,7 @@ t_down = Orientation(
 
 t_left = Orientation(
     ("....."
-     "..X.."
+     "..XX."
      ".XX.."
      "..X.."
      "....."),
@@ -51,7 +51,7 @@ t = Piece(
 
 j_left = Orientation(
     ("....."
-     "..X.."
+     ".XX.."
      "..X.."
      ".XX.."
      "....."),
@@ -60,7 +60,7 @@ j_left = Orientation(
 
 j_up = Orientation(
     ("....."
-     ".X..."
+     ".X.X."
      ".XXX."
      "....."
      "....."),
@@ -71,7 +71,7 @@ j_right = Orientation(
     ("....."
      "..XX."
      "..X.."
-     "..X.."
+     "..XX."
      "....."),
     name="J Right",
 )  # fmt: skip
@@ -80,7 +80,7 @@ j_down = Orientation(
     ("....."
      "....."
      ".XXX."
-     "...X."
+     ".X.X."
      "....."),
     name="J Down",
     spawn=True,
@@ -100,7 +100,7 @@ j = Piece(
 
 z_horizontal = Orientation(
     ("....."
-     "....."
+     ".X..."
      ".XX.."
      "..XX."
      "....."),
@@ -112,7 +112,7 @@ z_vertical = Orientation(
     ("....."
      "...X."
      "..XX."
-     "..X.."
+     ".XX.."
      "....."),
     name="Z Vertical",
 )  # fmt: skip
@@ -128,7 +128,7 @@ z = Piece(
 
 o_solo = Orientation(
     ("....."
-     "....."
+     "..X.."
      ".XX.."
      ".XX.."
      "....."),
@@ -149,7 +149,7 @@ o = Piece(
 
 s_horizontal = Orientation(
     ("....."
-     "....."
+     ".X..."
      "..XX."
      ".XX.."
      "....."),
@@ -161,7 +161,7 @@ s_vertical = Orientation(
     ("....."
      "..X.."
      "..XX."
-     "...X."
+     "X..X."
      "....."),
     name="S Vertical",
 )  # fmt: skip
@@ -177,7 +177,7 @@ s = Piece(
 
 
 l_right = Orientation(
-    ("....."
+    ("..X.."
      "..X.."
      "..X.."
      "..XX."
@@ -189,7 +189,7 @@ l_right = Orientation(
 l_down = Orientation(
     ("....."
      "....."
-     ".XXX."
+     ".XXXX"
      ".X..."
      "....."),
     name="L Down",
@@ -201,14 +201,14 @@ l_left = Orientation(
      ".XX.."
      "..X.."
      "..X.."
-     "....."),
+     "..X.."),
     name="L Left",
 )  # fmt: skip
 
 l_up = Orientation(
     ("....."
      "...X."
-     ".XXX."
+     "XXXX."
      "....."
      "....."),
     name="L Up",
@@ -232,14 +232,14 @@ i_horizontal = Orientation(
      "..X.."
      "..X.."
      "..X.."
-     "....."),
+     "..X.."),
     name="I Vertical",
 )  # fmt: skip
 
 i_vertical = Orientation(
     ("....."
      "....."
-     "XXXX."
+     "XXXXX"
      "....."
      "....."),
     name="I Horizontal",
@@ -257,7 +257,7 @@ i = Piece(
 )
 
 
-hidden_orientation = HiddenOrientation(4)
+hidden_orientation = HiddenOrientation(5)
 
 
 hidden = Piece(
