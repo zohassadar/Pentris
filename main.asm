@@ -3242,7 +3242,7 @@ playState_updateGameOverCurtain:
         tay
         lda     #$00
         sta     generalCounter3
-        lda     #$13
+.include "orientation/hidden_piece_id.asm"
         sta     currentPiece
 @drawCurtainRow:
         lda     #$4F
@@ -3340,7 +3340,7 @@ playState_checkForCompletedRows:
         iny
         cpy     #$0A
         bne     @clearRowTopRow
-        lda     #$13
+.include "orientation/hidden_piece_id.asm"
         sta     currentPiece
         jmp     @incrementLineIndex
 
@@ -3858,7 +3858,7 @@ gameModeState_vblankThenRunState2:
         rts
 
 playState_unassignOrientationId:
-        lda     #$13
+.include "orientation/hidden_piece_id.asm"
         sta     currentPiece
         rts
 

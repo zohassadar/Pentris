@@ -88,3 +88,6 @@ orientation/type_from_orientation.py: orientation/orientations.py
 
 orientation/orientation_to_next_offset.py: orientation/orientations.py
 		touch orientation/orientation_to_next_offset.py
+
+orientation/hidden_piece_id.py: orientation/orientations.py
+		touch orientation/hidden_piece_id.py
