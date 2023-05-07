@@ -4,12 +4,12 @@ Todo:
 
 * modify title & legal screen - DONE!
 * change tetris background pattern to pentris pattern for all screens except game - DONE
-* modify rotation logic to use 3 tables
-* change rng to make number 0-17
-* add new orientations for 18 pieces
-* modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5
-* modify next box sprite staging to otable based
-* come up with scoring to accomodate 1 to 5 line clears
+* modify rotation logic to use 3 tables - DONE
+* change rng to make number 0-17 - DONE??
+* add new orientations for 18 pieces - DONE!
+* modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5 - DONE
+* modify next box sprite staging to otable based - not quite done
+* come up with scoring to accomodate 1 to 5 line clears -DONE??
 * come up with stats alternative
 * test 10,12,14 & 16 width boards
 * modify game background
