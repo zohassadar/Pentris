@@ -16,6 +16,7 @@ Todo:
 * fine tune next piece placement with offsets
 * add y offset for 3 high pieces
 * flash & play tetris sound at 5 lines
+* figure out why a line clear causes "colors"
 
 
 Original readme:
