@@ -11,7 +11,7 @@ Todo:
 * modify next box sprite staging to otable based - DONE!
 * come up with scoring to accomodate 1 to 5 line clears -DONE??
 * come up with stats alternative - DONE!
-* widen to 12
+* widen to 12 - DONE!
 * modify game background - halfway Done
 * fine tune next piece placement with offsets
 * add y offset for 3 high pieces
