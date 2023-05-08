@@ -3,16 +3,16 @@
 Todo:
 
 * modify title & legal screen - DONE!
-* change tetris background pattern to pentris pattern for all screens except game - DONE
-* modify rotation logic to use 3 tables - DONE
-* change rng to make number 0-17 - DONE??
+* change tetris background pattern to pentris pattern for all screens except game - DONE!
+* modify rotation logic to use 3 tables - DONE!
+* change rng to make number 0-17 - DONE!
 * add new orientations for 18 pieces - DONE!
-* modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5 - DONE
+* modify isPositionValid, lockTetrimino and stageSpriteForCurrentPiece to accomodate 5 - DONE!
 * modify next box sprite staging to otable based - DONE!
-* come up with scoring to accomodate 1 to 5 line clears -DONE??
+* come up with scoring to accomodate 1 to 5 line clears -DONE!
 * come up with stats alternative - DONE!
 * widen to 12 - DONE!
-* modify game background - halfway Done
+* modify game background - DONE!
 * fine tune next piece placement with offsets - DONE!
 * add y offset for 3 high pieces - DONE!
 * flash & play tetris sound at 5 lines - DONE!
