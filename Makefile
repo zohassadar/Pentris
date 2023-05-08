@@ -32,7 +32,7 @@ tetris:= tetris.nes
 .SECONDEXPANSION:
 .PRECIOUS:
 .SECONDARY:
-.PHONY: clean compare tools
+.PHONY: clean compare tools debug
 
 
 CAFLAGS = -g
@@ -47,6 +47,11 @@ clean:
 
 tools:
 	$(MAKE) -C tools/cTools/
+
+debug: CAFLAGS = -g -D DEBUG
+debug: tetris.nes
+	@echo DEBUG flag is enabled!
+
 
 # Build tools when building the rom.
 # This has to happen before the rules are processed, since that's when scan_includes is run.

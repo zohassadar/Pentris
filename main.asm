@@ -37,6 +37,7 @@ currentOrientationX := $0067
 currentOrientationTile := $0069
 statsPatchAddress := $006B
 topRowValidityCheck:= $006D
+statsPiecesTotal:=$006E
 ; player1_tetriminoX:= $0060
 ; player1_tetriminoY:= $0061
 ; player1_currentPiece:= $0062
@@ -283,6 +284,23 @@ nmi:    pha
         lda     #$01
         sta     verticalBlankingInterval
         jsr     pollControllerButtons
+.ifdef DEBUG
+        lda     newlyPressedButtons_player1
+        cmp     #$08
+        bne     @ret
+        ldy     nextPiece
+        lda     tetriminoTypeFromOrientation,y
+        clc
+        adc     #$01
+        cmp     #$12
+        bne     @noReset
+        lda     #$00
+@noReset:
+        tay
+        lda     spawnTable,y
+        sta     nextPiece
+@ret:
+.endif
         pla
         tay
         pla
@@ -1140,7 +1158,7 @@ gameModeState_initGameState:
         lda     #$00
         sta     tetriminoY
         ; sta     player2_tetriminoY
-        lda     #$13    ; starting on row 19 compensates for glitchy behavior 
+        lda     #$0A    ; starting on row 19 compensates for glitchy behavior 
                         ; I *think* because the first time around is the only
                         ; time the full board is loaded (the rest only 4 at a time)
                         ; 40 new tiles worth of time was added to the process
@@ -1159,8 +1177,34 @@ gameModeState_initGameState:
         ; sta     player2_score
         ; sta     player2_score+1
         ; sta     player2_score+2
+.ifdef DEBUG
+        ; make testing level transition a little easier
+        lda     #$7C
+
+        ldy     #$ef
+@plantBlocks:
+        sta     playfield,y
+        dey
+        cpy     #$b3
+        bne     @plantBlocks
+        lda     #$EF
+        sta     $04ea
+        sta     $04de
+        sta     $04d2
+        sta     $04c6
+        sta     $04ba
+        ; sta     $04B9
+        ; sta     $04B8
+        ; sta     $04AF
+        ; sta     $04A5
+        lda     #$09
+        sta     lines
+        lda     #$00   ; Uncomment if the above is uncommented
+        sta     lines+1
+.else
         sta     lines
         sta     lines+1
+.endif
         ; sta     player2_lines
         ; sta     player2_lines+1
         sta     twoPlayerPieceDelayCounter
@@ -1182,6 +1226,9 @@ gameModeState_initGameState:
         sta     autorepeatY
         ; sta     player2_autorepeatY
         jsr     chooseNextTetrimino
+.ifdef DEBUG
+        lda     #$3e
+.endif
         sta     currentPiece
         ; sta     player2_currentPiece
         jsr     incrementPieceStat
@@ -1395,9 +1442,11 @@ gameModeState_updateCountersAndNonPlayerState:
         lda     newlyPressedButtons_player1
         and     #$20
         beq     @ret
+.ifndef DEBUG
         lda     displayNextPiece
         eor     #$01
         sta     displayNextPiece
+.endif
 @ret:   inc     gameModeState
         rts
 
@@ -1437,7 +1486,10 @@ rotate_tetrimino:
 @restoreOrientationID:
         lda     originalY
         sta     currentPiece
-@ret:   rts
+@ret:   
+
+
+        rts
 
 ; ORIENTATION
 rotationTable:
@@ -1486,7 +1538,15 @@ drop_tetrimino:
         sta     fallTimer
         lda     tetriminoY
         sta     originalY
+.ifdef DEBUG
+        lda     heldButtons_player1
+        and     #$20
+        beq     @dontLower
+.endif
         inc     tetriminoY
+.ifdef DEBUG
+@dontLower:
+.endif
         jsr     isPositionValid
         beq     @ret
         lda     originalY
@@ -2771,7 +2831,9 @@ render_mode_play_and_demo:
         lda     outOfDateRenderFlags
         and     #$40   ; disable stats render
         ; and     #$00   ; disable stats render
-        beq     @renderTetrisFlashAndSound
+        bne     @continue
+        jmp      @renderTetrisFlashAndSound
+@continue:
         ldx     currentPiece
         lda     tetriminoTypeFromOrientation,x
         cmp     #$11
@@ -2822,6 +2884,14 @@ render_mode_play_and_demo:
         lda     statsByType,x
         jsr     twoDigsToPPU
 @endOfPpuPatching:
+        lda     #$22
+        sta     PPUADDR
+        lda     #$C3
+        sta     PPUADDR
+        lda     statsPiecesTotal+1
+        sta     PPUDATA
+        lda     statsPiecesTotal
+        jsr     twoDigsToPPU
         lda     outOfDateRenderFlags
         and     #$BF
         sta     outOfDateRenderFlags
@@ -2832,7 +2902,7 @@ render_mode_play_and_demo:
         sta     PPUADDR
         ldx     #$00
         lda     completedLines
-        cmp     #$04
+        cmp     #$05
         bne     @setPaletteColor
         lda     frameCounter
         and     #$03
@@ -3315,6 +3385,30 @@ incrementPieceStat:
         sta     statsByType+1,x
 L9996:  lda     generalCounter
         sta     statsByType,x
+
+        lda     statsPiecesTotal
+        clc
+        adc     #$01
+        sta     generalCounter
+        and     #$0F
+        cmp     #$0A
+        bmi     L9996A
+        lda     generalCounter
+        clc
+        adc     #$06
+        sta     generalCounter
+        cmp     #$A0
+        bcc     L9996A
+        clc
+        adc     #$60
+        sta     generalCounter
+        lda     statsPiecesTotal+1,x
+        clc
+        adc     #$01
+        sta     statsPiecesTotal+1,x
+L9996A: lda     generalCounter
+        sta     statsPiecesTotal
+
         lda     outOfDateRenderFlags
         ora     #$40
         sta     outOfDateRenderFlags
@@ -3533,7 +3627,7 @@ playState_checkForCompletedRows:
         sta     vramRow
         sta     rowY
         lda     completedLines
-        cmp     #$04
+        cmp     #$05
         bne     @skipTetrisSoundEffect
         lda     #$04
         sta     soundEffectSlot1Init
