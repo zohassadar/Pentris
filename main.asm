@@ -2894,11 +2894,24 @@ pickRandomTetrimino:
 
 @realStart:
         inc     spawnCount
+        lda     rng_seed
+        clc
+        adc     spawnCount
+        tax
+        ldy     pieceDistributionTable,x
+        lda     spawnTable,y
+        cmp     spawnID
+        bne     useNewSpawnID
+        ldx     #$17
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
         ldx     rng_seed
         ldy     pieceDistributionTable,x
         lda     spawnTable,y
+useNewSpawnID:
         sta     spawnID
         rts
+
 ;         clc
 ;         adc     spawnCount
 ;         and     #$1F
