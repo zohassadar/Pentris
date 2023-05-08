@@ -421,7 +421,6 @@ gameModeState_updatePlayer1:
         rts
 
 gameModeState_updatePlayer2:
-        jsr     stageSpriteForCurrentPiece ; Not sure why I left this here
 @ret:   inc     gameModeState
         rts
 
