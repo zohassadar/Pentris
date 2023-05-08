@@ -2867,17 +2867,23 @@ playState_spawnNextTetrimino:
 @ret:   rts
 
 chooseNextTetrimino:
+; This does nothing except take up space.
+; The demo data won't work for 18 minos, so 
+; random numbers were generated that don't need shifted & anded
+; This has been moved to keep the demo script working for now
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        and     #$07
+; End nothing
+
         lda     gameMode
         cmp     #$05
         bne     pickRandomTetrimino
         ldx     demoIndex
         inc     demoIndex
         lda     demoTetriminoTypeTable,x
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        and     #$07
         tax
         lda     spawnTable,x
         rts
