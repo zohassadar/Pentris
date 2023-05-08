@@ -11,21 +11,35 @@ if len(sys.argv) > 1:
 validate_table(table)
 
 
-output_rows = []
+next_x_offsets = []
+next_y_offsets = []
+next_spawn_offsets = []
 for piece in table.pieces:
     if piece.hidden:
         continue
-    output_row = []
+    next_x_offset = []
+    next_y_offset = []
+    next_spawn_offset = []
     for orientation in piece.orientations:
-        output_row.append(orientation.next_offset)
-    output_rows.append(output_row)
+        next_x_offset.append(orientation.next_offset_x)
+        next_y_offset.append(orientation.next_offset_y)
+        next_spawn_offset.append(orientation.spawn_offset_y)
+    next_x_offsets.append(next_x_offset)
+    next_y_offsets.append(next_y_offset)
+    next_spawn_offsets.append(next_spawn_offset)
 
 
 try:
     file = open(output, "w+") if output else sys.stdout
-    for output_row in output_rows:
-        print(output_bytes(output_row), file=file)
+    for next_x_offset in next_x_offsets:
+        print(output_bytes(next_x_offset), file=file)
     print("", file=file)
+    print(f"nextOffsetY:", file=file)
+    for next_y_offset in next_y_offsets:
+        print(output_bytes(next_y_offset), file=file)
+    print(f"spawnOffsets:", file=file)
+    for next_spawn_offset in next_spawn_offsets:
+        print(output_bytes(next_spawn_offset), file=file)
 finally:
     if output:
         file.close()

@@ -17,6 +17,8 @@ f1_right = Orientation(
      "....."),
     name="F1Right",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 f1_down = Orientation(
@@ -84,6 +86,8 @@ f2_left = Orientation(
      "....."),
     name="F2Left",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 f2 = Piece(
@@ -134,6 +138,7 @@ j_down = Orientation(
      "....."),
     name="JDown",
     spawn=True,
+    next_offset_x=4,
 )  # fmt: skip
 
 j = Piece(
@@ -166,6 +171,7 @@ l_down = Orientation(
      "....."),
     name="LDown",
     spawn=True,
+    next_offset_x=252,
 )  # fmt: skip
 
 l_left = Orientation(
@@ -206,7 +212,8 @@ x_solo = Orientation(
      "....."),
     name="XSolo",
     spawn=True,
-    next_offset=5,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 
@@ -236,6 +243,8 @@ s_vertical = Orientation(
      "....."),
     name="SVertical",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 s = Piece(
@@ -265,6 +274,8 @@ z_vertical = Orientation(
      "....."),
     name="ZVertical",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 z = Piece(
@@ -409,6 +420,7 @@ n1_left = Orientation(
      "....."),
     name="N1Left",
     spawn=True,
+    next_offset_x=4,
 )  # fmt: skip
 
 n1 = Piece(
@@ -439,6 +451,7 @@ n2_right = Orientation(
      "....."),
     name="N2Right",
     spawn=True,
+    next_offset_x=252,
 )  # fmt: skip
 
 n2_down = Orientation(
@@ -497,6 +510,7 @@ t_down = Orientation(
      "..X.."),
     name="TDown",
     spawn=True,
+    next_offset_y=252,
 )  # fmt: skip
 
 t_left = Orientation(
@@ -594,6 +608,8 @@ v_down = Orientation(
      "....."),
     name="VDown",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 v_left = Orientation(
@@ -643,6 +659,8 @@ w_down = Orientation(
      "....."),
     name="WDown",
     spawn=True,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 w_left = Orientation(
@@ -702,6 +720,7 @@ y1_down = Orientation(
      "....."),
     name="Y1Down",
     spawn=True,
+    next_offset_x=4,
 )  # fmt: skip
 
 y1 = Piece(
@@ -734,6 +753,7 @@ y2_down = Orientation(
      "....."),
     name="Y2Down",
     spawn=True,
+    next_offset_x=252,
 )  # fmt: skip
 
 y2_left = Orientation(
@@ -783,7 +803,7 @@ i_vertical = Orientation(
      "....."),
     name="IHorizontal",
     spawn=True,
-    next_offset=4,
+    next_offset_x=0,
 )  # fmt: skip
 
 i = Piece(

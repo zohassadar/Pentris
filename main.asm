@@ -1156,7 +1156,9 @@ gameModeState_initGameState:
         sta     tetriminoX
         ; sta     player2_tetriminoX
         lda     #$00
-        sta     tetriminoY
+        sta    statsPiecesTotal
+        sta    statsPiecesTotal+1
+
         ; sta     player2_tetriminoY
         lda     #$0A    ; starting on row 19 compensates for glitchy behavior 
                         ; I *think* because the first time around is the only
@@ -1230,7 +1232,11 @@ gameModeState_initGameState:
         lda     #$3e
 .endif
         sta     currentPiece
-        ; sta     player2_currentPiece
+        ldx     currentPiece
+        lda     #$00
+        clc
+        adc     spawnOffsets,x
+        sta     tetriminoY
         jsr     incrementPieceStat
         ldx     #$17
         ldy     #$02
@@ -1741,12 +1747,14 @@ stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
 
-        lda     #$D3
+        lda     #$D4
         ldx     nextPiece
         clc
         adc     orientationToNextOffsetTable,x
         sta     generalCounter3
-        lda     #$24
+        lda     #$22
+        clc
+        adc     nextOffsetY,x
         sta     generalCounter4
         txa
         lda     nextPiece
@@ -3272,6 +3280,9 @@ playState_spawnNextTetrimino:
         lda     #$00
         sta     twoPlayerPieceDelayCounter
         sta     fallTimer
+        ldx     nextPiece
+        clc
+        adc     spawnOffsets,x
         sta     tetriminoY
         lda     #$01
         sta     playState
@@ -3877,7 +3888,7 @@ L9C94:  dec     generalCounter
 
 pointsTable:
         .word   $0000,$0040,$0100,$0300
-        .word   $1000,$2400
+        .word   $1200,$2400
 updatePlayfield:
         ldx     tetriminoY
         dex
