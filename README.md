@@ -13,10 +13,10 @@ Todo:
 * come up with stats alternative - DONE!
 * widen to 12 - DONE!
 * modify game background - halfway Done
-* fine tune next piece placement with offsets
-* add y offset for 3 high pieces
-* flash & play tetris sound at 5 lines
-* figure out why a line clear causes "colors"
+* fine tune next piece placement with offsets - DONE!
+* add y offset for 3 high pieces - DONE!
+* flash & play tetris sound at 5 lines - DONE!
+* figure out why a line clear causes "colors" - DONE!
 
 
 Original readme:
