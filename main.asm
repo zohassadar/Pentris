@@ -2894,35 +2894,39 @@ pickRandomTetrimino:
 
 @realStart:
         inc     spawnCount
-        lda     rng_seed
-        clc
-        adc     spawnCount
-        and     #$1F
-        cmp     #$12
-        bcs     @invalidIndex
-        tax
-        lda     spawnTable,x
-        cmp     spawnID
-        bne     useNewSpawnID
-@invalidIndex:
-        ldx     #$17
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        lda     rng_seed
-        and     #$1F
-        clc
-        adc     spawnID
-L992A:  cmp     #$12
-        bcc     L9934
-        sec
-        sbc     #$11
-        jmp     L992A
-
-L9934:  tax
-        lda     spawnTable,x
-useNewSpawnID:
+        ldx     rng_seed
+        ldy     pieceDistributionTable,x
+        lda     spawnTable,y
         sta     spawnID
         rts
+;         clc
+;         adc     spawnCount
+;         and     #$1F
+;         cmp     #$12
+;         bcs     @invalidIndex
+;         tax
+;         lda     spawnTable,x
+;         cmp     spawnID
+;         bne     useNewSpawnID
+; @invalidIndex:
+;         ldx     #$17
+;         ldy     #$02
+;         jsr     generateNextPseudorandomNumber
+;         lda     rng_seed
+;         and     #$1F
+;         clc
+;         adc     spawnID
+; L992A:  cmp     #$12
+;         bcc     L9934
+;         sec
+;         sbc     #$11
+;         jmp     L992A
+
+; L9934:  tax
+;         lda     spawnTable,x
+; useNewSpawnID:
+;         sta     spawnID
+;         rts
 ; ORIENTATION
 tetriminoTypeFromOrientation:
 .include "orientation/type_from_orientation.asm"
@@ -5630,6 +5634,40 @@ setOrientationTable:
 .segment        "unreferenced_data1": absolute
 
 .include "orientation/orientation_table.asm"
+
+pieceDistributionTable:
+    .byte  $0f,$06,$02,$07,$07,$11,$01,$08
+    .byte  $0f,$08,$08,$11,$05,$0a,$07,$07
+    .byte  $0f,$08,$07,$0a,$11,$09,$07,$11
+    .byte  $0a,$08,$0c,$11,$04,$10,$07,$0c
+    .byte  $0c,$0c,$11,$02,$08,$07,$09,$05
+    .byte  $0e,$00,$10,$06,$11,$07,$0e,$0e
+    .byte  $09,$0b,$0f,$07,$11,$06,$11,$10
+    .byte  $0c,$00,$0c,$02,$04,$09,$08,$0a
+    .byte  $0d,$07,$0f,$03,$0c,$10,$07,$10
+    .byte  $07,$0a,$00,$02,$0e,$02,$0f,$05
+    .byte  $0a,$0a,$03,$0b,$00,$11,$11,$0a
+    .byte  $0f,$0f,$0a,$06,$10,$11,$0c,$11
+    .byte  $03,$0f,$07,$06,$10,$02,$09,$03
+    .byte  $0c,$10,$0d,$01,$0a,$0c,$07,$11
+    .byte  $07,$0c,$0a,$03,$07,$0b,$07,$03
+    .byte  $03,$0b,$07,$06,$08,$05,$08,$0f
+    .byte  $03,$09,$0d,$06,$02,$0a,$0d,$0a
+    .byte  $0c,$0e,$0f,$08,$07,$08,$0b,$03
+    .byte  $09,$03,$08,$11,$03,$10,$0a,$10
+    .byte  $09,$0d,$09,$08,$09,$08,$0a,$0e
+    .byte  $02,$05,$08,$0e,$10,$08,$11,$09
+    .byte  $08,$11,$11,$07,$03,$10,$0c,$02
+    .byte  $09,$0d,$0e,$05,$11,$07,$11,$08
+    .byte  $03,$0f,$02,$08,$0f,$05,$0b,$00
+    .byte  $08,$03,$08,$0e,$08,$03,$10,$08
+    .byte  $0c,$0a,$03,$09,$02,$07,$06,$11
+    .byte  $05,$10,$07,$11,$0e,$09,$08,$10
+    .byte  $01,$07,$04,$09,$08,$0a,$02,$0b
+    .byte  $10,$0c,$0b,$0f,$0d,$11,$02,$0c
+    .byte  $0b,$02,$09,$05,$0a,$09,$0b,$08
+    .byte  $0d,$01,$11,$09,$0f,$07,$0b,$0d
+    .byte  $11,$02,$02,$01,$07,$08,$0f,$06
 
 ; End of "unreferenced_data1" segment
 .code
