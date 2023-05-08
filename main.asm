@@ -1232,12 +1232,12 @@ gameModeState_initGameState:
         lda     #$3e
 .endif
         sta     currentPiece
+        jsr     incrementPieceStat
         ldx     currentPiece
         lda     #$00
         clc
         adc     spawnOffsets,x
         sta     tetriminoY
-        jsr     incrementPieceStat
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
