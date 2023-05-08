@@ -31,6 +31,7 @@ for piece in table.pieces:
 
 try:
     file = open(output, "w+") if output else sys.stdout
+    print(f"nextOffsetX:", file=file)
     for next_x_offset in next_x_offsets:
         print(output_bytes(next_x_offset), file=file)
     print("", file=file)

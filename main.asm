@@ -1750,7 +1750,7 @@ stageSpriteForNextPiece:
         lda     #$D4
         ldx     nextPiece
         clc
-        adc     orientationToNextOffsetTable,x
+        adc     nextOffsetX,x
         sta     generalCounter3
         lda     #$22
         clc
@@ -1797,16 +1797,7 @@ stageSpriteForNextPiece:
         sta     oamStagingLength
 @ret:   rts
 
-; Only cares about orientations selected by spawnTable
-; ORIENTATION
-orientationToSpriteTable:
-        .byte   $00,$00,$06,$00,$00,$00,$00,$09
-        .byte   $08,$00,$0B,$07,$00,$00,$0A,$00
-        .byte   $00,$00,$0C
-
-; Same as orientationToSpriteTable except sprites have different offsets
-orientationToNextOffsetTable:
-        .include "orientation/orientation_to_next_offset.asm"
+.include "orientation/orientation_to_next_offset.asm"
         
 unreferenced_data2:
         .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF
