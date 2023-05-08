@@ -3092,7 +3092,7 @@ updateLineClearingAnimation:
 @nextRow:
         inc     generalCounter3
         lda     generalCounter3
-        cmp     #$06
+        cmp     #$05
         bne     @whileCounter3LessThan5
         inc     rowY
         lda     rowY
