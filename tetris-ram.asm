@@ -20,7 +20,7 @@ autorepeatX:	.res 1	; $0046
 startLevel:	.res 1	; $0047
 playState:	.res 1	; $0048
 vramRow:	.res 1	; $0049
-completedRow:	.res 4	; $004A
+.res 4
 autorepeatY:	.res 1	; $004E
 holdDownPoints:	.res 1	; $004F
 lines:	.res 2	; $0050
@@ -32,50 +32,15 @@ curtainRow:	.res 1	; $0058
 startHeight:	.res 1	; $0059
 garbageHole:	.res 1	; $005A
 .res 5
-player1_tetriminoX:	.res 1	; $0060
-player1_tetriminoY:	.res 1	; $0061
-player1_currentPiece:	.res 1	; $0062
-.res 1
-player1_levelNumber:	.res 1	; $0064
-player1_fallTimer:	.res 1	; $0065
-player1_autorepeatX:	.res 1	; $0066
-player1_startLevel:	.res 1	; $0067
-player1_playState:	.res 1	; $0068
-player1_vramRow:	.res 1	; $0069
-player1_completedRow:	.res 4	; $006A
-player1_autorepeatY:	.res 1	; $006E
-player1_holdDownPoints:	.res 1	; $006F
-player1_lines:	.res 2	; $0070
-player1_rowY:	.res 1	; $0072
-player1_score:	.res 3	; $0073
-player1_completedLines:	.res 1	; $0076
-.res 1
-player1_curtainRow:	.res 1	; $0078
-player1_startHeight:	.res 1	; $0079
-player1_garbageHole:	.res 1	; $007A
-.res 5
-player2_tetriminoX:	.res 1	; $0080
-player2_tetriminoY:	.res 1	; $0081
-player2_currentPiece:	.res 1	; $0082
-.res 1
-player2_levelNumber:	.res 1	; $0084
-player2_fallTimer:	.res 1	; $0085
-player2_autorepeatX:	.res 1	; $0086
-player2_startLevel:	.res 1	; $0087
-player2_playState:	.res 1	; $0088
-player2_vramRow:	.res 1	; $0089
-player2_completedRow:	.res 4	; $008A
-player2_autorepeatY:	.res 1	; $008E
-player2_holdDownPoints:	.res 1	; $008F
-player2_lines:	.res 2	; $0090
-player2_rowY:	.res 1	; $0092
-player2_score:	.res 3	; $0093
-player2_completedLines:	.res 1	; $0096
-.res 1
-player2_curtainRow:	.res 1	; $0098
-player2_startHeight:	.res 1	; $0099
-player2_garbageHole:	.res 1	; $009A
-.res 5
+completedRow:	.res 5	; $0060
+currentOrientationY: .res 2 ;  $0065
+currentOrientationX: .res 2 ;  $0067
+currentOrientationTile: .res 2 ;  $0069
+statsPatchAddress:  .res 2 ;  $006B
+topRowValidityCheck: .res 1 ;  $006D
+statsPiecesTotal: .res 2  ; $006E
+.res 48
+
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1
 spriteIndexInOamContentLookup:	.res 1	; $00A2
@@ -102,7 +67,7 @@ playfieldAddr:	.res 2	; $00B8
 totalGarbageInactivePlayer:	.res 1	; $00BB
 totalGarbage:	.res 1	; $00BC
 renderMode:	.res 1	; $00BD
-numberOfPlayers:	.res 1	; $00BE
+ .res 1	; $00BE
 nextPiece:	.res 1	; $00BF
 gameMode:	.res 1	; $00C0
 gameType:	.res 1	; $00C1
@@ -151,9 +116,7 @@ currentPpuCtrl:	.res 1	; $00FF
 stack:	.res $FF	; $0100
 .res 1
 oamStaging:	.res $100	; $0200
-.res 240
-statsByType:	.res $0E	; $03F0
-.res 2
+statsByType:	.res $100	; $0300
 playfield:	.res $C8	; $0400
 .res 56
 playfieldForSecondPlayer:	.res $C8	; $0500
