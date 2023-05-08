@@ -38,44 +38,6 @@ currentOrientationTile := $0069
 statsPatchAddress := $006B
 topRowValidityCheck:= $006D
 statsPiecesTotal:=$006E
-; player1_tetriminoX:= $0060
-; player1_tetriminoY:= $0061
-; player1_currentPiece:= $0062
-; player1_levelNumber:= $0064
-; player1_fallTimer:= $0065
-; player1_autorepeatX:= $0066
-; player1_startLevel:= $0067
-; player1_playState:= $0068
-; player1_vramRow := $0069
-; player1_completedRow:= $006A
-; player1_autorepeatY:= $006E
-; player1_holdDownPoints:= $006F
-; player1_lines   := $0070
-; player1_rowY    := $0072
-; player1_score   := $0073
-; player1_completedLines:= $0076
-; player1_curtainRow:= $0078
-; player1_startHeight:= $0079
-; player1_garbageHole:= $007A
-; player2_tetriminoX:= $0080
-; player2_tetriminoY:= $0081
-; player2_currentPiece:= $0082
-; player2_levelNumber:= $0084
-; player2_fallTimer:= $0085
-; player2_autorepeatX:= $0086
-; player2_startLevel:= $0087
-; player2_playState:= $0088
-; player2_vramRow := $0089
-; player2_completedRow:= $008A
-; player2_autorepeatY:= $008E
-; player2_holdDownPoints:= $008F
-; player2_lines   := $0090
-; player2_rowY    := $0092
-; player2_score   := $0093
-; player2_completedLines:= $0096
-; player2_curtainRow:= $0098
-; player2_startHeight:= $0099
-; player2_garbageHole:= $009A
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
 spriteIndexInOamContentLookup:= $00A2
@@ -103,7 +65,6 @@ allegro         := $00BA
 pendingGarbage  := $00BB                        ; Garbage waiting to be delivered to the current player. This is exchanged with pendingGarbageInactivePlayer when swapping players.
 pendingGarbageInactivePlayer := $00BC           ; canon is totalGarbage
 renderMode      := $00BD
-; numberOfPlayers := $00BE
 nextPiece       := $00BF                        ; Stored by its orientation ID
 gameMode        := $00C0                        ; 0=legal, 1=title, 2=type menu, 3=level menu, 4=play and ending and high score, 5=demo, 6=start demo
 gameType        := $00C1                        ; A=0, B=1
@@ -414,9 +375,6 @@ initRamContinued:
         lda     #$00
         sta     gameModeState
         sta     gameMode
-        ; lda     #$01
-        ; sta     numberOfPlayers
-        ; lda     #$00
         sta     frameCounter+1
 @mainLoop:
         jsr     branchOnGameMode
@@ -463,13 +421,7 @@ gameModeState_updatePlayer1:
         rts
 
 gameModeState_updatePlayer2:
-;         lda     numberOfPlayers
-;         cmp     #$02
-;         bne     @ret
-;         jsr     makePlayer2Active
-;         jsr     branchOnPlayStatePlayer2
-        jsr     stageSpriteForCurrentPiece
-;         jsr     savePlayer2State
+        jsr     stageSpriteForCurrentPiece ; Not sure why I left this here
 @ret:   inc     gameModeState
         rts
 
@@ -506,26 +458,6 @@ playState_playerControlsActiveTetrimino:
         jsr     drop_tetrimino
         rts
 
-; branchOnPlayStatePlayer2:
-;         lda     playState
-;         jsr     switch_s_plus_2a
-;         .addr   playState_unassignOrientationId
-;         .addr   playState_player2ControlsActiveTetrimino
-;         .addr   playState_lockTetrimino
-;         .addr   playState_checkForCompletedRows
-;         .addr   playState_noop
-;         .addr   playState_updateLinesAndStatistics
-;         .addr   playState_bTypeGoalCheck
-;         .addr   playState_receiveGarbage
-;         .addr   playState_spawnNextTetrimino
-;         .addr   playState_noop
-;         .addr   playState_updateGameOverCurtain
-;         .addr   playState_incrementPlayState
-; playState_player2ControlsActiveTetrimino:
-;         jsr     shift_tetrimino
-;         jsr     rotate_tetrimino
-;         jsr     drop_tetrimino
-;         rts
 
 gameMode_legalScreen:
         jsr     updateAudio2
@@ -625,9 +557,6 @@ render_mode_legal_and_title_screens:
         sta     ppuScrollY
         sta     PPUSCROLL
         rts
-
-        ; lda     #$00
-        ; sta     levelNumber
         lda     #$00
         sta     gameType
         lda     #$04
@@ -814,21 +743,11 @@ gameMode_levelMenu:
         jmp     @forceStartLevelToRange
 
 gameMode_levelMenu_processPlayer1Navigation:
-        ; lda     #$00
-        ; sta     activePlayer
-        ; lda     player1_startLevel
-        ; sta     startLevel
-        ; lda     player1_startHeight
-        ; sta     startHeight
         lda     originalY
         sta     selectingLevelOrHeight
         lda     newlyPressedButtons_player1
         sta     newlyPressedButtons
         jsr     gameMode_levelMenu_handleLevelHeightNavigation
-        ; lda     startLevel
-        ; sta     player1_startLevel
-        ; lda     startHeight
-        ; sta     player1_startHeight
         lda     selectingLevelOrHeight
         sta     originalY
         lda     newlyPressedButtons_player1
@@ -988,14 +907,6 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         ldx     startLevel
         lda     levelToSpriteXOffset,x
         sta     spriteXOffset
-;         lda     activePlayer
-;         cmp     #$01
-;         bne     @stageLevelSelectCursor
-;         clc
-;         lda     spriteYOffset
-;         adc     #$50
-;         sta     spriteYOffset
-; @stageLevelSelectCursor:
         jsr     loadSpriteIntoOamStaging
 @skipShowingSelectionLevel:
         lda     gameType
@@ -1014,14 +925,6 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         ldx     startHeight
         lda     heightToPpuLowAddr,x
         sta     spriteXOffset
-;         lda     activePlayer
-;         cmp     #$01
-;         bne     @stageHeightSelectCursor
-;         clc
-;         lda     spriteYOffset
-;         adc     #$50
-;         sta     spriteYOffset
-; @stageHeightSelectCursor:
         jsr     loadSpriteIntoOamStaging
 @ret:   rts
 
@@ -1127,11 +1030,8 @@ gameModeState_initGameBackground_finish:
         jsr     updateAudioWaitForNmiAndResetOamStaging
         lda     #$01
         sta     playState
-        ; sta     player2_playState
         lda     startLevel
         sta     levelNumber
-        ; lda     player2_startLevel
-        ; sta     player2_levelNumber
         inc     gameModeState
         rts
 
@@ -1154,13 +1054,11 @@ gameModeState_initGameState:
         bne     @initStatsByType
         lda     #$06
         sta     tetriminoX
-        ; sta     player2_tetriminoX
         lda     #$00
         sta    statsPiecesTotal
         sta    statsPiecesTotal+1
 
-        ; sta     player2_tetriminoY
-        lda     #$0A    ; starting on row 19 compensates for glitchy behavior 
+        lda     #$0A    ; starting on row 10 compensates for glitchy behavior 
                         ; I *think* because the first time around is the only
                         ; time the full board is loaded (the rest only 4 at a time)
                         ; 40 new tiles worth of time was added to the process
@@ -1168,21 +1066,14 @@ gameModeState_initGameState:
                         ; board to be redrawn
         sta     vramRow
         lda     #$00
-        ; sta     player2_vramRow
         sta     fallTimer
-        ; sta     player2_fallTimer
         sta     pendingGarbage
         sta     pendingGarbageInactivePlayer
         sta     score
         sta     score+1
         sta     score+2
-        ; sta     player2_score
-        ; sta     player2_score+1
-        ; sta     player2_score+2
 .ifdef DEBUG
-        ; make testing level transition a little easier
         lda     #$7C
-
         ldy     #$ef
 @plantBlocks:
         sta     playfield,y
@@ -1195,20 +1086,14 @@ gameModeState_initGameState:
         sta     $04d2
         sta     $04c6
         sta     $04ba
-        ; sta     $04B9
-        ; sta     $04B8
-        ; sta     $04AF
-        ; sta     $04A5
         lda     #$09
         sta     lines
-        lda     #$00   ; Uncomment if the above is uncommented
+        lda     #$00 
         sta     lines+1
 .else
         sta     lines
         sta     lines+1
 .endif
-        ; sta     player2_lines
-        ; sta     player2_lines+1
         sta     twoPlayerPieceDelayCounter
         sta     lineClearStatsByType
         sta     lineClearStatsByType+1
@@ -1226,7 +1111,6 @@ gameModeState_initGameState:
         sta     renderMode
         lda     #$A0
         sta     autorepeatY
-        ; sta     player2_autorepeatY
         jsr     chooseNextTetrimino
 .ifdef DEBUG
         lda     #$3e
@@ -1248,7 +1132,6 @@ gameModeState_initGameState:
         beq     @skipTypeBInit
         lda     #$25
         sta     lines
-        ; sta     player2_lines
 @skipTypeBInit:
         lda     #$47
         sta     outOfDateRenderFlags
@@ -1262,73 +1145,28 @@ gameModeState_initGameState:
 
 ; Copies $60 to $40
 makePlayer1Active:
-        ; lda     #$01
-        ; sta     activePlayer
-        ; lda     #$04
-        ; sta     playfieldAddr+1
         lda     newlyPressedButtons_player1
         sta     newlyPressedButtons
         lda     heldButtons_player1
         sta     heldButtons
-;         ldx     #$1F
-; @copyByteFromMirror:
-;         lda     player1_tetriminoX,x
-;         sta     tetriminoX,x
-;         dex
-;         cpx     #$FF
-;         bne     @copyByteFromMirror
         rts
 
 ; Copies $80 to $40
 makePlayer2Active:
         lda     #$02
         sta     activePlayer
-;         lda     #$05
-;         sta     playfieldAddr+1
         lda     newlyPressedButtons_player2
         sta     newlyPressedButtons
         lda     heldButtons_player2
         sta     heldButtons
-;         ldx     #$1F
-; @whileXNotNeg1:
-;         lda     player2_tetriminoX,x
-;         sta     tetriminoX,x
-;         dex
-;         cpx     #$FF
-;         bne     @whileXNotNeg1
         rts
 
 ; Copies $40 to $60
 savePlayer1State:
-;         ldx     #$1F
-; @copyByteToMirror:
-;         lda     tetriminoX,x
-;         sta     player1_tetriminoX,x
-;         dex
-;         cpx     #$FF
-;         bne     @copyByteToMirror
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @ret
-;         ldx     pendingGarbage
-;         lda     pendingGarbageInactivePlayer
-;         sta     pendingGarbage
-;         stx     pendingGarbageInactivePlayer
 @ret:   rts
 
 ; Copies $40 to $80
 savePlayer2State:
-;         ldx     #$1F
-; @whileXNotNeg1:
-;         lda     tetriminoX,x
-;         sta     player2_tetriminoX,x
-;         dex
-;         cpx     #$FF
-;         bne     @whileXNotNeg1
-;         ldx     pendingGarbage
-;         lda     pendingGarbageInactivePlayer
-;         sta     pendingGarbage
-;         stx     pendingGarbageInactivePlayer
         rts
 
 initPlayfieldIfTypeB:
@@ -1414,16 +1252,6 @@ typeBBlankInitPlayer1:
         cpy     #$FF
         bne     typeBBlankInitPlayer1
 
-; Player2 Blank Lines
-;         ldx     player2_startHeight
-;         lda     typeBBlankInitCountByHeightTable,x
-;         tay
-;         lda     #$EF
-; typeBBlankInitPlayer2:  
-;         sta     playfieldForSecondPlayer,y
-;         dey
-;         cpy     #$FF
-;         bne     typeBBlankInitPlayer2
 endTypeBInit:  
         rts
 
@@ -1440,7 +1268,6 @@ gameModeState_updateCountersAndNonPlayerState:
         lda     #$00
         sta     oamStagingLength
         inc     fallTimer
-        ; inc     player2_fallTimer
         lda     twoPlayerPieceDelayCounter
         beq     @checkSelectButtonPressed
         inc     twoPlayerPieceDelayCounter
@@ -1461,13 +1288,11 @@ rotate_tetrimino:
         sta     originalY
         clc
         lda     currentPiece
-        ; asl     a
         tax
         lda     newlyPressedButtons
         and     #$80
         cmp     #$80
         bne     @aNotPressed
-        ; inx
         lda     rotationTableNext,x
         sta     currentPiece
         jsr     isPositionValid
@@ -1497,9 +1322,8 @@ rotate_tetrimino:
 
         rts
 
-; ORIENTATION
-rotationTable:
 .include "orientation/rotation_table.asm"
+
 drop_tetrimino:
         lda     autorepeatY
         bpl     @notBeginningOfGame
@@ -1645,20 +1469,6 @@ stageSpriteForCurrentPiece:
         asl     a
         adc     #$50 ; Shift spawn location 16 pixels to the left
         sta     generalCounter3 ; x position of center block
-        ; lda     numberOfPlayers
-        ; cmp     #$01
-        ; beq     @calculateYPixel
-        ; lda     generalCounter3
-        ; sec
-        ; sbc     #$40
-        ; sta     generalCounter3 ; if 2 player mode, player 1's field is more to the left
-;         lda     activePlayer
-;         cmp     #$01
-;         beq     @calculateYPixel
-;         lda     generalCounter3
-;         adc     #$6F
-;         sta     generalCounter3 ; and player 2's field is more to the right
-; @calculateYPixel:
         clc
         lda     tetriminoY
         rol     a
@@ -1668,24 +1478,7 @@ stageSpriteForCurrentPiece:
         sta     generalCounter4 ; y position of center block
         lda     currentPiece
         jsr     setOrientationTable
-
-        ; sta     generalCounter5  ; This doesn't need to be stored
-        ; clc                      ; Carry bit doesn't matter if using ASL
-        ; lda     generalCounter5  ; currentPiece is still in the accumulator
-
-        ; rol     a
-        ; rol     a
-        ; sta     generalCounter
-        ; rol     a
-        ; adc     generalCounter   ; This block of code is multiplying the currentPiece by 12
-
-        ; asl
-        ; asl                        ; multiply currentPiece by 5 using asl
-        ; clc
-        ; adc     currentPiece
-
         ldy    #$00                        ; y contains index into orientation table
-
         ldx     oamStagingLength
         lda     #$05
         sta     generalCounter2 ; iterate through all five minos
@@ -1700,12 +1493,10 @@ stageSpriteForCurrentPiece:
         sta     originalY
         inc     oamStagingLength
         inx
-        ; inx                           ; x no longer needs incremented
         lda     (currentOrientationTile),y  ; Tile index
         sta     oamStaging,x ; stage block type of mino
         inc     oamStagingLength
         inx
-        ; inx                           ; x no longer needs incremented
         lda     #$02
         sta     oamStaging,x ; stage palette/front priority
         lda     originalY
@@ -1738,10 +1529,6 @@ stageSpriteForCurrentPiece:
         dec     generalCounter2
         bne     @stageMino
         rts
-
-; ORIENTATION
-; orientationTable:
-
 
 stageSpriteForNextPiece:
         lda     displayNextPiece
@@ -2012,47 +1799,11 @@ sprite0EHighScoreNameCursor:
         .byte   $00,$FC,$21,$00,$FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite0FTPieceOffset:
-        ; .byte   $02,$7B,$02,$FC
-        ; .byte   $02,$7B,$02,$04
-        ; .byte   $02,$7B,$02,$0C
-        ; .byte   $0A,$7B,$02,$04
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite10SPieceOffset:
-        ; .byte   $00,$7D,$02,$06
-        ; .byte   $00,$7D,$02,$0E
-        ; .byte   $08,$7D,$02,$FE
-        ; .byte   $08,$7D,$02,$06
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite11ZPieceOffset:
-        ; .byte   $00,$7C,$02,$FA
-        ; .byte   $00,$7C,$02,$02
-        ; .byte   $08,$7C,$02,$02
-        ; .byte   $08,$7C,$02,$0A
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite12JPieceOffset:
-        ; .byte   $08,$7D,$02,$00
-        ; .byte   $08,$7D,$02,$08
-        ; .byte   $08,$7D,$02,$10
-        ; .byte   $10,$7D,$02,$10
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite13LPieceOffset:
-        ; .byte   $08,$7C,$02,$F8
-        ; .byte   $08,$7C,$02,$00
-        ; .byte   $08,$7C,$02,$08
-        ; .byte   $10,$7C,$02,$F8
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite14OPieceOffset:
-        ; .byte   $00,$7B,$02,$00
-        ; .byte   $00,$7B,$02,$08
-        ; .byte   $08,$7B,$02,$00
-        ; .byte   $08,$7B,$02,$08
-        ; .byte   $FF
-; Unused, but referenced from unreferenced_orientationToSpriteTable
 sprite15IPieceOffset:
         .byte   $08,$7B,$02,$F8
         .byte   $08,$7B,$02,$00
@@ -2587,15 +2338,6 @@ isPositionValid:
         sta     generalCounter
         lda     currentPiece
         jsr     setOrientationTable
-        ; asl     a
-        ; asl     a
-        ; clc
-        ; adc     currentPiece
-        ; sta     generalCounter2
-        ; asl     a
-        ; clc
-        ; adc     generalCounter2     ; Commenting this out changes *12 to *4
-        ; tax                           ; x contains index into orientation tables
         ldy     #$00
         lda     #$05
         sta     generalCounter3
@@ -2630,8 +2372,6 @@ isPositionValid:
         clc
         adc     generalCounter
         sta     selectingLevelOrHeight
-        ; inx                           ; This increased twice to skip over tile index
-        ; inx                           ; and is no longer necessary
         lda     (currentOrientationX),y     ; X offset
         clc
         adc     selectingLevelOrHeight
@@ -2670,86 +2410,22 @@ render_mode_play_and_demo:
         bne     @playStateNotDisplayLineClearingAnimation
         lda     #$04
         sta     playfieldAddr+1
-        ; lda     player1_rowY
-        ; sta     rowY
-        ; lda     player1_completedRow
-        ; sta     completedRow
-        ; lda     player1_completedRow+1
-        ; sta     completedRow+1
-        ; lda     player1_completedRow+2
-        ; sta     completedRow+2
-        ; lda     player1_completedRow+3
-        ; sta     completedRow+3
-        ; lda     player1_playState
-        ; sta     playState
         jsr     updateLineClearingAnimation
-        ; lda     rowY
-        ; sta     player1_rowY
-        ; lda     playState
-        ; sta     player1_playState
         lda     #$00
         sta     vramRow
         jmp     @renderLines
 
 @playStateNotDisplayLineClearingAnimation:
-        ; lda     player1_vramRow
-        ; sta     vramRow
         lda     #$04
         sta     playfieldAddr+1
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
-        ; lda     vramRow
-        ; sta     player1_vramRow
-; @renderPlayer2Playfield:
-;         lda     numberOfPlayers
-;         cmp     #$02
-;         bne     @renderLines
-;         lda     player2_playState
-;         cmp     #$04
-;         bne     @player2PlayStateNotDisplayLineClearingAnimation
-;         lda     #$05
-;         sta     playfieldAddr+1
-;         lda     player2_rowY
-;         sta     rowY
-;         lda     player2_completedRow
-;         sta     completedRow
-;         lda     player2_completedRow+1
-;         sta     completedRow+1
-;         lda     player2_completedRow+2
-;         sta     completedRow+2
-;         lda     player2_completedRow+3
-;         sta     completedRow+3
-;         lda     player2_playState
-;         sta     playState
-;         jsr     updateLineClearingAnimation
-;         lda     rowY
-;         sta     player2_rowY
-;         lda     playState
-;         sta     player2_playState
-;         lda     #$00
-;         sta     player2_vramRow
-;         jmp     @renderLines
-
-; @player2PlayStateNotDisplayLineClearingAnimation:
-;         lda     player2_vramRow
-;         sta     vramRow
-;         lda     #$05
-;         sta     playfieldAddr+1
-;         jsr     copyPlayfieldRowToVRAM
-;         jsr     copyPlayfieldRowToVRAM
-;         jsr     copyPlayfieldRowToVRAM
-;         jsr     copyPlayfieldRowToVRAM
-;         lda     vramRow
-;         sta     player2_vramRow
 @renderLines:
         lda     outOfDateRenderFlags
         and     #$01
         beq     @renderLevel
-        ; lda     numberOfPlayers
-        ; cmp     #$02
-        ; beq     @renderLinesTwoPlayers
         lda     #$20
         sta     PPUADDR
         lda     #$72
@@ -2761,35 +2437,10 @@ render_mode_play_and_demo:
         lda     outOfDateRenderFlags
         and     #$FE
         sta     outOfDateRenderFlags
-;         jmp     @renderLevel
-
-; @renderLinesTwoPlayers:
-;         lda     #$20
-;         sta     PPUADDR
-;         lda     #$68
-;         sta     PPUADDR
-;         lda     player1_lines+1
-;         sta     PPUDATA
-;         lda     player1_lines
-;         jsr     twoDigsToPPU
-;         lda     #$20
-;         sta     PPUADDR
-;         lda     #$7A
-;         sta     PPUADDR
-;         lda     player2_lines+1
-;         sta     PPUDATA
-;         lda     player2_lines
-;         jsr     twoDigsToPPU
-;         lda     outOfDateRenderFlags
-;         and     #$FE
-;         sta     outOfDateRenderFlags
 @renderLevel:
         lda     outOfDateRenderFlags
         and     #$02
         beq     @renderScore
-        ; lda     numberOfPlayers
-        ; cmp     #$02
-        ; beq     @renderScore
         ldx     levelNumber
         lda     levelDisplayTable,x
         sta     generalCounter
@@ -2804,9 +2455,6 @@ render_mode_play_and_demo:
         and     #$FD
         sta     outOfDateRenderFlags
 @renderScore:
-        ; lda     numberOfPlayers
-        ; cmp     #$02
-        ; beq     @renderStats
         lda     outOfDateRenderFlags
         and     #$04
         beq     @renderStats
@@ -2824,12 +2472,8 @@ render_mode_play_and_demo:
         and     #$FB
         sta     outOfDateRenderFlags
 @renderStats:
-        ; lda     numberOfPlayers
-        ; cmp     #$02
-        ; beq     @renderTetrisFlashAndSound
         lda     outOfDateRenderFlags
-        and     #$40   ; disable stats render
-        ; and     #$00   ; disable stats render
+        and     #$40
         bne     @continue
         jmp      @renderTetrisFlashAndSound
 @continue:
@@ -3059,26 +2703,6 @@ copyPlayfieldRowToVRAM:
         lda     vramPlayfieldRows,x
         sta     PPUADDR
         dex
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @onePlayer
-;         lda     playfieldAddr+1
-;         cmp     #$05
-;         beq     @playerTwo
-;         lda     vramPlayfieldRows,x
-;         sec
-;         sbc     #$02
-;         sta     PPUADDR
-;         jmp     @copyRow
-
-; @playerTwo:
-;         lda     vramPlayfieldRows,x
-;         clc
-;         adc     #$0C
-;         sta     PPUADDR
-;         jmp     @copyRow
-
-; @onePlayer:
         lda     vramPlayfieldRows,x
         clc
         adc     #$04
@@ -3113,31 +2737,10 @@ updateLineClearingAnimation:
         tay
         lda     vramPlayfieldRows,y
         sta     generalCounter
-        ; lda     numberOfPlayers
-        ; cmp     #$01
-        ; bne     @twoPlayers
         lda     generalCounter
         clc
         adc     #$04
         sta     generalCounter
-;         jmp     @updateVRAM
-
-; @twoPlayers:
-;         lda     playfieldAddr+1
-;         cmp     #$04
-;         bne     @player2
-;         lda     generalCounter
-;         sec
-;         sbc     #$02
-;         sta     generalCounter
-;         jmp     @updateVRAM
-
-; @player2:
-;         lda     generalCounter
-;         clc
-;         adc     #$0C
-;         sta     generalCounter
-; @updateVRAM:
         iny
         lda     vramPlayfieldRows,y
         sta     generalCounter2
@@ -3235,38 +2838,12 @@ noop_disabledVramRowIncr:
         lda     #$20
         sta     vramRow
 @player2:
-        ; inc     player2_vramRow
-        ; lda     player2_vramRow
-        ; cmp     #$14
-        ; bmi     @ret
-        ; lda     #$20
-        ; sta     player2_vramRow
 @ret:   rts
 
 playState_spawnNextTetrimino:
         lda     vramRow
         cmp     #$20
         bmi     @ret
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @spawnPiece
-;         lda     twoPlayerPieceDelayCounter
-;         cmp     #$00
-;         bne     @twoPlayerWaiting
-;         inc     twoPlayerPieceDelayCounter
-;         lda     activePlayer
-;         sta     twoPlayerPieceDelayPlayer
-;         jsr     chooseNextTetrimino
-;         sta     twoPlayerPieceDelayPiece
-;         jmp     @ret
-
-; @twoPlayerWaiting:
-;         lda     twoPlayerPieceDelayPlayer
-;         cmp     activePlayer
-;         bne     @ret
-;         lda     twoPlayerPieceDelayCounter
-;         cmp     #$1C
-;         bne     @ret
 @spawnPiece:
         lda     #$00
         sta     twoPlayerPieceDelayCounter
@@ -3283,14 +2860,6 @@ playState_spawnNextTetrimino:
         lda     spawnOrientationFromOrientation,x
         sta     currentPiece
         jsr     incrementPieceStat
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @onePlayerPieceSelection
-;         lda     twoPlayerPieceDelayPiece
-;         sta     nextPiece
-;         jmp     @resetDownHold
-
-; @onePlayerPieceSelection:
         jsr     chooseNextTetrimino
         sta     nextPiece
 @resetDownHold:
@@ -3443,17 +3012,6 @@ playState_lockTetrimino:
         adc     generalCounter
         adc     tetriminoX
         sta     generalCounter
-        ; lda     currentPiece
-        ; asl     a
-        ; asl     a
-        ; clc
-        ; adc     currentPiece
-        ; sta     generalCounter2
-        ; asl     a
-        ; clc
-        ; adc     generalCounter2
-        ; adc     generalCounter2     ; Commenting this out changes *12 to *4
-        ; tay                           ; x contains index into orientation tables
         lda     currentPiece
         jsr     setOrientationTable
 
@@ -3474,10 +3032,8 @@ playState_lockTetrimino:
         clc
         adc     generalCounter
         sta     selectingLevelOrHeight
-        ; inx
         lda     (currentOrientationTile),y      ; Tile index
         sta     generalCounter5
-        ; inx
         lda     (currentOrientationX),y         ; X offset
         clc
         adc     selectingLevelOrHeight
@@ -3527,9 +3083,6 @@ playState_updateGameOverCurtain:
 @ret:   rts
 
 @curtainFinished:
-        ; lda     numberOfPlayers
-        ; cmp     #$02
-        ; beq     @exitGame
         lda     score+2
         cmp     #$03
         bcc     @checkForStartButton
@@ -3643,49 +3196,6 @@ playState_checkForCompletedRows:
 @ret:   rts
 
 playState_receiveGarbage:
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @ret
-;         ldy     pendingGarbage
-;         beq     @ret
-;         lda     vramRow
-;         cmp     #$20
-;         bmi     @delay
-;         lda     multBy10Table,y
-;         sta     generalCounter2
-;         lda     #$00
-;         sta     generalCounter
-; @shiftPlayfieldUp:
-;         ldy     generalCounter2
-;         lda     (playfieldAddr),y
-;         ldy     generalCounter
-;         sta     (playfieldAddr),y
-;         inc     generalCounter
-;         inc     generalCounter2
-;         lda     generalCounter2
-;         cmp     #$C8
-;         bne     @shiftPlayfieldUp
-;         iny
-;         ldx     #$00
-; @fillGarbage:
-;         cpx     garbageHole
-;         beq     @hole
-;         lda     #$78
-;         jmp     @set
-; @hole:
-;         lda     #$FF
-; @set:
-;         sta     (playfieldAddr),y
-;         inx
-;         cpx     #$0A
-;         bne     @inc
-;         ldx     #$00
-; @inc:   iny
-;         cpy     #$C8
-;         bne     @fillGarbage
-;         lda     #$00
-;         sta     pendingGarbage
-;         sta     vramRow
 @ret:  inc     playState
 @delay:  rts
 
@@ -3900,43 +3410,21 @@ gameModeState_handleGameOver:
         cmp     #$00
         beq     @gameOver
         jmp     @ret
-        ; lda     numberOfPlayers ; fix this
-        ; cmp     #$01
-        ; beq     @ret
-        ; lda     #$04
-        ; sta     generalCounter2
-        ; lda     player2_playState
-        ; cmp     #$00
-        ; bne     @ret
 @gameOver:
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     @onePlayerGameOver
-;         lda     #$09
-;         sta     gameModeState
-;         rts
-
-; @onePlayerGameOver:
         lda     #$03
         sta     renderMode
-        ; lda     numberOfPlayers
-        ; cmp     #$01
-        ; bne     @resetGameState
         jsr     handleHighScoreIfNecessary
 @resetGameState:
         lda     #$01
         sta     playState
-        ; sta     player2_playState
         lda     #$EF
         ldx     #$04
         ldy     #$05
         jsr     memset_page
         lda     #$00
         sta     vramRow
-        ; sta     player2_vramRow
         lda     #$01
         sta     playState
-        ; sta     player2_playState
         jsr     updateAudioWaitForNmiAndResetOamStaging
         lda     #$03
         sta     gameMode
@@ -4268,8 +3756,6 @@ L9F45:  jsr     render_ending
         lda     newlyPressedButtons_player1
         cmp     #$10
         bne     L9F45
-        ; lda     levelNumber
-        ; sta     levelNumber
         lda     $DC
         sta     score
         lda     $DD
@@ -4348,12 +3834,6 @@ L9FE9:  ldy     #$00
         rts
 
 showHighScores:
-;         lda     numberOfPlayers
-;         cmp     #$01
-;         beq     showHighScores_real
-;         jmp     showHighScores_ret
-
-; showHighScores_real:
         jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
 MMC1_Control    := * + 1
         .addr   high_scores_nametable
