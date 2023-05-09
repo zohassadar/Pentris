@@ -3518,7 +3518,10 @@ updateMusicSpeed:
         tay
         ldx     #$08
 @checkForBlockInRow:
-        lda     (playfieldAddr),y
+        lda     leftPlayfield,y
+        cmp     #$EF
+        bne     @foundBlockInRow
+        lda     rightPlayfield,y
         cmp     #$EF
         bne     @foundBlockInRow
         iny
