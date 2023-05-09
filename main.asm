@@ -2774,7 +2774,7 @@ copyPlayfieldRowToVRAM:
 
 updateLineClearingAnimation:
         lda     frameCounter
-        and     #$03
+        and     #$1F
         bne     @ret
         lda     #$00
         sta     generalCounter3
@@ -2817,7 +2817,7 @@ updateLineClearingAnimation:
         bne     @whileCounter3LessThan5
         inc     rowY
         lda     rowY
-        cmp     #$07
+        cmp     #$08
         bmi     @ret
         inc     playState
 @ret:   rts
