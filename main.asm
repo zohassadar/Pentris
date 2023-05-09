@@ -2418,7 +2418,29 @@ render_mode_play_and_demo:
         sta     vramRow
         jmp     @renderLines
 
+
+@playstateCurtainAnimation:
+        lda     vramRow
+        sta     renderedVramRow
+        lda     #$04
+        sta     renderedPlayfield
+        sta     playfieldAddr+1
+        jsr     copyPlayfieldRowToVRAM
+        inc     playfieldAddr+1
+        lda     renderedVramRow
+        sta     vramRow  
+        jsr     copyPlayfieldRowToVRAM
+        jmp     @renderLines 
+
+
+
 @playStateNotDisplayLineClearingAnimation:
+        lda     playState
+
+        ; Treat curtains differently
+        cmp     #$0A
+        beq     @playstateCurtainAnimation
+
         ; Draw all of the rows for either the left or the right playfield
         lda     renderedPlayfield
         sta     playfieldAddr+1
