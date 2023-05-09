@@ -288,198 +288,198 @@ z = Piece(
 )
 
 
-p1_up = Orientation(
+p_up = Orientation(
     ("....."
      "..X.."
      "..XX."
      "..XX."
      "....."),
-    name="P1Up",
+    name="PUp",
 )  # fmt: skip
 
-p1_right = Orientation(
+p_right = Orientation(
     ("....."
      "....."
      ".XXX."
      ".XX."
      "....."),
-    name="P1Right",
+    name="PRight",
     spawn=True,
 )  # fmt: skip
 
-p1_down = Orientation(
+p_down = Orientation(
     ("....."
      ".XX.."
      ".XX.."
      "..X.."
      "....."),
-    name="P1Down",
+    name="PDown",
 )  # fmt: skip
 
-p1_left = Orientation(
+p_left = Orientation(
     ("....."
      "..XX."
      ".XXX."
      "....."
      "....."),
-    name="P1Left",
+    name="PLeft",
 )  # fmt: skip
 
-p1 = Piece(
-    name="P1",
+p = Piece(
+    name="P",
     tile_index=0x7C,
     orientations=[
-        p1_up,
-        p1_right,
-        p1_down,
-        p1_left,
+        p_up,
+        p_right,
+        p_down,
+        p_left,
     ],
 )
 
-p2_up = Orientation(
+q_up = Orientation(
     ("....."
      "..X.."
      ".XX.."
      ".XX.."
      "....."),
-    name="P2Up",
+    name="QUp",
 )  # fmt: skip
 
-p2_right = Orientation(
+q_right = Orientation(
     ("....."
      ".XX.."
      ".XXX."
      "...."
      "....."),
-    name="P2Right",
+    name="QRight",
 )  # fmt: skip
 
-p2_down = Orientation(
+q_down = Orientation(
     ("....."
      "..XX."
      "..XX."
      "..X.."
      "....."),
-    name="P2Down",
+    name="QDown",
 )  # fmt: skip
 
-p2_left = Orientation(
+q_left = Orientation(
     ("....."
      "....."
      ".XXX."
      "..XX."
      "....."),
-    name="P2Left",
+    name="QLeft",
     spawn=True,
 )  # fmt: skip
 
-p2 = Piece(
-    name="P2",
+q = Piece(
+    name="Q",
     tile_index=0x7D,
     orientations=[
-        p2_up,
-        p2_right,
-        p2_down,
-        p2_left,
+        q_up,
+        q_right,
+        q_down,
+        q_left,
     ],
 )
 
 
-n1_up = Orientation(
+n_up = Orientation(
     ("..X.."
      "..X.."
      ".XX.."
      ".X..."
      "....."),
-    name="N1Up",
+    name="NUp",
 )  # fmt: skip
 
-n1_right = Orientation(
+n_right = Orientation(
     ("....."
      ".XX.."
      "..XXX"
      "...."
      "....."),
-    name="N1Right",
+    name="NRight",
 )  # fmt: skip
 
-n1_down = Orientation(
+n_down = Orientation(
     ("....."
      "...X."
      "..XX."
      "..X.."
      "..X.."),
-    name="N1Down",
+    name="NDown",
 )  # fmt: skip
 
-n1_left = Orientation(
+n_left = Orientation(
     ("....."
      "....."
      "XXX.."
      "..XX."
      "....."),
-    name="N1Left",
+    name="NLeft",
     spawn=True,
     next_offset_x=4,
 )  # fmt: skip
 
-n1 = Piece(
-    name="N1",
+n = Piece(
+    name="N",
     tile_index=0x7B,
     orientations=[
-        n1_up,
-        n1_right,
-        n1_down,
-        n1_left,
+        n_up,
+        n_right,
+        n_down,
+        n_left,
     ],
 )
 
-n2_up = Orientation(
+g_up = Orientation(
     ("..X.."
      "..X.."
      "..XX."
      "...X."
      "....."),
-    name="N2Up",
+    name="GUp",
 )  # fmt: skip
 
-n2_right = Orientation(
+g_right = Orientation(
     ("....."
      "....."
      "..XXX"
      ".XX.."
      "....."),
-    name="N2Right",
+    name="GRight",
     spawn=True,
     next_offset_x=252,
 )  # fmt: skip
 
-n2_down = Orientation(
+g_down = Orientation(
     ("....."
      ".X..."
      ".XX.."
      "..X.."
      "..X.."),
-    name="N2Down",
+    name="GDown",
 )  # fmt: skip
 
-n2_left = Orientation(
+g_left = Orientation(
     ("....."
      "..XX."
      "XXX.."
      "....."
      "....."),
-    name="N2Left",
+    name="GLeft",
 )  # fmt: skip
 
-n2 = Piece(
-    name="N2",
+g = Piece(
+    name="G",
     tile_index=0x7C,
     orientations=[
-        n2_up,
-        n2_right,
-        n2_down,
-        n2_left,
+        g_up,
+        g_right,
+        g_down,
+        g_left,
     ],
 )
 
@@ -838,10 +838,10 @@ table = OrientationTable(
         x,
         s,
         z,
-        p1,
-        p2,
-        n1,
-        n2,
+        p,
+        q,
+        n,
+        g,
         t,
         u,
         v,
