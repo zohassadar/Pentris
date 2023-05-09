@@ -1067,7 +1067,7 @@ gameModeState_initGameState:
         bne     @initStatsByType
         lda     #$04
         sta     renderedPlayfield
-        lda     #$08
+        lda     #$07
         sta     tetriminoX
         lda     #$00
         sta    statsPiecesTotal
@@ -2909,7 +2909,7 @@ playState_spawnNextTetrimino:
         sta     tetriminoY
         lda     #$01
         sta     playState
-        lda     #$08
+        lda     #$07
         sta     tetriminoX
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
