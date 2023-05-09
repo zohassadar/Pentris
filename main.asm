@@ -1262,6 +1262,8 @@ initCopyPlayfieldToPlayer2:
 ; Player1 Blank Lines
         ldx     startHeight
         lda     typeBBlankInitCountByHeightTable,x
+        clc
+        adc     #$10  ; add 2 rows
         tay
         lda     #$EF
 
@@ -1275,7 +1277,9 @@ endTypeBInit:
         rts
 
 typeBBlankInitCountByHeightTable:
-        .byte   $B4,$99,$87,$6C,$5A,$48
+        ; >>> "$" + ",$".join(f'{int(c,16)//10*8:02x}'.upper() 
+        ; for c in "$C8,$AA,$96,$78,$64,$50".replace("$","").split(","))
+        .byte   $A0,$88,$78,$60,$50,$40
 rngTable:
         .byte   $EF,$7B,$EF,$7C,$7D,$7D,$EF
         .byte   $EF
