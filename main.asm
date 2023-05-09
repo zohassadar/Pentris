@@ -38,6 +38,12 @@ currentOrientationTile := $0069
 statsPatchAddress := $006B
 topRowValidityCheck:= $006D
 statsPiecesTotal:=$006E
+
+effectiveTetriminoX   := $0070 ; TetriminoX is a value between 0-19.  
+                               ; This holds that value normalized to 0-9
+renderedVramRow       := $0071 ; Used to keep the original vramRow between playfields
+renderedPlayfield     := $0072  ; The playfield being rendered
+
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
 spriteIndexInOamContentLookup:= $00A2
@@ -110,6 +116,8 @@ oamStaging      := $0200                        ; format: https://wiki.nesdev.co
 statsByType     := $0300
 playfield       := $0400
 playfieldForSecondPlayer:= $0500
+leftPlayfield   := $0400
+rightPlayfield   := $0500
 musicStagingSq1Lo:= $0680
 musicStagingSq1Hi:= $0681
 audioInitialized:= $0682
@@ -1048,7 +1056,7 @@ game_typeb_nametable_patch:
 gameModeState_initGameState:
         lda     #$EF
         ldx     #$04
-        ldy     #$04
+        ldy     #$05
         jsr     memset_page
         ldx     #$24
         lda     #$00
@@ -1057,7 +1065,9 @@ gameModeState_initGameState:
         sta     $0300,x
         dex
         bne     @initStatsByType
-        lda     #$03
+        lda     #$04
+        sta     renderedPlayfield
+        lda     #$08
         sta     tetriminoX
         lda     #$00
         sta    statsPiecesTotal
@@ -1141,7 +1151,17 @@ gameModeState_initGameState:
         lda     #$47
         sta     outOfDateRenderFlags
         jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     #$04
+@setupSingleField:
+        sta     playfieldAddr+1
         jsr     initPlayfieldIfTypeB
+        ; jsr     updateAudioWaitForNmiAndResetOamStaging
+        inc     playfieldAddr+1
+        lda     playfieldAddr+1
+        cmp     #$06
+        bne     @setupSingleField
+        dec     playfieldAddr+1
+        dec     playfieldAddr+1
         ldx     musicType
         lda     musicSelectionTable,x
         jsr     setMusicTrack
@@ -1210,7 +1230,7 @@ typeBGarbageInRow:
         adc     generalCounter3
         tay
         lda     generalCounter4
-        sta     playfield,y
+        sta     (playfieldAddr),y
         lda     generalCounter3
         beq     typeBGuaranteeBlank
         dec     generalCounter3
@@ -1232,19 +1252,13 @@ typeBGuaranteeBlank:
         adc     generalCounter5
         tay
         lda     #$EF
-        sta     playfield,y
-        jsr     updateAudioWaitForNmiAndResetOamStaging
+        sta     (playfieldAddr),y
+        ; jsr     updateAudioWaitForNmiAndResetOamStaging  ; This might need to go
         dec     generalCounter
         bne     typeBRows
 
 initCopyPlayfieldToPlayer2:  
-        ldx     #$C8
-copyPlayfieldToPlayer2:  
-        lda     playfield,x
-        sta     playfieldForSecondPlayer,x
-        dex
-        bne     copyPlayfieldToPlayer2
-
+ 
 ; Player1 Blank Lines
         ldx     startHeight
         lda     typeBBlankInitCountByHeightTable,x
@@ -1252,7 +1266,7 @@ copyPlayfieldToPlayer2:
         lda     #$EF
 
 typeBBlankInitPlayer1:  
-        sta     playfield,y
+        sta     (playfieldAddr),y
         dey
         cpy     #$FF
         bne     typeBBlankInitPlayer1
@@ -1472,7 +1486,7 @@ stageSpriteForCurrentPiece:
         asl     a
         asl     a
         asl     a
-        adc     #$20 
+        adc     #$20
         sta     generalCounter3 ; x position of center block
         clc
         lda     tetriminoY
@@ -2329,50 +2343,58 @@ sprite55Penguin2:
         .byte   $00,$DD,$21,$00
         .byte   $00,$DE,$21,$08
         .byte   $FF
+
+effectiveTetriminoXTable:
+        .byte   $00,$01,$02,$03,$04,$05,$06,$07
+        .byte   $00,$01,$02,$03,$04,$05,$06,$07
+
+tetriminoXPlayfieldTable:
+        .byte   $04,$04,$04,$04,$04,$04,$04,$04
+        .byte   $05,$05,$05,$05,$05,$05,$05,$05
+
 isPositionValid:
-        lda     tetriminoY
-        asl     a
-        asl     a
-        asl     a
-        adc     tetriminoX
-        sta     generalCounter
         lda     currentPiece
         jsr     setOrientationTable
-        ldy     #$00
+        lda     #$00
+        sta     generalCounter5
         lda     #$05
         sta     generalCounter3
 ; Checks one square within the tetrimino
 @checkSquare:
+        lda     generalCounter5
+        tay
 
         lda     (currentOrientationY),y   ; Y offset
         clc
         adc     tetriminoY
+        sta     generalCounter
         clc
         adc     #$02
         cmp     #$18
         bcs     @invalid
-        lda     (currentOrientationY),y  ; Y offset
-        asl     a
- 
+        lda     generalCounter
         asl     a
         asl     a
+        asl     a
+        sta    generalCounter4
+        lda    tetriminoX
         clc
-        adc     generalCounter
-        sta     selectingLevelOrHeight
-        lda     (currentOrientationX),y     ; X offset
-        clc
-        adc     selectingLevelOrHeight
-        tax
-        lda     playfield,x
-        cmp     #$EF
-        bne     @invalid
-
-        lda     (currentOrientationX),y    ; X offset
-        clc
-        adc     tetriminoX
-        cmp     #$08
+        adc     (currentOrientationX),y     ; X offset
+; Check if column is valid before getting normalized
+        cmp     #$10    
         bcs     @invalid
-        iny                            ; This moves x to the next tile
+        tay
+        lda     tetriminoXPlayfieldTable,y
+        sta     playfieldAddr+1
+        lda     effectiveTetriminoXTable,y
+        lda     generalCounter4
+        clc     
+        adc     effectiveTetriminoXTable,y
+        tay
+        lda     (playfieldAddr),y
+        ; Changed from a cmp.  $EF is always negative.  $7[BCD] is not.
+        bpl     @invalid 
+        inc     generalCounter5
         dec     generalCounter3
         bne     @checkSquare
         lda     #$00
@@ -2397,12 +2419,22 @@ render_mode_play_and_demo:
         jmp     @renderLines
 
 @playStateNotDisplayLineClearingAnimation:
-        lda     #$04
+        ; Draw all of the rows for either the left or the right playfield
+        lda     renderedPlayfield
         sta     playfieldAddr+1
+        lda     vramRow
+        sta     renderedVramRow
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
+        lda     renderedPlayfield
+        eor     #$01
+        sta     renderedPlayfield
+        cmp     #$05
+        beq     @renderLines
+        lda     renderedVramRow
+        sta     vramRow
 @renderLines:
         lda     outOfDateRenderFlags
         and     #$01
@@ -2686,6 +2718,18 @@ copyPlayfieldRowToVRAM:
         lda     vramPlayfieldRows,x
         sta     PPUADDR
         dex
+        lda     playfieldAddr+1
+        cmp     #$05
+        beq     @rightPlayfield
+        jmp     @leftPlayfield
+@rightPlayfield:
+        lda     vramPlayfieldRows,x
+        clc
+        adc     #$06
+        sta     PPUADDR
+        jmp     @copyRow
+
+@leftPlayfield:
         lda     vramPlayfieldRows,x
         sec
         sbc     #$02
@@ -2721,8 +2765,8 @@ updateLineClearingAnimation:
         lda     vramPlayfieldRows,y
         sta     generalCounter
         lda     generalCounter
-        clc
-        adc     #$04
+        sec
+        sbc     #$02
         sta     generalCounter
         iny
         lda     vramPlayfieldRows,y
@@ -2751,15 +2795,15 @@ updateLineClearingAnimation:
         bne     @whileCounter3LessThan5
         inc     rowY
         lda     rowY
-        cmp     #$05
+        cmp     #$07
         bmi     @ret
         inc     playState
 @ret:   rts
 
 leftColumns:
-        .byte   $05,$04,$03,$02,$01,$00
+        .byte   $07,$06,$05,$04,$03,$02,$01,$00
 rightColumns:
-        .byte   $06,$07,$08,$09,$0A,$0B
+        .byte   $08,$09,$0A,$0B,$0C,$0D,$0E,$0F
 ; Set Background palette 2 and Sprite palette 2
 updatePaletteForLevel:
         lda     levelNumber
@@ -2837,7 +2881,7 @@ playState_spawnNextTetrimino:
         sta     tetriminoY
         lda     #$01
         sta     playState
-        lda     #$03
+        lda     #$08
         sta     tetriminoX
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
@@ -3016,27 +3060,36 @@ playState_lockTetrimino:
         lda     currentPiece
         jsr     setOrientationTable
 
-        ldy     #$00
+        lda     #$00
+        sta     generalCounter5
         lda     #$05
         sta     generalCounter3
 ; Copies a single square of the tetrimino to the playfield
 @lockSquare:
-        lda     (currentOrientationY),y         ; Y offset
+        lda     generalCounter5
+        tay
+        lda     (currentOrientationTile),y
+        sta     generalCounter2
+        lda     tetriminoY
+        clc
+        adc     (currentOrientationY),y         ; Y offset
         asl     a
         asl     a
         asl     a
+        sta     generalCounter
+        lda     tetriminoX
+        clc
+        adc     (currentOrientationX),y
+        tay
+        lda     tetriminoXPlayfieldTable,y
+        sta     playfieldAddr+1
+        lda     effectiveTetriminoXTable,y
         clc
         adc     generalCounter
-        sta     selectingLevelOrHeight
-        lda     (currentOrientationTile),y      ; Tile index
-        sta     generalCounter5
-        lda     (currentOrientationX),y         ; X offset
-        clc
-        adc     selectingLevelOrHeight
-        tax
-        lda     generalCounter5
-        sta     playfield,x
-        iny                                  ; this moves x to the next tile
+        tay
+        lda     generalCounter2
+        sta     (playfieldAddr),y                            ; this moves x to the next tile
+        inc     generalCounter5
         dec     generalCounter3
         bne     @lockSquare
         lda     #$00
@@ -3063,7 +3116,8 @@ playState_updateGameOverCurtain:
         sta     currentPiece
 @drawCurtainRow:
         lda     #$4F
-        sta     (playfieldAddr),y
+        sta     leftPlayfield,y
+        sta     rightPlayfield,y
         iny
         inc     generalCounter3
         lda     generalCounter3
@@ -3118,9 +3172,12 @@ playState_checkForCompletedRows:
         asl     a
         sta     generalCounter
         tay
-        ldx     #$0C
+        ldx     #$08
 @checkIfRowComplete:
-        lda     (playfieldAddr),y
+        lda     leftPlayfield,y
+        cmp     #$EF
+        beq     @rowNotComplete
+        lda     rightPlayfield,y
         cmp     #$EF
         beq     @rowNotComplete
         iny
@@ -3135,19 +3192,18 @@ playState_checkForCompletedRows:
         ldy     generalCounter
         dey
 @movePlayfieldDownOneRow:
-        lda     (playfieldAddr),y
-        ldx     #$08
-        stx     playfieldAddr
-        sta     (playfieldAddr),y
-        lda     #$00
-        sta     playfieldAddr
+        lda     leftPlayfield,y
+        sta     leftPlayfield+8,y
+        lda     rightPlayfield,y
+        sta     rightPlayfield+8,y
         dey
         cpy     #$FF
         bne     @movePlayfieldDownOneRow
         lda     #$EF
         ldy     #$00
 @clearRowTopRow:
-        sta     (playfieldAddr),y
+        sta     leftPlayfield,y
+        sta     rightPlayfield,y
         iny
         cpy     #$08
         bne     @clearRowTopRow
