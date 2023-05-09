@@ -1212,7 +1212,7 @@ typeBRows:
         sta     generalCounter2  ; row (22 - generalCounter)
         lda     #$00
         sta     vramRow
-        lda     #$07
+        lda     #$06
         sta     generalCounter3 ; column
 
 typeBGarbageInRow:  
@@ -1225,7 +1225,7 @@ typeBGarbageInRow:
         lda     rngTable,y
         sta     generalCounter4 ; random square or blank
         ldx     generalCounter2
-        lda     multBy8Table,x
+        lda     multBy7Table,x
         clc
         adc     generalCounter3
         tay
@@ -1242,12 +1242,12 @@ typeBGuaranteeBlank:
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
         and     #$0F
-        cmp     #$08
+        cmp     #$07
         bpl     typeBGuaranteeBlank
 
         sta     generalCounter5 ; blanked column
         ldx     generalCounter2
-        lda     multBy8Table,x
+        lda     multBy7Table,x
         clc
         adc     generalCounter5
         tay
@@ -1262,6 +1262,8 @@ initCopyPlayfieldToPlayer2:
 ; Player1 Blank Lines
         ldx     startHeight
         lda     typeBBlankInitCountByHeightTable,x
+        clc
+        adc     #$0E  ; Add 2 rows
         tay
         lda     #$EF
 
@@ -1275,7 +1277,9 @@ endTypeBInit:
         rts
 
 typeBBlankInitCountByHeightTable:
-        .byte   $B4,$99,$87,$6C,$5A,$48
+        ; >>> "$" + ",$".join(f'{int(c,16)//10*7:02x}'.upper() 
+        ;for c in "$C8,$AA,$96,$78,$64,$50".replace("$","").split(","))
+        .byte   $8C,$77,$69,$54,$46,$38
 rngTable:
         .byte   $EF,$7B,$EF,$7C,$7D,$7D,$EF
         .byte   $EF
@@ -1486,7 +1490,7 @@ stageSpriteForCurrentPiece:
         asl     a
         asl     a
         asl     a
-        adc     #$20
+        adc     #$30
         sta     generalCounter3 ; x position of center block
         clc
         lda     tetriminoY
@@ -2345,12 +2349,12 @@ sprite55Penguin2:
         .byte   $FF
 
 effectiveTetriminoXTable:
-        .byte   $00,$01,$02,$03,$04,$05,$06,$07
-        .byte   $00,$01,$02,$03,$04,$05,$06,$07
+        .byte   $00,$01,$02,$03,$04,$05,$06
+        .byte   $00,$01,$02,$03,$04,$05,$06
 
 tetriminoXPlayfieldTable:
-        .byte   $04,$04,$04,$04,$04,$04,$04,$04
-        .byte   $05,$05,$05,$05,$05,$05,$05,$05
+        .byte   $04,$04,$04,$04,$04,$04,$04
+        .byte   $05,$05,$05,$05,$05,$05,$05
 
 isPositionValid:
         lda     currentPiece
@@ -2376,12 +2380,14 @@ isPositionValid:
         asl     a
         asl     a
         asl     a
+        sec
+        sbc    generalCounter
         sta    generalCounter4
         lda    tetriminoX
         clc
         adc     (currentOrientationX),y     ; X offset
 ; Check if column is valid before getting normalized
-        cmp     #$10    
+        cmp     #$0E    
         bcs     @invalid
         tay
         lda     tetriminoXPlayfieldTable,y
@@ -2463,7 +2469,7 @@ render_mode_play_and_demo:
         beq     @renderLevel
         lda     #$20
         sta     PPUADDR
-        lda     #$6E
+        lda     #$6F
         sta     PPUADDR
         lda     lines+1
         sta     PPUDATA
@@ -2610,10 +2616,10 @@ levelDisplayTable:
         .byte   $08,$09,$10,$11,$12,$13,$14,$15
         .byte   $16,$17,$18,$19,$20,$21,$22,$23
         .byte   $24,$25,$26,$27,$28,$29
-multBy8Table:
-        .byte   $00,$08,$10,$18,$20,$28,$30,$38
-        .byte   $40,$48,$50,$58,$60,$68,$70,$78
-        .byte   $80,$88,$90,$98,$a0,$a8
+multBy7Table:
+        .byte   $00,$07,$0e,$15,$1c,$23,$2a,$31
+        .byte   $38,$3f,$46,$4d,$54,$5b,$62,$69
+        .byte   $70,$77,$7e,$85,$8c,$93
 ; addresses
 vramPlayfieldRows:
         .word   $20C6,$20E6,$2106,$2126
@@ -2731,7 +2737,7 @@ copyPlayfieldRowToVRAM:
         ldx     vramRow
         cpx     #$17
         bpl     @ret
-        lda     multBy8Table,x
+        lda     multBy7Table,x
         tay
         txa
         asl     a
@@ -2747,17 +2753,17 @@ copyPlayfieldRowToVRAM:
 @rightPlayfield:
         lda     vramPlayfieldRows,x
         clc
-        adc     #$06
+        adc     #$07
         sta     PPUADDR
         jmp     @copyRow
 
 @leftPlayfield:
         lda     vramPlayfieldRows,x
-        sec
-        sbc     #$02
+        ; sec
+        ; sbc     #$02
         sta     PPUADDR
 @copyRow:
-        ldx     #$08
+        ldx     #$07
 @copyByte:
         lda     (playfieldAddr),y
         sta     PPUDATA
@@ -2786,10 +2792,10 @@ updateLineClearingAnimation:
         tay
         lda     vramPlayfieldRows,y
         sta     generalCounter
-        lda     generalCounter
-        sec
-        sbc     #$02
-        sta     generalCounter
+        ; lda     generalCounter
+        ; sec
+        ; sbc     #$02
+        ; sta     generalCounter
         iny
         lda     vramPlayfieldRows,y
         sta     generalCounter2
@@ -2823,9 +2829,9 @@ updateLineClearingAnimation:
 @ret:   rts
 
 leftColumns:
-        .byte   $07,$06,$05,$04,$03,$02,$01,$00
+        .byte   $06,$05,$04,$03,$02,$01,$00
 rightColumns:
-        .byte   $08,$09,$0A,$0B,$0C,$0D,$0E,$0F
+        .byte   $07,$08,$09,$0A,$0B,$0C,$0D
 ; Set Background palette 2 and Sprite palette 2
 updatePaletteForLevel:
         lda     levelNumber
@@ -3077,6 +3083,9 @@ playState_lockTetrimino:
         asl     a
         asl     a
         asl     a
+        sec
+        sbc     tetriminoY
+        clc
         adc     tetriminoX
         sta     generalCounter
         lda     currentPiece
@@ -3095,9 +3104,12 @@ playState_lockTetrimino:
         lda     tetriminoY
         clc
         adc     (currentOrientationY),y         ; Y offset
+        sta     generalCounter
         asl     a
         asl     a
         asl     a
+        sec
+        sbc     generalCounter
         sta     generalCounter
         lda     tetriminoX
         clc
@@ -3130,7 +3142,7 @@ playState_updateGameOverCurtain:
         bne     @ret
         ldx     curtainRow
         bmi     @incrementCurtainRow
-        lda     multBy8Table,x
+        lda     multBy7Table,x
         tay
         lda     #$00
         sta     generalCounter3
@@ -3143,7 +3155,7 @@ playState_updateGameOverCurtain:
         iny
         inc     generalCounter3
         lda     generalCounter3
-        cmp     #$08
+        cmp     #$07
         bne     @drawCurtainRow
         lda     curtainRow
         sta     vramRow
@@ -3192,9 +3204,11 @@ playState_checkForCompletedRows:
         asl     a
         asl     a
         asl     a
+        sec
+        sbc     generalCounter2
         sta     generalCounter
         tay
-        ldx     #$08
+        ldx     #$07
 @checkIfRowComplete:
         lda     leftPlayfield,y
         cmp     #$EF
@@ -3215,9 +3229,9 @@ playState_checkForCompletedRows:
         dey
 @movePlayfieldDownOneRow:
         lda     leftPlayfield,y
-        sta     leftPlayfield+8,y
+        sta     leftPlayfield+7,y
         lda     rightPlayfield,y
-        sta     rightPlayfield+8,y
+        sta     rightPlayfield+7,y
         dey
         cpy     #$FF
         bne     @movePlayfieldDownOneRow
@@ -3227,7 +3241,7 @@ playState_checkForCompletedRows:
         sta     leftPlayfield,y
         sta     rightPlayfield,y
         iny
-        cpy     #$08
+        cpy     #$07
         bne     @clearRowTopRow
 .include "orientation/hidden_piece_id.asm"
         sta     currentPiece
@@ -3509,9 +3523,9 @@ gameModeState_handleGameOver:
 
 updateMusicSpeed:
         ldx     #$05
-        lda     multBy8Table,x
+        lda     multBy7Table,x
         tay
-        ldx     #$08
+        ldx     #$07
 @checkForBlockInRow:
         lda     (playfieldAddr),y
         cmp     #$EF
