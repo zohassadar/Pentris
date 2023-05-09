@@ -2995,10 +2995,10 @@ L9996:  lda     generalCounter
         clc
         adc     #$60
         sta     generalCounter
-        lda     statsPiecesTotal+1,x
+        lda     statsPiecesTotal+1
         clc
         adc     #$01
-        sta     statsPiecesTotal+1,x
+        sta     statsPiecesTotal+1
 L9996A: lda     generalCounter
         sta     statsPiecesTotal
 
