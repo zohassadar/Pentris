@@ -1057,7 +1057,7 @@ gameModeState_initGameState:
         sta     $0300,x
         dex
         bne     @initStatsByType
-        lda     #$06
+        lda     #$03
         sta     tetriminoX
         lda     #$00
         sta    statsPiecesTotal
@@ -1186,13 +1186,13 @@ initPlayfieldForTypeB:
 typeBRows:  
         lda     generalCounter
         beq     initCopyPlayfieldToPlayer2
-        lda     #$14
+        lda     #$16
         sec
         sbc     generalCounter
-        sta     generalCounter2  ; row (20 - generalCounter)
+        sta     generalCounter2  ; row (22 - generalCounter)
         lda     #$00
         sta     vramRow
-        lda     #$0B
+        lda     #$07
         sta     generalCounter3 ; column
 
 typeBGarbageInRow:  
@@ -1205,7 +1205,7 @@ typeBGarbageInRow:
         lda     rngTable,y
         sta     generalCounter4 ; random square or blank
         ldx     generalCounter2
-        lda     multBy12Table,x
+        lda     multBy8Table,x
         clc
         adc     generalCounter3
         tay
@@ -1222,12 +1222,12 @@ typeBGuaranteeBlank:
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
         and     #$0F
-        cmp     #$0C
+        cmp     #$08
         bpl     typeBGuaranteeBlank
 
         sta     generalCounter5 ; blanked column
         ldx     generalCounter2
-        lda     multBy12Table,x
+        lda     multBy8Table,x
         clc
         adc     generalCounter5
         tay
@@ -1261,7 +1261,7 @@ endTypeBInit:
         rts
 
 typeBBlankInitCountByHeightTable:
-        .byte   $F0,$CC,$B4,$90,$78,$60
+        .byte   $B4,$99,$87,$6C,$5A,$48
 rngTable:
         .byte   $EF,$7B,$EF,$7C,$7D,$7D,$EF
         .byte   $EF
@@ -1472,7 +1472,7 @@ stageSpriteForCurrentPiece:
         asl     a
         asl     a
         asl     a
-        adc     #$50 ; Shift spawn location 16 pixels to the left
+        adc     #$20 
         sta     generalCounter3 ; x position of center block
         clc
         lda     tetriminoY
@@ -1539,7 +1539,7 @@ stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
 
-        lda     #$D4
+        lda     #$CC
         ldx     nextPiece
         clc
         adc     nextOffsetX,x
@@ -2332,13 +2332,8 @@ sprite55Penguin2:
 isPositionValid:
         lda     tetriminoY
         asl     a
-        sta     generalCounter
         asl     a
         asl     a
-        clc
-        adc     generalCounter
-        clc
-        adc     generalCounter
         adc     tetriminoX
         sta     generalCounter
         lda     currentPiece
@@ -2348,32 +2343,19 @@ isPositionValid:
         sta     generalCounter3
 ; Checks one square within the tetrimino
 @checkSquare:
-; reset check to zero
-        lda    #$00
-        sta    topRowValidityCheck
+
         lda     (currentOrientationY),y   ; Y offset
         clc
         adc     tetriminoY
-        pha
-; Set 1 if tetriminoY with offset is negative -1 or negative -2
-        cmp     #$FE
-        bcc     @yOffsetIsNotNegative
-        inc     topRowValidityCheck 
-        @yOffsetIsNotNegative:
-        pla
         clc
         adc     #$02
-        cmp     #$16
+        cmp     #$18
         bcs     @invalid
         lda     (currentOrientationY),y  ; Y offset
         asl     a
-        sta     generalCounter4
+ 
         asl     a
         asl     a
-        clc
-        adc     generalCounter4
-        clc
-        adc     generalCounter4
         clc
         adc     generalCounter
         sta     selectingLevelOrHeight
@@ -2383,12 +2365,12 @@ isPositionValid:
         tax
         lda     playfield,x
         cmp     #$EF
-        bcc     @invalidByCollision
-@possiblyNotInvalid:
+        bne     @invalid
+
         lda     (currentOrientationX),y    ; X offset
         clc
         adc     tetriminoX
-        cmp     #$0C
+        cmp     #$08
         bcs     @invalid
         iny                            ; This moves x to the next tile
         dec     generalCounter3
@@ -2397,12 +2379,6 @@ isPositionValid:
         sta     generalCounter
         rts
 
-@invalidByCollision:
-        ; Set 2 if invalid due to collision (x is between 0 and 29 and Y is negative)
-        lda     topRowValidityCheck
-        ora     #$02
-        cmp     #$03
-        beq     @possiblyNotInvalid
 
 @invalid:
         lda     #$FF
@@ -2580,10 +2556,10 @@ levelDisplayTable:
         .byte   $08,$09,$10,$11,$12,$13,$14,$15
         .byte   $16,$17,$18,$19,$20,$21,$22,$23
         .byte   $24,$25,$26,$27,$28,$29
-multBy12Table:
-        .byte   $00,$0C,$18,$24,$30,$3C,$48,$54
-        .byte   $60,$6C,$78,$84,$90,$9C,$A8,$B4
-        .byte   $C0,$CC,$D8,$E4
+multBy8Table:
+        .byte   $00,$08,$10,$18,$20,$28,$30,$38
+        .byte   $40,$48,$50,$58,$60,$68,$70,$78
+        .byte   $80,$88,$90,$98,$a0,$a8
 ; addresses
 vramPlayfieldRows:
         .word   $20C6,$20E6,$2106,$2126
@@ -2591,6 +2567,7 @@ vramPlayfieldRows:
         .word   $21C6,$21E6,$2206,$2226
         .word   $2246,$2266,$2286,$22A6
         .word   $22C6,$22E6,$2306,$2326
+        .word   $2346,$2366
 twoDigsToPPU:
         sta     generalCounter
         and     #$F0
@@ -2698,9 +2675,9 @@ statsPatchForY2:
 
 copyPlayfieldRowToVRAM:
         ldx     vramRow
-        cpx     #$15
+        cpx     #$17
         bpl     @ret
-        lda     multBy12Table,x
+        lda     multBy8Table,x
         tay
         txa
         asl     a
@@ -2710,11 +2687,11 @@ copyPlayfieldRowToVRAM:
         sta     PPUADDR
         dex
         lda     vramPlayfieldRows,x
-        clc
-        adc     #$04
+        sec
+        sbc     #$02
         sta     PPUADDR
 @copyRow:
-        ldx     #$0C
+        ldx     #$08
 @copyByte:
         lda     (playfieldAddr),y
         sta     PPUDATA
@@ -2723,7 +2700,7 @@ copyPlayfieldRowToVRAM:
         bne     @copyByte
         inc     vramRow
         lda     vramRow
-        cmp     #$14
+        cmp     #$16
         bmi     @ret
         lda     #$20
         sta     vramRow
@@ -2860,7 +2837,7 @@ playState_spawnNextTetrimino:
         sta     tetriminoY
         lda     #$01
         sta     playState
-        lda     #$06
+        lda     #$03
         sta     tetriminoX
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
@@ -3032,13 +3009,8 @@ playState_lockTetrimino:
         bmi     @ret
         lda     tetriminoY
         asl     a
-        sta     generalCounter
         asl     a
         asl     a
-        clc
-        adc     generalCounter
-        clc
-        adc     generalCounter
         adc     tetriminoX
         sta     generalCounter
         lda     currentPiece
@@ -3051,13 +3023,8 @@ playState_lockTetrimino:
 @lockSquare:
         lda     (currentOrientationY),y         ; Y offset
         asl     a
-        sta     generalCounter4
         asl     a
         asl     a
-        clc
-        adc     generalCounter4
-        clc
-        adc     generalCounter4
         clc
         adc     generalCounter
         sta     selectingLevelOrHeight
@@ -3081,14 +3048,14 @@ playState_lockTetrimino:
 
 playState_updateGameOverCurtain:
         lda     curtainRow
-        cmp     #$14
+        cmp     #$16
         beq     @curtainFinished
         lda     frameCounter
         and     #$03
         bne     @ret
         ldx     curtainRow
         bmi     @incrementCurtainRow
-        lda     multBy12Table,x
+        lda     multBy8Table,x
         tay
         lda     #$00
         sta     generalCounter3
@@ -3100,7 +3067,7 @@ playState_updateGameOverCurtain:
         iny
         inc     generalCounter3
         lda     generalCounter3
-        cmp     #$0C
+        cmp     #$08
         bne     @drawCurtainRow
         lda     curtainRow
         sta     vramRow
@@ -3147,13 +3114,8 @@ playState_checkForCompletedRows:
         adc     lineIndex
         sta     generalCounter2
         asl     a
-        sta     generalCounter
         asl     a
         asl     a
-        clc
-        adc     generalCounter
-        clc
-        adc     generalCounter
         sta     generalCounter
         tay
         ldx     #$0C
@@ -3174,7 +3136,7 @@ playState_checkForCompletedRows:
         dey
 @movePlayfieldDownOneRow:
         lda     (playfieldAddr),y
-        ldx     #$0C
+        ldx     #$08
         stx     playfieldAddr
         sta     (playfieldAddr),y
         lda     #$00
@@ -3187,7 +3149,7 @@ playState_checkForCompletedRows:
 @clearRowTopRow:
         sta     (playfieldAddr),y
         iny
-        cpy     #$0A
+        cpy     #$08
         bne     @clearRowTopRow
 .include "orientation/hidden_piece_id.asm"
         sta     currentPiece
@@ -3469,9 +3431,9 @@ gameModeState_handleGameOver:
 
 updateMusicSpeed:
         ldx     #$05
-        lda     multBy12Table,x
+        lda     multBy8Table,x
         tay
-        ldx     #$0C
+        ldx     #$08
 @checkForBlockInRow:
         lda     (playfieldAddr),y
         cmp     #$EF
