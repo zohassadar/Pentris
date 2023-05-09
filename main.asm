@@ -962,9 +962,9 @@ gameModeState_initGameBackground:
         .addr   game_palette
         jsr     bulkCopyToPpu
         .addr   game_nametable
-        lda     #$20
+        lda     #$23
         sta     PPUADDR
-        lda     #$82
+        lda     #$57
         sta     PPUADDR
         lda     gameType
         bne     @typeB
@@ -972,7 +972,7 @@ gameModeState_initGameBackground:
         sta     PPUDATA
         lda     #$21
         sta     PPUADDR
-        lda     #$98
+        lda     #$B7
         sta     PPUADDR
         lda     highScoreScoresA
         jsr     twoDigsToPPU
@@ -982,11 +982,12 @@ gameModeState_initGameBackground:
         jsr     twoDigsToPPU
         jmp     gameModeState_initGameBackground_finish
 
-@typeB: lda     #$0B
+@typeB: 
+        lda     #$0B
         sta     PPUDATA
         lda     #$21
         sta     PPUADDR
-        lda     #$98
+        lda     #$B7
         sta     PPUADDR
         lda     highScoreScoresB
         jsr     twoDigsToPPU
@@ -994,6 +995,7 @@ gameModeState_initGameBackground:
         jsr     twoDigsToPPU
         lda     highScoreScoresB+2
         jsr     twoDigsToPPU
+        jmp     @endOfPpuPatching  ; Disable patch for now!
         ldx     #$00
 @nextPpuAddress:
         lda     game_typeb_nametable_patch,x
@@ -1013,10 +1015,12 @@ gameModeState_initGameBackground:
         jmp     @nextPpuData
 
 @endOfPpuPatching:
-        lda     #$23
+        lda     #$22
         sta     PPUADDR
-        lda     #$3B
+        lda     #$DA
         sta     PPUADDR
+        lda     #$24
+        sta     PPUDATA
         lda     startHeight
         and     #$0F
         sta     PPUDATA
@@ -1039,6 +1043,8 @@ game_typeb_nametable_patch:
         .byte   $23,$17,$3B,$11,$0E,$12,$10,$11,$1D,$3C,$FE
         .byte   $23,$37,$3B,$FF,$FF,$FF,$FF,$FF,$FF,$3C,$FE
         .byte   $23,$57,$3D,$3E,$3E,$3E,$3E,$3E,$3E,$3F,$FD
+
+
 gameModeState_initGameState:
         lda     #$EF
         ldx     #$04
@@ -2427,7 +2433,7 @@ render_mode_play_and_demo:
         beq     @renderLevel
         lda     #$20
         sta     PPUADDR
-        lda     #$72
+        lda     #$6E
         sta     PPUADDR
         lda     lines+1
         sta     PPUDATA
@@ -2445,7 +2451,7 @@ render_mode_play_and_demo:
         sta     generalCounter
         lda     #$22
         sta     PPUADDR
-        lda     #$BA
+        lda     #$D8
         sta     PPUADDR
         lda     generalCounter
         jsr     twoDigsToPPU
@@ -2457,9 +2463,9 @@ render_mode_play_and_demo:
         lda     outOfDateRenderFlags
         and     #$04
         beq     @renderStats
-        lda     #$21
+        lda     #$22
         sta     PPUADDR
-        lda     #$F8
+        lda     #$17
         sta     PPUADDR
         lda     score+2
         jsr     twoDigsToPPU
@@ -2473,6 +2479,7 @@ render_mode_play_and_demo:
 @renderStats:
         lda     outOfDateRenderFlags
         and     #$40
+        and     #$00    ; disable stats for now!
         bne     @continue
         jmp      @renderTetrisFlashAndSound
 @continue:
