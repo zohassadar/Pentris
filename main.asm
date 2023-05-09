@@ -2774,7 +2774,7 @@ copyPlayfieldRowToVRAM:
 
 updateLineClearingAnimation:
         lda     frameCounter
-        and     #$1F
+        and     #$03
         bne     @ret
         lda     #$00
         sta     generalCounter3
