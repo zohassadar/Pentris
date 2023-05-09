@@ -1089,18 +1089,19 @@ gameModeState_initGameState:
         sta     score+2
 .ifdef DEBUG
         lda     #$7C
-        ldy     #$ef
+        ldy     #$9a
 @plantBlocks:
-        sta     playfield,y
+        sta     leftPlayfield,y
+        sta     rightPlayfield,y
         dey
-        cpy     #$b3
+        cpy     #$76
         bne     @plantBlocks
         lda     #$EF
-        sta     $04ea
-        sta     $04de
-        sta     $04d2
-        sta     $04c6
-        sta     $04ba
+        sta     $047d
+        sta     $0484
+        sta     $048b
+        sta     $0492
+        sta     $0499
         lda     #$09
         sta     lines
         lda     #$00 
@@ -2519,55 +2520,55 @@ render_mode_play_and_demo:
         bne     @continue
         jmp      @renderTetrisFlashAndSound
 @continue:
-        ldx     currentPiece
-        lda     tetriminoTypeFromOrientation,x
-        cmp     #$11
-        beq     @renderLongBarStat
-        asl
-        tax
-        lda     #$21
-        sta     PPUADDR
-        lda     #$C3
-        sta     PPUADDR
-        lda     statsByType+1,x
-        sta     PPUDATA
-        lda     statsByType,x
-        jsr     twoDigsToPPU
-        lda     statsPatchAddresses,x
-        sta     statsPatchAddress
-        inx
-        lda     statsPatchAddresses,x
-        sta     statsPatchAddress+1
-@renderPieceStat:
-        ldy     #$00
-@nextPpuAddress:
-        lda     (statsPatchAddress),y
-        iny
-        sta     PPUADDR
-        lda     (statsPatchAddress),y
-        iny
-        sta     PPUADDR
-@nextPpuData:
-        lda     (statsPatchAddress),y
-        iny
-        cmp     #$FE
-        beq     @nextPpuAddress
-        cmp     #$FD
-        beq     @endOfPpuPatching
-        sta     PPUDATA
-        jmp     @nextPpuData
-        jmp       @endOfPpuPatching
-@renderLongBarStat:
-        asl
-        tax
-        lda     #$22
-        sta     PPUADDR
-        lda     #$43
-        sta     PPUADDR
-        lda     statsByType+1,x
-        sta     PPUDATA
-        lda     statsByType,x
-        jsr     twoDigsToPPU
+;         ldx     currentPiece
+;         lda     tetriminoTypeFromOrientation,x
+;         cmp     #$11
+;         beq     @renderLongBarStat
+;         asl
+;         tax
+;         lda     #$21
+;         sta     PPUADDR
+;         lda     #$C3
+;         sta     PPUADDR
+;         lda     statsByType+1,x
+;         sta     PPUDATA
+;         lda     statsByType,x
+;         jsr     twoDigsToPPU
+;         lda     statsPatchAddresses,x
+;         sta     statsPatchAddress
+;         inx
+;         lda     statsPatchAddresses,x
+;         sta     statsPatchAddress+1
+; @renderPieceStat:
+;         ldy     #$00
+; @nextPpuAddress:
+;         lda     (statsPatchAddress),y
+;         iny
+;         sta     PPUADDR
+;         lda     (statsPatchAddress),y
+;         iny
+;         sta     PPUADDR
+; @nextPpuData:
+;         lda     (statsPatchAddress),y
+;         iny
+;         cmp     #$FE
+;         beq     @nextPpuAddress
+;         cmp     #$FD
+;         beq     @endOfPpuPatching
+;         sta     PPUDATA
+;         jmp     @nextPpuData
+;         jmp       @endOfPpuPatching
+; @renderLongBarStat:
+;         asl
+;         tax
+;         lda     #$22
+;         sta     PPUADDR
+;         lda     #$43
+;         sta     PPUADDR
+;         lda     statsByType+1,x
+;         sta     PPUDATA
+;         lda     statsByType,x
+;         jsr     twoDigsToPPU
 @endOfPpuPatching:
         lda     #$22
         sta     PPUADDR
@@ -2643,94 +2644,94 @@ twoDigsToPPU:
 
 
 
-statsPatchAddresses:
-    .addr statsPatchForF1
-    .addr statsPatchForF2
-    .addr statsPatchForJ
-    .addr statsPatchForL
-    .addr statsPatchForX
-    .addr statsPatchForS
-    .addr statsPatchForZ
-    .addr statsPatchForP1
-    .addr statsPatchForP2
-    .addr statsPatchForN1
-    .addr statsPatchForN2
-    .addr statsPatchForT
-    .addr statsPatchForU
-    .addr statsPatchForV
-    .addr statsPatchForW
-    .addr statsPatchForY1
-    .addr statsPatchForY2
+; statsPatchAddresses:
+;     .addr statsPatchForF1
+;     .addr statsPatchForF2
+;     .addr statsPatchForJ
+;     .addr statsPatchForL
+;     .addr statsPatchForX
+;     .addr statsPatchForS
+;     .addr statsPatchForZ
+;     .addr statsPatchForP1
+;     .addr statsPatchForP2
+;     .addr statsPatchForN1
+;     .addr statsPatchForN2
+;     .addr statsPatchForT
+;     .addr statsPatchForU
+;     .addr statsPatchForV
+;     .addr statsPatchForW
+;     .addr statsPatchForY1
+;     .addr statsPatchForY2
 
 
-statsPatchForF1:
-        .byte   $21,$42,$FF,$FF,$7B,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$FF,$7B,$FF,$FD
-statsPatchForF2:
-        .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-        .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
-statsPatchForJ:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$7D,$7D,$7D,$7D,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
-statsPatchForL:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7B,$7B,$7B,$7B,$FE
-        .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
-statsPatchForX:
-        .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
-statsPatchForS:
-        .byte   $21,$42,$FF,$7D,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
-statsPatchForZ:
-        .byte   $21,$42,$FF,$FF,$FF,$7B,$FF,$FE
-        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-        .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
-statsPatchForP1:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-        .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
-statsPatchForP2:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$7D,$7D,$FF,$FD
-statsPatchForN1:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$7B,$7B,$7B,$FF,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$7B,$7B,$FF,$FD
-statsPatchForN2:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$FF,$7C,$7C,$7C,$FE
-        .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
-statsPatchForT:
-        .byte   $21,$42,$FF,$7D,$7D,$7D,$FF,$FE
-        .byte   $21,$62,$FF,$FF,$7D,$FF,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
-statsPatchForU:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-        .byte   $21,$82,$FF,$7B,$FF,$7B,$FF,$FD
-statsPatchForV:
-        .byte   $21,$42,$FF,$7C,$7C,$7C,$FF,$FE
-        .byte   $21,$62,$FF,$7C,$FF,$FF,$FF,$FE
-        .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
-statsPatchForW:
-        .byte   $21,$42,$FF,$FF,$7D,$7D,$FF,$FE
-        .byte   $21,$62,$FF,$7D,$7D,$FF,$FF,$FE
-        .byte   $21,$82,$FF,$7D,$FF,$FF,$FF,$FD
-statsPatchForY1:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$7C,$7C,$7C,$7C,$FF,$FE
-        .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
-statsPatchForY2:
-        .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-        .byte   $21,$62,$FF,$7D,$7D,$7D,$7D,$FE
-        .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
+; statsPatchForF1:
+;         .byte   $21,$42,$FF,$FF,$7B,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$FF,$7B,$FF,$FD
+; statsPatchForF2:
+;         .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+;         .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
+; statsPatchForJ:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$7D,$7D,$7D,$7D,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
+; statsPatchForL:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7B,$7B,$7B,$7B,$FE
+;         .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
+; statsPatchForX:
+;         .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
+; statsPatchForS:
+;         .byte   $21,$42,$FF,$7D,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
+; statsPatchForZ:
+;         .byte   $21,$42,$FF,$FF,$FF,$7B,$FF,$FE
+;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+;         .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
+; statsPatchForP1:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
+;         .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
+; statsPatchForP2:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$7D,$7D,$FF,$FD
+; statsPatchForN1:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$7B,$7B,$7B,$FF,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$7B,$7B,$FF,$FD
+; statsPatchForN2:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$FF,$7C,$7C,$7C,$FE
+;         .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
+; statsPatchForT:
+;         .byte   $21,$42,$FF,$7D,$7D,$7D,$FF,$FE
+;         .byte   $21,$62,$FF,$FF,$7D,$FF,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
+; statsPatchForU:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
+;         .byte   $21,$82,$FF,$7B,$FF,$7B,$FF,$FD
+; statsPatchForV:
+;         .byte   $21,$42,$FF,$7C,$7C,$7C,$FF,$FE
+;         .byte   $21,$62,$FF,$7C,$FF,$FF,$FF,$FE
+;         .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
+; statsPatchForW:
+;         .byte   $21,$42,$FF,$FF,$7D,$7D,$FF,$FE
+;         .byte   $21,$62,$FF,$7D,$7D,$FF,$FF,$FE
+;         .byte   $21,$82,$FF,$7D,$FF,$FF,$FF,$FD
+; statsPatchForY1:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$7C,$7C,$7C,$7C,$FF,$FE
+;         .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
+; statsPatchForY2:
+;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
+;         .byte   $21,$62,$FF,$7D,$7D,$7D,$7D,$FE
+;         .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
 
 
 copyPlayfieldRowToVRAM:
