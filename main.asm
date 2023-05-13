@@ -4436,20 +4436,87 @@ gameModeState_startButtonHandling:
 playState_bTypeGoalCheck:
         lda     gameType
         beq     @ret
+.ifdef EASYB
         lda     lines
         bne     @ret
+.endif
+        jmp     @success
+@ret:
+        inc     playState
+        rts
+
+@success:
         lda     #$02
         jsr     setMusicTrack
-        ldy     #$46
+        ldy     #$3A
         ldx     #$00
-@copySuccessGraphic:
-        lda     typebSuccessGraphic,x
+@copySuccessGraphicLeftRow1:
+        lda     typebSuccessGraphicLeftRow1,x
         cmp     #$80
-        beq     @graphicCopied
-        sta     (playfieldAddr),y
+        beq     @startRow2
+        sta     leftPlayfield,y
         inx
         iny
-        jmp     @copySuccessGraphic
+        jmp     @copySuccessGraphicLeftRow1
+@startRow2:
+        ldy     #$41
+        ldx     #$00
+@copySuccessGraphicLeftRow2:
+        lda     typebSuccessGraphicLeftRow2,x
+        cmp     #$80
+        beq     @startLeftRow3
+        sta     leftPlayfield,y
+        inx
+        iny
+        jmp     @copySuccessGraphicLeftRow2
+@startLeftRow3:
+        ldy     #$48
+        ldx     #$00
+
+@copySuccessGraphicLeftRow3:
+        lda     typebSuccessGraphicLeftRow3,x
+        cmp     #$80
+        beq     @startright
+        sta     leftPlayfield,y
+        inx
+        iny
+        jmp     @copySuccessGraphicLeftRow3
+
+@startright:
+        ldy     #$38
+        ldx     #$00
+@copySuccessGraphicRightRow1:
+        lda     typebSuccessGraphicRightRow1,x
+        cmp     #$80
+        beq     @startLeftRow2
+        sta     rightPlayfield,y
+        inx
+        iny
+        jmp     @copySuccessGraphicRightRow1
+@startLeftRow2:
+        ldy     #$3F
+        ldx     #$00
+@copySuccessGraphicRightRow2:
+        lda     typebSuccessGraphicRightRow2,x
+        cmp     #$80
+        beq     @startRightRow3
+        sta     rightPlayfield,y
+        inx
+        iny
+        jmp     @copySuccessGraphicRightRow2
+@startRightRow3:
+        ldy     #$46
+        ldx     #$00
+@copySuccessGraphicRightRow3:
+        lda     typebSuccessGraphicRightRow3,x
+        cmp     #$80
+        beq     @graphicCopied
+        sta     rightPlayfield,y
+        inx
+        iny
+        jmp     @copySuccessGraphicRightRow3
+
+
 
 @graphicCopied:  lda     #$00
         sta     vramRow
@@ -4464,14 +4531,26 @@ playState_bTypeGoalCheck:
         inc     gameModeState
         rts
 
-@ret:  inc     playState
-        rts
+typebSuccessGraphicLeftRow1:
+        .byte   $38,$39,$39,$39,$39
+        .byte   $80
+typebSuccessGraphicLeftRow2:
+        .byte   $3B,$1C,$1E,$0C,$0C
+        .byte   $80
+typebSuccessGraphicLeftRow3:
+        .byte   $3D,$3E,$3E,$3E,$3E
+        .byte   $80
+typebSuccessGraphicRightRow1:
+        .byte   $39,$39,$39,$39,$3A
+        .byte   $80
+typebSuccessGraphicRightRow2:
+        .byte   $0E,$1C,$1C,$28,$3C
+        .byte   $80
+typebSuccessGraphicRightRow3:
+        .byte   $3E,$3E,$3E,$3E,$3F
+        .byte   $80
+        
 
-typebSuccessGraphic:
-        .byte   $38,$39,$39,$39,$39,$39,$39,$39
-        .byte   $39,$3A,$3B,$1C,$1E,$0C,$0C,$0E
-        .byte   $1C,$1C,$28,$3C,$3D,$3E,$3E,$3E
-        .byte   $3E,$3E,$3E,$3E,$3E,$3F,$80
 sleep_for_14_vblanks:
         lda     #$14
         sta     sleepCounter

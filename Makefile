@@ -32,11 +32,17 @@ tetris:= tetris.nes
 .SECONDEXPANSION:
 .PRECIOUS:
 .SECONDARY:
-.PHONY: clean compare tools debug
+.PHONY: clean compare tools debug easyb
 
 
 CAFLAGS = -g
 LDFLAGS =
+
+
+
+easyb: CAFLAGS += -D EASYB
+easyb: $(tetris)
+	@echo EASYB enabled
 
 compare: $(tetris)
 	$(SHA1SUM) -c tetris.sha1
