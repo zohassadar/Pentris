@@ -214,6 +214,13 @@ JOY2_APUFC      := $4017                        ; read: bits 0-4 joy data lines 
 MMC1_CHR0       := $BFFF
 MMC1_CHR1       := $DFFF
 
+CNROM_BANK0 := $00
+CNROM_BANK1 := $01
+CNROM_BG0 := $00
+CNROM_BG1 := $10
+CNROM_SPRITE0 := $00
+CNROM_SPRITE1 := $08
+
 .segment        "PRG_chunk1": absolute
 
 ; incremented to reset MMC1 reg
@@ -472,10 +479,17 @@ gameMode_legalScreen:
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$00
         jsr     changeCHRBank0
         lda     #$00
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   legal_screen_palette
         jsr     bulkCopyToPpu
@@ -511,10 +525,17 @@ gameMode_titleScreen:
         sta     displayNextPiece
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$00
         jsr     changeCHRBank0
         lda     #$00
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   menu_palette
         jsr     bulkCopyToPpu
@@ -571,9 +592,11 @@ render_mode_legal_and_title_screens:
         rts
 
 gameMode_gameTypeMenu:
+.ifndef CNROM
         inc     initRam
         lda     #$10
         jsr     setMMC1Control
+.endif
         lda     #$01
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
@@ -582,10 +605,17 @@ gameMode_gameTypeMenu:
         .addr   menu_palette
         jsr     bulkCopyToPpu
         .addr   game_type_menu_nametable
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$00
         jsr     changeCHRBank0
         lda     #$00
         jsr     changeCHRBank1
+.endif
         jsr     waitForVBlankAndEnableNmi
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jsr     updateAudioWaitForNmiAndEnablePpuRendering
@@ -707,18 +737,27 @@ L830B:  lda     #$FF
         jmp     L830B
 
 gameMode_levelMenu:
+.ifndef CNROM
         inc     initRam
         lda     #$10
         jsr     setMMC1Control
+.endif
         jsr     updateAudio2
         lda     #$01
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$00
         jsr     changeCHRBank0
         lda     #$00
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   menu_palette
         jsr     bulkCopyToPpu
@@ -962,10 +1001,17 @@ render_mode_menu_screens:
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG1
+        ldx     #CNROM_SPRITE1
+        jsr     changeCHRBank
+.else
         lda     #$03
         jsr     changeCHRBank0
         lda     #$03
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   game_palette
         jsr     bulkCopyToPpu
@@ -1089,6 +1135,9 @@ gameModeState_initGameState:
         sta     score+2
 .ifdef DEBUG
         lda     #$7C
+        sta     score
+        sta     score+1
+        sta     score+2
         ldy     #$9a
 @plantBlocks:
         sta     leftPlayfield,y
@@ -1285,10 +1334,17 @@ rngTable:
         .byte   $EF,$7B,$EF,$7C,$7D,$7D,$EF
         .byte   $EF
 gameModeState_updateCountersAndNonPlayerState:
+.ifdef CNROM
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG1
+        ldx     #CNROM_SPRITE1
+        jsr     changeCHRBank
+.else
         lda     #$03
         jsr     changeCHRBank0
         lda     #$03
         jsr     changeCHRBank1
+.endif
         lda     #$00
         sta     oamStagingLength
         inc     fallTimer
@@ -2538,6 +2594,10 @@ render_mode_play_and_demo:
         lda     #$09
         sta     soundEffectSlot1Init
 @setPaletteColor:
+.ifdef CNROM
+        lda     currentPpuCtrl
+        sta     PPUCTRL
+.endif
         stx     PPUDATA
         ldy     #$00
         sty     ppuScrollX
@@ -2867,8 +2927,15 @@ L9996A: lda     generalCounter
         rts
 
 playState_lockTetrimino:
+.ifdef DEBUG
+        lda     heldButtons_player1
+        and     #$C0
+        cmp     #$C0
+        beq     @forceGameOver
+.endif
         jsr     isPositionValid
         beq     @notGameOver
+@forceGameOver:
         lda     #$02
         sta     soundEffectSlot0Init
         lda     #$0A
@@ -3547,25 +3614,48 @@ L9E49:  ldx     levelNumber
         lda     levelNumber
         cmp     #$09
         bne     L9E88
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG1
+        ldx     #CNROM_SPRITE1
+        jsr     changeCHRBank
+.else
         lda     #$01
         jsr     changeCHRBank0
         lda     #$01
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   type_b_lvl9_ending_nametable
         jmp     L9EA4
-
-L9E88:  ldx     #$03
+L9E88:
+.ifdef CNROM
+        ldx     #CNROM_SPRITE1
+.else
+        ldx     #$03
+.endif
         lda     levelNumber
         cmp     #$02
         beq     L9E96
         cmp     #$06
         beq     L9E96
+.ifdef CNROM
+        ldx     #CNROM_SPRITE0
+.else
         ldx     #$02
-L9E96:  txa
+.endif
+
+L9E96:
+.ifdef CNROM
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG0
+        jsr     changeCHRBank
+.else
+        txa
         jsr     changeCHRBank0
         lda     #$02
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   type_b_ending_nametable
 L9EA4:  jsr     bulkCopyToPpu
@@ -3978,19 +4068,28 @@ highScoreIndexToHighScoreNamesOffset:
 highScoreIndexToHighScoreScoresOffset:
         .byte   $00,$03,$06,$09,$0C,$0F,$12,$15
 highScoreEntryScreen:
+.ifndef CNROM
         inc     initRam
         lda     #$10
         jsr     setMMC1Control
+.endif
         lda     #$09
         jsr     setMusicTrack
         lda     #$02
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$00
         jsr     changeCHRBank0
         lda     #$00
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   menu_palette
         jsr     bulkCopyToPpu
@@ -4890,10 +4989,17 @@ unreferenced_data6:
         .byte   $FC
 LA926:  jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+.ifdef CNROM
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         lda     #$02
         jsr     changeCHRBank0
         lda     #$02
         jsr     changeCHRBank1
+.endif
         jsr     bulkCopyToPpu
         .addr   type_a_ending_nametable
         jsr     bulkCopyToPpu
@@ -5388,6 +5494,29 @@ switch_s_plus_2a:
         jmp     (tmp1)
 
 
+.ifdef CNROM
+changeCHRBank:
+        pha
+        lda     #$00
+        sta     generalCounter
+        txa
+        ora     generalCounter
+        sta     generalCounter
+        tya
+        ora     generalCounter
+        sta     generalCounter
+        lda     currentPpuCtrl
+        and     #$E7
+        ora     generalCounter
+        sta     currentPpuCtrl
+        sta     PPUCTRL
+        pla
+        tax
+        sta     chrBankTable,x
+        rts
+chrBankTable:
+        .byte   $00,$01
+.else
 setMMC1Control:
         sta     MMC1_Control
         lsr     a
@@ -5435,6 +5564,7 @@ changePRGBank:
         lsr     a
         sta     MMC1_PRG
         rts
+.endif
 
 game_palette:
         .byte   $3F,$00
@@ -7425,6 +7555,12 @@ reset:  cld
         bpl     @vsyncWait2
         dex
         txs
+.ifdef CNROM
+        lda     #CNROM_BANK0
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jsr     changeCHRBank
+.else
         inc     reset
         lda     #$10
         jsr     setMMC1Control
@@ -7434,6 +7570,7 @@ reset:  cld
         jsr     changeCHRBank1
         lda     #$00
         jsr     changePRGBank
+.endif
         jmp     initRam
 
 .include "data/unreferenced_data5.asm"

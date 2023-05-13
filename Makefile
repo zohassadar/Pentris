@@ -4,6 +4,12 @@ UNAME_S := $(shell uname -s)
 tetris_obj := main.o tetris-ram.o tetris.o
 cc65Path := tools/cc65
 
+ifeq (flags,$(firstword $(MAKECMDGOALS)))
+  FLAGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(FLAGS):dummy;@:)
+  FLAG_ARGS := $(addprefix -D ,$(FLAGS))
+endif
+
 # Hack for OSX
 ifeq ($(UNAME_S),Darwin)
 	SHA1SUM := shasum
@@ -32,17 +38,16 @@ tetris:= tetris.nes
 .SECONDEXPANSION:
 .PRECIOUS:
 .SECONDARY:
-.PHONY: clean compare tools debug easyb
+.PHONY: dummy clean compare tools flags
 
 
 CAFLAGS = -g
 LDFLAGS =
 
 
-
-easyb: CAFLAGS += -D EASYB
-easyb: $(tetris)
-	@echo EASYB enabled
+flags: CAFLAGS += $(FLAG_ARGS)
+flags: $(tetris)
+	@echo Flags enabled:  $(FLAGS)
 
 compare: $(tetris)
 	$(SHA1SUM) -c tetris.sha1
@@ -53,10 +58,6 @@ clean:
 
 tools:
 	$(MAKE) -C tools/cTools/
-
-debug: CAFLAGS = -g -D DEBUG
-debug: tetris.nes
-	@echo DEBUG flag is enabled!
 
 
 # Build tools when building the rom.
