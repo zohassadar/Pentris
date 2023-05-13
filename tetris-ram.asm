@@ -39,7 +39,11 @@ currentOrientationTile: .res 2 ;  $0069
 statsPatchAddress:  .res 2 ;  $006B
 topRowValidityCheck: .res 1 ;  $006D
 statsPiecesTotal: .res 2  ; $006E
-.res 48
+effectiveTetriminoX:  .res 1 ; $0070
+renderedVramRow:  .res 1 ; $0071
+renderedPlayfield:  .res 1 ; $0072
+
+.res 45
 
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1

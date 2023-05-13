@@ -1254,7 +1254,7 @@ typeBGuaranteeBlank:
         tay
         lda     #$EF
         sta     (playfieldAddr),y
-        ; jsr     updateAudioWaitForNmiAndResetOamStaging  ; This might need to go
+        ; jsr     updateAudioWaitForNmiAndResetOamStaging  ; This doesn't work here in doublewide mode
         dec     generalCounter
         bne     typeBRows
 
@@ -1502,7 +1502,7 @@ stageSpriteForCurrentPiece:
         sta     generalCounter4 ; y position of center block
         lda     currentPiece
         jsr     setOrientationTable
-        ldy    #$00                        ; y contains index into orientation table
+        ldy     #$00                        ; y contains index into orientation table
         ldx     oamStagingLength
         lda     #$05
         sta     generalCounter2 ; iterate through all five minos
@@ -1557,7 +1557,6 @@ stageSpriteForCurrentPiece:
 stageSpriteForNextPiece:
         lda     displayNextPiece
         bne     @ret
-
         lda     #$CC
         ldx     nextPiece
         clc
@@ -1570,7 +1569,6 @@ stageSpriteForNextPiece:
         txa
         lda     nextPiece
         jsr     setOrientationTable
-
         ldy     #$00 ; y contains index into orientation table
         ldx     oamStagingLength
         lda     #$05
@@ -1584,11 +1582,9 @@ stageSpriteForNextPiece:
         adc     generalCounter4
         sta     oamStaging,x ; stage y coordinate of mino
         inx
-
         lda     (currentOrientationTile),y
         sta     oamStaging,x ; stage block type of mino
         inx
-
         lda     #$02
         sta     oamStaging,x ; stage palette/front priority
         inx
@@ -2368,7 +2364,6 @@ isPositionValid:
 @checkSquare:
         lda     generalCounter5
         tay
-
         lda     (currentOrientationY),y   ; Y offset
         clc
         adc     tetriminoY
@@ -2382,9 +2377,9 @@ isPositionValid:
         asl     a
         asl     a
         sec
-        sbc    generalCounter
-        sta    generalCounter4
-        lda    tetriminoX
+        sbc     generalCounter
+        sta     generalCounter4
+        lda     tetriminoX
         clc
         adc     (currentOrientationX),y     ; X offset
 ; Check if column is valid before getting normalized
@@ -2516,68 +2511,11 @@ render_mode_play_and_demo:
 @renderStats:
         lda     outOfDateRenderFlags
         and     #$40
-        and     #$00    ; disable stats for now!
         bne     @continue
-        jmp      @renderTetrisFlashAndSound
+        jmp     @renderTetrisFlashAndSound
 @continue:
-;         ldx     currentPiece
-;         lda     tetriminoTypeFromOrientation,x
-;         cmp     #$11
-;         beq     @renderLongBarStat
-;         asl
-;         tax
-;         lda     #$21
-;         sta     PPUADDR
-;         lda     #$C3
-;         sta     PPUADDR
-;         lda     statsByType+1,x
-;         sta     PPUDATA
-;         lda     statsByType,x
-;         jsr     twoDigsToPPU
-;         lda     statsPatchAddresses,x
-;         sta     statsPatchAddress
-;         inx
-;         lda     statsPatchAddresses,x
-;         sta     statsPatchAddress+1
-; @renderPieceStat:
-;         ldy     #$00
-; @nextPpuAddress:
-;         lda     (statsPatchAddress),y
-;         iny
-;         sta     PPUADDR
-;         lda     (statsPatchAddress),y
-;         iny
-;         sta     PPUADDR
-; @nextPpuData:
-;         lda     (statsPatchAddress),y
-;         iny
-;         cmp     #$FE
-;         beq     @nextPpuAddress
-;         cmp     #$FD
-;         beq     @endOfPpuPatching
-;         sta     PPUDATA
-;         jmp     @nextPpuData
-;         jmp       @endOfPpuPatching
-; @renderLongBarStat:
-;         asl
-;         tax
-;         lda     #$22
-;         sta     PPUADDR
-;         lda     #$43
-;         sta     PPUADDR
-;         lda     statsByType+1,x
-;         sta     PPUDATA
-;         lda     statsByType,x
-;         jsr     twoDigsToPPU
+        ; stats rendering was here
 @endOfPpuPatching:
-        lda     #$22
-        sta     PPUADDR
-        lda     #$C3
-        sta     PPUADDR
-        lda     statsPiecesTotal+1
-        sta     PPUDATA
-        lda     statsPiecesTotal
-        jsr     twoDigsToPPU
         lda     outOfDateRenderFlags
         and     #$BF
         sta     outOfDateRenderFlags
@@ -2642,98 +2580,6 @@ twoDigsToPPU:
         sta     PPUDATA
         rts
 
-
-
-; statsPatchAddresses:
-;     .addr statsPatchForF1
-;     .addr statsPatchForF2
-;     .addr statsPatchForJ
-;     .addr statsPatchForL
-;     .addr statsPatchForX
-;     .addr statsPatchForS
-;     .addr statsPatchForZ
-;     .addr statsPatchForP1
-;     .addr statsPatchForP2
-;     .addr statsPatchForN1
-;     .addr statsPatchForN2
-;     .addr statsPatchForT
-;     .addr statsPatchForU
-;     .addr statsPatchForV
-;     .addr statsPatchForW
-;     .addr statsPatchForY1
-;     .addr statsPatchForY2
-
-
-; statsPatchForF1:
-;         .byte   $21,$42,$FF,$FF,$7B,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$FF,$7B,$FF,$FD
-; statsPatchForF2:
-;         .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-;         .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
-; statsPatchForJ:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$7D,$7D,$7D,$7D,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
-; statsPatchForL:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7B,$7B,$7B,$7B,$FE
-;         .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
-; statsPatchForX:
-;         .byte   $21,$42,$FF,$FF,$7C,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
-; statsPatchForS:
-;         .byte   $21,$42,$FF,$7D,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$FF,$7D,$FF,$FD
-; statsPatchForZ:
-;         .byte   $21,$42,$FF,$FF,$FF,$7B,$FF,$FE
-;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-;         .byte   $21,$82,$FF,$7B,$FF,$FF,$FF,$FD
-; statsPatchForP1:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7C,$7C,$7C,$FF,$FE
-;         .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
-; statsPatchForP2:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7D,$7D,$7D,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$7D,$7D,$FF,$FD
-; statsPatchForN1:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$7B,$7B,$7B,$FF,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$7B,$7B,$FF,$FD
-; statsPatchForN2:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$FF,$7C,$7C,$7C,$FE
-;         .byte   $21,$82,$FF,$7C,$7C,$FF,$FF,$FD
-; statsPatchForT:
-;         .byte   $21,$42,$FF,$7D,$7D,$7D,$FF,$FE
-;         .byte   $21,$62,$FF,$FF,$7D,$FF,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
-; statsPatchForU:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7B,$7B,$7B,$FF,$FE
-;         .byte   $21,$82,$FF,$7B,$FF,$7B,$FF,$FD
-; statsPatchForV:
-;         .byte   $21,$42,$FF,$7C,$7C,$7C,$FF,$FE
-;         .byte   $21,$62,$FF,$7C,$FF,$FF,$FF,$FE
-;         .byte   $21,$82,$FF,$7C,$FF,$FF,$FF,$FD
-; statsPatchForW:
-;         .byte   $21,$42,$FF,$FF,$7D,$7D,$FF,$FE
-;         .byte   $21,$62,$FF,$7D,$7D,$FF,$FF,$FE
-;         .byte   $21,$82,$FF,$7D,$FF,$FF,$FF,$FD
-; statsPatchForY1:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$7C,$7C,$7C,$7C,$FF,$FE
-;         .byte   $21,$82,$FF,$FF,$7C,$FF,$FF,$FD
-; statsPatchForY2:
-;         .byte   $21,$42,$FF,$FF,$FF,$FF,$FF,$FE
-;         .byte   $21,$62,$FF,$7D,$7D,$7D,$7D,$FE
-;         .byte   $21,$82,$FF,$FF,$7D,$FF,$FF,$FD
-
-
 copyPlayfieldRowToVRAM:
         ldx     vramRow
         cpx     #$17
@@ -2760,8 +2606,6 @@ copyPlayfieldRowToVRAM:
 
 @leftPlayfield:
         lda     vramPlayfieldRows,x
-        ; sec
-        ; sbc     #$02
         sta     PPUADDR
 @copyRow:
         ldx     #$07
@@ -2793,10 +2637,6 @@ updateLineClearingAnimation:
         tay
         lda     vramPlayfieldRows,y
         sta     generalCounter
-        ; lda     generalCounter
-        ; sec
-        ; sbc     #$02
-        ; sta     generalCounter
         iny
         lda     vramPlayfieldRows,y
         sta     generalCounter2
@@ -2886,7 +2726,6 @@ colorTable:
 ; This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here
 noop_disabledVramRowIncr:
         rts
-
         inc     vramRow
         lda     vramRow
         cmp     #$14
@@ -2924,17 +2763,6 @@ playState_spawnNextTetrimino:
 @ret:   rts
 
 chooseNextTetrimino:
-; This does nothing except take up space.
-; The demo data won't work for 18 minos, so 
-; random numbers were generated that don't need shifted & anded
-; This has been moved to keep the demo script working for now
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        and     #$07
-; End nothing
-
         lda     gameMode
         cmp     #$05
         bne     pickRandomTetrimino
@@ -2959,6 +2787,7 @@ pickRandomTetrimino:
         lda     spawnTable,y
         cmp     spawnID
         bne     useNewSpawnID
+; reroll if duplicate
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
@@ -2969,34 +2798,7 @@ useNewSpawnID:
         sta     spawnID
         rts
 
-;         clc
-;         adc     spawnCount
-;         and     #$1F
-;         cmp     #$12
-;         bcs     @invalidIndex
-;         tax
-;         lda     spawnTable,x
-;         cmp     spawnID
-;         bne     useNewSpawnID
-; @invalidIndex:
-;         ldx     #$17
-;         ldy     #$02
-;         jsr     generateNextPseudorandomNumber
-;         lda     rng_seed
-;         and     #$1F
-;         clc
-;         adc     spawnID
-; L992A:  cmp     #$12
-;         bcc     L9934
-;         sec
-;         sbc     #$11
-;         jmp     L992A
 
-; L9934:  tax
-;         lda     spawnTable,x
-; useNewSpawnID:
-;         sta     spawnID
-;         rts
 ; ORIENTATION
 tetriminoTypeFromOrientation:
 .include "orientation/type_from_orientation.asm"
@@ -3091,7 +2893,6 @@ playState_lockTetrimino:
         sta     generalCounter
         lda     currentPiece
         jsr     setOrientationTable
-
         lda     #$00
         sta     generalCounter5
         lda     #$05
