@@ -1242,7 +1242,7 @@ typeBGuaranteeBlank:
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
-        and     #$0F
+        and     #$07
         cmp     #$07
         bpl     typeBGuaranteeBlank
 
@@ -4436,7 +4436,7 @@ gameModeState_startButtonHandling:
 playState_bTypeGoalCheck:
         lda     gameType
         beq     @ret
-.ifdef EASYB
+.ifndef EASYB
         lda     lines
         bne     @ret
 .endif
