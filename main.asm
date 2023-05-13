@@ -5387,13 +5387,6 @@ switch_s_plus_2a:
         stx     tmp1
         jmp     (tmp1)
 
-        sei
-        inc     initRam
-        lda     #$1A
-        jsr     setMMC1Control
-        rts
-
-        rts
 
 setMMC1Control:
         sta     MMC1_Control
