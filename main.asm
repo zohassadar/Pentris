@@ -1164,6 +1164,7 @@ gameModeState_initGameState:
         sta     lineClearStatsByType+1
         sta     lineClearStatsByType+2
         sta     lineClearStatsByType+3
+        sta     lineClearStatsByType+4
         sta     allegro
         sta     demo_heldButtons
         sta     demo_repeats
