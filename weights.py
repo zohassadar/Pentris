@@ -6,21 +6,21 @@ import sys
 
 # This is based off of the weight defined in the code referenced above
 weight_table = {
-    "I": (17,25),
-    "J": (2,16),
-    "L": (3,16),
+    "I": (17,27),
+    "J": (2,17),
+    "L": (3,17),
     "X": (4,3),
-    "S": (5,9),
-    "Z": (6,9),
+    "S": (5,7),
+    "Z": (6,7),
     "N": (9,18),
     "G": (10,18),
     "U": (12,16),
-    "T": (11,11),
-    "F1": (0,5),
-    "F2": (1,5),
+    "T": (11,12),
+    "F1": (0,4),
+    "F2": (1,4),
     "P": (7,27),
     "Q": (8,27),
-    "W": (14,10),
+    "W": (14,11),
     "Y1": (15,16),
     "Y2": (16,16),
     "V": (13,9),
@@ -28,7 +28,7 @@ weight_table = {
 
 validation = sum(repeats for id,repeats in weight_table.values())
 if validation != 256:
-    sys.exit(f"Piece ID repeats must add up to 256")
+    sys.exit(f"Piece ID repeats must add up to 256.  This adds up to {validation}")
 
 weight_list = []
 for name, (id, repeat) in weight_table.items():

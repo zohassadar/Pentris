@@ -2846,16 +2846,17 @@ pickRandomTetrimino:
         tax
         ldy     pieceDistributionTable,x
         lda     spawnTable,y
-        cmp     spawnID
-        bne     useNewSpawnID
-; reroll if duplicate
-        ldx     #$17
-        ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        ldx     rng_seed
-        ldy     pieceDistributionTable,x
-        lda     spawnTable,y
-useNewSpawnID:
+; try out no reroll
+;         cmp     spawnID
+;         bne     useNewSpawnID
+; ; reroll if duplicate
+;         ldx     #$17
+;         ldy     #$02
+;         jsr     generateNextPseudorandomNumber
+;         ldx     rng_seed
+;         ldy     pieceDistributionTable,x
+;         lda     spawnTable,y
+; useNewSpawnID:
         sta     spawnID
         rts
 
@@ -5718,38 +5719,38 @@ setOrientationTable:
 .include "orientation/orientation_table.asm"
 
 pieceDistributionTable:
-    .byte  $0f,$06,$02,$07,$07,$11,$01,$08
-    .byte  $0f,$08,$08,$11,$05,$0a,$07,$07
-    .byte  $0f,$08,$07,$0a,$11,$09,$07,$11
-    .byte  $0a,$08,$0c,$11,$04,$10,$07,$0c
-    .byte  $0c,$0c,$11,$02,$08,$07,$09,$05
-    .byte  $0e,$00,$10,$06,$11,$07,$0e,$0e
-    .byte  $09,$0b,$0f,$07,$11,$06,$11,$10
-    .byte  $0c,$00,$0c,$02,$04,$09,$08,$0a
-    .byte  $0d,$07,$0f,$03,$0c,$10,$07,$10
-    .byte  $07,$0a,$00,$02,$0e,$02,$0f,$05
-    .byte  $0a,$0a,$03,$0b,$00,$11,$11,$0a
-    .byte  $0f,$0f,$0a,$06,$10,$11,$0c,$11
-    .byte  $03,$0f,$07,$06,$10,$02,$09,$03
-    .byte  $0c,$10,$0d,$01,$0a,$0c,$07,$11
-    .byte  $07,$0c,$0a,$03,$07,$0b,$07,$03
-    .byte  $03,$0b,$07,$06,$08,$05,$08,$0f
-    .byte  $03,$09,$0d,$06,$02,$0a,$0d,$0a
-    .byte  $0c,$0e,$0f,$08,$07,$08,$0b,$03
-    .byte  $09,$03,$08,$11,$03,$10,$0a,$10
-    .byte  $09,$0d,$09,$08,$09,$08,$0a,$0e
-    .byte  $02,$05,$08,$0e,$10,$08,$11,$09
-    .byte  $08,$11,$11,$07,$03,$10,$0c,$02
-    .byte  $09,$0d,$0e,$05,$11,$07,$11,$08
-    .byte  $03,$0f,$02,$08,$0f,$05,$0b,$00
-    .byte  $08,$03,$08,$0e,$08,$03,$10,$08
-    .byte  $0c,$0a,$03,$09,$02,$07,$06,$11
-    .byte  $05,$10,$07,$11,$0e,$09,$08,$10
-    .byte  $01,$07,$04,$09,$08,$0a,$02,$0b
-    .byte  $10,$0c,$0b,$0f,$0d,$11,$02,$0c
-    .byte  $0b,$02,$09,$05,$0a,$09,$0b,$08
-    .byte  $0d,$01,$11,$09,$0f,$07,$0b,$0d
-    .byte  $11,$02,$02,$01,$07,$08,$0f,$06
+    .byte  $02,$08,$03,$03,$03,$0a,$08,$09
+    .byte  $0c,$07,$09,$0d,$07,$01,$07,$10
+    .byte  $0d,$00,$09,$0d,$03,$03,$08,$11
+    .byte  $02,$02,$0a,$08,$02,$0b,$07,$0b
+    .byte  $0a,$06,$03,$02,$0b,$07,$0a,$11
+    .byte  $09,$07,$05,$10,$06,$05,$11,$0c
+    .byte  $0a,$07,$08,$11,$11,$09,$02,$08
+    .byte  $0b,$06,$0c,$03,$0b,$08,$04,$02
+    .byte  $11,$0c,$09,$0b,$07,$11,$0f,$0a
+    .byte  $11,$0c,$07,$0c,$08,$09,$0c,$08
+    .byte  $09,$10,$04,$07,$08,$0f,$07,$0c
+    .byte  $11,$0c,$0e,$03,$0d,$10,$0a,$07
+    .byte  $09,$0d,$0d,$0d,$0f,$07,$07,$0f
+    .byte  $0a,$04,$08,$11,$08,$02,$0f,$09
+    .byte  $03,$08,$08,$0d,$0f,$08,$0f,$08
+    .byte  $03,$10,$00,$08,$11,$0a,$11,$09
+    .byte  $10,$0e,$03,$11,$10,$07,$0e,$0e
+    .byte  $0b,$07,$11,$11,$09,$08,$07,$06
+    .byte  $0e,$0b,$07,$0f,$0f,$03,$08,$0e
+    .byte  $0e,$0c,$0a,$05,$07,$0a,$09,$0b
+    .byte  $09,$10,$0a,$02,$07,$08,$02,$0e
+    .byte  $01,$0c,$01,$10,$08,$02,$0a,$07
+    .byte  $11,$0a,$11,$02,$0e,$02,$0a,$09
+    .byte  $11,$0f,$11,$10,$0c,$10,$07,$0f
+    .byte  $03,$03,$0f,$09,$11,$0e,$11,$11
+    .byte  $08,$07,$03,$0f,$08,$09,$0c,$11
+    .byte  $05,$08,$06,$11,$11,$0a,$05,$02
+    .byte  $0d,$08,$0c,$0e,$02,$0b,$05,$03
+    .byte  $03,$06,$07,$0f,$11,$10,$0a,$07
+    .byte  $10,$0b,$10,$0f,$02,$06,$05,$0c
+    .byte  $00,$0f,$09,$0a,$07,$11,$10,$10
+    .byte  $0c,$07,$08,$02,$01,$00,$08,$0b
 
 ; End of "unreferenced_data1" segment
 .code
