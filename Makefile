@@ -1,7 +1,7 @@
 WINDOWS := $(shell which wine ; echo $$?)
 UNAME_S := $(shell uname -s)
 
-tetris_obj := main.o tetris-ram.o tetris.o
+pentris_obj := main.o pentris-ram.o pentris.o
 cc65Path := tools/cc65
 
 ifeq (flags,$(firstword $(MAKECMDGOALS)))
@@ -30,9 +30,9 @@ LD65 := $(WINE) $(cc65Path)/bin/ld65
 nesChrEncode := python3 tools/nes-util/nes_chr_encode.py
 pythonExecutable := python
 
-tetris.nes: tetris.o main.o tetris-ram.o
+pentris.nes: pentris.o main.o pentris-ram.o
 
-tetris:= tetris.nes
+pentris:= pentris.nes
 
 .SUFFIXES:
 .SECONDEXPANSION:
@@ -46,14 +46,14 @@ LDFLAGS =
 
 
 flags: CAFLAGS += $(FLAG_ARGS)
-flags: $(tetris)
+flags: $(pentris)
 	@echo Flags enabled:  $(FLAGS)
 
-compare: $(tetris)
-	$(SHA1SUM) -c tetris.sha1
+compare: $(pentris)
+	$(SHA1SUM) -c pentris.sha1
 
 clean:
-	rm -f  $(tetris_obj) $(tetris) *.d tetris.dbg tetris.lbl gfx/*.chr gfx/nametables/*.bin
+	rm -f  $(pentris_obj) $(pentris) *.d pentris.dbg pentris.lbl gfx/*.chr gfx/nametables/*.bin
 	$(MAKE) clean -C tools/cTools/
 
 tools:
@@ -68,11 +68,11 @@ endif
 
 
 %.o: dep = $(shell tools/cTools/scan_includes $(@D)/$*.asm)
-$(tetris_obj): %.o: %.asm $$(dep)
+$(pentris_obj): %.o: %.asm $$(dep)
 		$(CA65) $(CAFLAGS) $*.asm -o $@
 
 %: %.cfg
-		$(LD65) $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(tetris_obj)
+		$(LD65) $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(pentris_obj)
 
 %.bin: %.py
 		$(pythonExecutable) $?
