@@ -2,6 +2,10 @@
 *.o
 *.chr
 *.pyc
+
+*.bps
+*.prg
+
 pentris.lst
 pentris.lbl
 pentris.dbg
