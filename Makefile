@@ -38,7 +38,7 @@ pentris:= pentris.nes
 .SECONDEXPANSION:
 .PRECIOUS:
 .SECONDARY:
-.PHONY: dummy clean compare tools flags
+.PHONY: dummy clean compare tools flags patch
 
 
 CAFLAGS = -g
@@ -58,6 +58,10 @@ clean:
 
 tools:
 	$(MAKE) -C tools/cTools/
+
+patch: $(pentris_obj)
+patch: 
+	tools/flips-linux --create clean.nes $(pentris) pentris.bps
 
 
 # Build tools when building the rom.
