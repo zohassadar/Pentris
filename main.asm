@@ -2839,27 +2839,27 @@ pickRandomTetrimino:
         rts
 
 @realStart:
+        ldx     #$10
         inc     spawnCount
         lda     rng_seed
         clc
         adc     spawnCount
-        tax
-        ldy     pieceDistributionTable,x
-        lda     spawnTable,y
-; try out no reroll
-;         cmp     spawnID
-;         bne     useNewSpawnID
-; ; reroll if duplicate
-;         ldx     #$17
-;         ldy     #$02
-;         jsr     generateNextPseudorandomNumber
-;         ldx     rng_seed
-;         ldy     pieceDistributionTable,x
-;         lda     spawnTable,y
-; useNewSpawnID:
+@nextPiece:
+        cmp     weightTable,x
+        bcs     @foundPiece
+        dex
+        bmi     @foundPiece
+        jmp     @nextPiece
+@foundPiece:
+        inx
+        lda     spawnTable,x
         sta     spawnID
         rts
 
+weightTable:
+        .byte  $04,$08,$19,$2a,$2d,$34,$3b,$56
+        .byte  $71,$83,$95,$a1,$b1,$ba,$c5,$d5
+        .byte  $e5
 
 ; ORIENTATION
 tetriminoTypeFromOrientation:
