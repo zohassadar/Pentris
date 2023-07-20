@@ -1096,12 +1096,12 @@ gameModeState_initGameBackground:
         lda     #$DA
         sta     PPUADDR
         lda     #$24
-        lda     startHeight
         sta     PPUDATA
-        and     #$0F
         lda     startHeight
         and     #$0F
+        sta     PPUDATA
         jmp     gameModeState_initGameBackground_finish
+
 gameModeState_initGameBackground_finish:
         jsr     waitForVBlankAndEnableNmi
         jsr     updateAudioWaitForNmiAndResetOamStaging
