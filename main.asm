@@ -1047,12 +1047,15 @@ gameModeState_initGameBackground:
         sta     PPUADDR
         lda     #$B7
         sta     PPUADDR
-        lda     highScoreScoresA
-        jsr     twoDigsToPPU
-        lda     highScoreScoresA+1
-        jsr     twoDigsToPPU
-        lda     highScoreScoresA+2
-        jsr     twoDigsToPPU
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
         jmp     gameModeState_initGameBackground_finish
 
 @typeB: 
@@ -1093,12 +1096,12 @@ gameModeState_initGameBackground:
         lda     #$DA
         sta     PPUADDR
         lda     #$24
+        lda     startHeight
         sta     PPUDATA
+        and     #$0F
         lda     startHeight
         and     #$0F
-        sta     PPUDATA
         jmp     gameModeState_initGameBackground_finish
-
 gameModeState_initGameBackground_finish:
         jsr     waitForVBlankAndEnableNmi
         jsr     updateAudioWaitForNmiAndResetOamStaging
@@ -1654,7 +1657,7 @@ stageSpriteForNextPiece:
         clc
         adc     nextOffsetX,x
         sta     generalCounter3
-        lda     #$22
+        lda     #$6F
         clc
         adc     nextOffsetY,x
         sta     generalCounter4
@@ -2591,12 +2594,15 @@ render_mode_play_and_demo:
         sta     PPUADDR
         lda     #$17
         sta     PPUADDR
-        lda     score+2
-        jsr     twoDigsToPPU
-        lda     score+1
-        jsr     twoDigsToPPU
-        lda     score
-        jsr     twoDigsToPPU
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
+        lda     #$FF
+        sta     PPUDATA
+        sta     PPUDATA
         lda     outOfDateRenderFlags
         and     #$FB
         sta     outOfDateRenderFlags
@@ -2863,7 +2869,8 @@ playState_spawnNextTetrimino:
 @ret:   rts
 
 chooseNextTetrimino:
-        lda     gameMode
+        lda     #$3e
+        rts
         cmp     #$05
         bne     pickRandomTetrimino
         ldx     demoIndex
