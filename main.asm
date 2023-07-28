@@ -118,6 +118,10 @@ currentPpuCtrl  := $00FF
 stack           := $0100
 oamStaging      := $0200                        ; format: https://wiki.nesdev.com/w/index.php/PPU_programmer_reference#OAM
 statsByType     := $0300
+
+currentPieceStaging := $0380
+currentPieceClearing := $0390
+
 playfield       := $0400
 playfieldForSecondPlayer:= $0500
 leftPlayfield   := $0400
@@ -244,6 +248,7 @@ returnFromAnydasRender:
         lda     #$00
         sta     oamStagingLength
 .endif
+        jsr     renderCurrentPiece
         jsr     render
         dec     sleepCounter
         lda     sleepCounter
@@ -443,7 +448,8 @@ branchOnGameMode:
 gameModeState_updatePlayer1:
         jsr     makePlayer1Active
         jsr     branchOnPlayStatePlayer1
-        jsr     stageSpriteForCurrentPiece
+        ; jsr     stageSpriteForCurrentPiece
+        jsr     stageSpriteForCurrentPieceBackground
         jsr     savePlayer1State
         jsr     stageSpriteForNextPiece
         inc     gameModeState
@@ -1609,7 +1615,8 @@ stageSpriteForCurrentPiece:
         sta     originalY
         inc     oamStagingLength
         inx
-        lda     (currentOrientationTile),y  ; Tile index
+        ; lda     (currentOrientationTile),y  ; Tile index
+        lda     #$26
         sta     oamStaging,x ; stage block type of mino
         inc     oamStagingLength
         inx
@@ -5798,6 +5805,126 @@ pieceDistributionTable:
     .byte  $10,$0b,$10,$0f,$02,$06,$05,$0c
     .byte  $00,$0f,$09,$0a,$07,$11,$10,$10
     .byte  $0c,$07,$08,$02,$01,$00,$08,$0b
+
+renderCurrentPiece:
+        lda     gameMode
+        cmp     #$04
+        bcc     @ret
+        ldy     #$05
+        ldx     #$00
+; clearPieceLoop:
+;         lda     currentPieceClearing,x
+;         sta     PPUADDR
+;         lda     currentPieceClearing+1,x
+;         sta     PPUADDR
+;         lda     #$FF
+;         sta     PPUDATA
+;         inx
+;         inx
+;         inx
+;         dey
+;         bne     clearPieceLoop
+
+        ldy     #$05
+        ldx     #$00
+@renderPieceLoop:
+        lda     currentPieceStaging,x
+        sta     PPUADDR
+        lda     currentPieceStaging+1,x
+        sta     PPUADDR
+        lda     currentPieceStaging+2,x
+        sta     PPUDATA
+
+        inx
+        inx
+        inx
+        dey
+        bne     @renderPieceLoop
+@ret:   rts
+
+stageSpriteForCurrentPieceBackground:
+        ldx    #$0e
+
+loadClearPiecesLoop:
+        lda     currentPieceStaging,x
+        sta     currentPieceClearing,x
+        dex     
+        bpl     loadClearPiecesLoop
+
+        lda     currentPiece
+        cmp     #$3f
+        beq     drawBlankPiece
+        jsr     setOrientationTable
+        lda     #$00
+        sta     generalCounter5 ; iterate through all five minos
+        tay
+pieceLoop:
+        lda     (currentOrientationY),y 
+        sta     generalCounter               ; Y offset 
+        lda     (currentOrientationX),y
+        sta     generalCounter2              ; X offset
+        lda     (currentOrientationTile),y
+        sta     generalCounter3              ; Tile
+
+        tya
+        pha             ; store Y 
+
+        lda     generalCounter5
+        asl
+        clc
+        adc     generalCounter5
+        tay                       ; counter multiplied by 3
+
+
+        lda     generalCounter
+        clc
+        adc     tetriminoY
+        asl
+        tax                                             ; y + offset to get row
+
+        lda     vramPlayfieldRows,x
+        clc
+        adc     generalCounter2
+        clc
+        adc     tetriminoX
+        sta     currentPieceStaging+1,y
+        lda     vramPlayfieldRows+1,x
+        sta     currentPieceStaging,y
+        lda     generalCounter3
+        sta     currentPieceStaging+2,y
+
+        pla
+        tay
+
+        iny
+
+        inc     generalCounter5
+        lda     generalCounter5
+        cmp     #$05
+        bne     pieceLoop
+        rts
+
+
+
+drawBlankPiece:
+        ldy     #$05
+        ldx     #$00
+blankPieceLoop:
+        lda    #$20
+        sta    currentPieceStaging,x
+        lda    #$68
+        sta    currentPieceStaging+1,x
+        lda    #$FF
+        sta    currentPieceStaging+2,x
+        inx
+        inx
+        inx
+        dey
+        bne     blankPieceLoop
+        rts
+
+
+
 
 ; End of "unreferenced_data1" segment
 
