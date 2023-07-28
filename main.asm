@@ -1640,8 +1640,8 @@ stageSpriteForCurrentPiece:
         sta     originalY
         inc     oamStagingLength
         inx
-        ; lda     (currentOrientationTile),y  ; Tile index
-        lda     #$26
+        lda     (currentOrientationTile),y  ; Tile index
+        ; lda     #$26 ; temporary fix to hide tile in this function
         sta     oamStaging,x ; stage block type of mino
         inc     oamStagingLength
         inx
