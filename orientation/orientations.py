@@ -288,76 +288,29 @@ z = Piece(
 )
 
 
-p_up = Orientation(
-    ("....."
-     "..X.."
-     "..XX."
-     "..XX."
-     "....."),
-    name="PUp",
-)  # fmt: skip
-
-p_right = Orientation(
-    ("....."
-     "....."
-     ".XXX."
-     ".XX.."
-     "....."),
-    name="PRight",
-    spawn=True,
-)  # fmt: skip
-
-p_down = Orientation(
-    ("....."
-     ".XX.."
-     ".XX.."
-     "..X.."
-     "....."),
-    name="PDown",
-)  # fmt: skip
-
-p_left = Orientation(
-    ("....."
-     "..XX."
-     ".XXX."
-     "....."
-     "....."),
-    name="PLeft",
-)  # fmt: skip
-
-p = Piece(
-    name="P",
-    tile_index=0x7C,
-    orientations=[
-        p_up,
-        p_right,
-        p_down,
-        p_left,
-    ],
-)
-
 q_up = Orientation(
     ("....."
      "..X.."
-     ".XX.."
-     ".XX.."
+     "..XX."
+     "..XX."
      "....."),
     name="QUp",
 )  # fmt: skip
 
 q_right = Orientation(
     ("....."
-     ".XX.."
+     "....."
      ".XXX."
-     "...."
+     ".XX.."
      "....."),
     name="QRight",
+    spawn=True,
 )  # fmt: skip
 
 q_down = Orientation(
     ("....."
-     "..XX."
-     "..XX."
+     ".XX.."
+     ".XX.."
      "..X.."
      "....."),
     name="QDown",
@@ -365,22 +318,69 @@ q_down = Orientation(
 
 q_left = Orientation(
     ("....."
-     "....."
-     ".XXX."
      "..XX."
+     ".XXX."
+     "....."
      "....."),
     name="QLeft",
-    spawn=True,
 )  # fmt: skip
 
 q = Piece(
     name="Q",
-    tile_index=0x7D,
+    tile_index=0x7C,
     orientations=[
         q_up,
         q_right,
         q_down,
         q_left,
+    ],
+)
+
+p_up = Orientation(
+    ("....."
+     "..X.."
+     ".XX.."
+     ".XX.."
+     "....."),
+    name="PUp",
+)  # fmt: skip
+
+p_right = Orientation(
+    ("....."
+     ".XX.."
+     ".XXX."
+     "...."
+     "....."),
+    name="PRight",
+)  # fmt: skip
+
+p_down = Orientation(
+    ("....."
+     "..XX."
+     "..XX."
+     "..X.."
+     "....."),
+    name="PDown",
+)  # fmt: skip
+
+p_left = Orientation(
+    ("....."
+     "....."
+     ".XXX."
+     "..XX."
+     "....."),
+    name="PLeft",
+    spawn=True,
+)  # fmt: skip
+
+p = Piece(
+    name="P",
+    tile_index=0x7D,
+    orientations=[
+        p_up,
+        p_right,
+        p_down,
+        p_left,
     ],
 )
 
@@ -838,8 +838,8 @@ table = OrientationTable(
         x,
         s,
         z,
-        p,
         q,
+        p,
         n,
         g,
         t,
