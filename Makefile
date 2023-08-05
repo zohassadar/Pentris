@@ -53,7 +53,7 @@ compare: $(pentris)
 	$(SHA1SUM) -c pentris.sha1
 
 clean:
-	rm -f  $(pentris_obj) $(pentris) *.d pentris.dbg pentris.lbl gfx/*.chr gfx/nametables/*.bin
+	rm -f  $(pentris_obj) $(pentris) *.d pentris.dbg pentris.lbl gfx/*.chr gfx/nametables/*.bin orientation/*.asm
 	$(MAKE) clean -C tools/cTools/
 
 tools:
