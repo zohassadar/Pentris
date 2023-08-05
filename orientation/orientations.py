@@ -301,7 +301,7 @@ p_right = Orientation(
     ("....."
      "....."
      ".XXX."
-     ".XX."
+     ".XX.."
      "....."),
     name="PRight",
     spawn=True,
