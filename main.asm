@@ -1178,6 +1178,28 @@ gameModeState_initGameState:
         sta     lines
         sta     lines+1
 .endif
+
+
+.ifdef TOPROWSETUP
+        lda     #$7C
+        sta     $0400
+        sta     $0401
+        sta     $0402
+        sta     $0403
+        sta     $0404
+        sta     $040C
+
+        sta     $0503
+        sta     $0504
+        sta     $0505
+        sta     $0506
+
+
+        lda     #$00
+        sta     vramRow
+.endif
+
+
         sta     twoPlayerPieceDelayCounter
         sta     lineClearStatsByType
         sta     lineClearStatsByType+1
@@ -1198,6 +1220,9 @@ gameModeState_initGameState:
         sta     autorepeatY
         jsr     chooseNextTetrimino
 .ifdef DEBUG
+        lda     #$3e
+.endif
+.ifdef TOPROWSETUP
         lda     #$3e
 .endif
         sta     currentPiece
@@ -3102,10 +3127,13 @@ playState_checkForCompletedRows:
         ldy     generalCounter
         dey
 @movePlayfieldDownOneRow:
+        cpy     #$F9
+        bcs     @skipOverflow 
         lda     leftPlayfield,y
         sta     leftPlayfield+7,y
         lda     rightPlayfield,y
         sta     rightPlayfield+7,y
+@skipOverflow:
         dey
         cpy     #$FF
         bne     @movePlayfieldDownOneRow
