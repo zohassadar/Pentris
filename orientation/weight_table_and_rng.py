@@ -7,6 +7,44 @@ from orientations import table, weight_table
 from orientation_base import output_bytes, validate_table
 import random
 
+
+assembly = """
+chooseNextTetrimino:
+        lda     gameMode
+        cmp     #$05
+        bne     pickRandomTetrimino
+        ldx     demoIndex
+        inc     demoIndex
+        lda     demoTetriminoTypeTable,x
+        tax
+        lda     spawnTable,x
+        rts
+
+pickRandomTetrimino:
+        jsr     @realStart
+        rts
+
+@realStart:
+        ldx     #${}
+        inc     spawnCount
+        lda     rng_seed
+        clc
+        adc     spawnCount
+@nextPiece:
+        cmp     weightTable,x
+        bcs     @foundPiece
+        dex
+        bmi     @foundPiece
+        jmp     @nextPiece
+@foundPiece:
+        inx
+        lda     spawnTable,x
+        sta     spawnID
+        rts
+
+"""
+
+
 output = __file__.replace(".py", ".asm")
 if len(sys.argv) > 1:
     output = False
@@ -26,19 +64,28 @@ if validation != 256:
     sys.exit(f"Piece ID repeats must add up to 256.  This adds up to {validation}")
 
 weight_list = []
-for repeat,id in indexed_weights:
-    for _ in range(repeat):
-        weight_list.append(id)
+for piece in table.pieces:
+    if piece.hidden:
+        continue
+    weight_list.append(weight_table[piece])
 
-# this is shitty and will be replaced
-random.shuffle(weight_list)
+table = []
+current_total = 0
+for weight in weight_list:
+    print(weight)
+    current_total+=weight
+    table.append(current_total)
+
+table.pop()
+
 
 
 try:
     file = open(output, "w+") if output else sys.stdout
-    print( "pieceDistributionTable:", file=file)
-    for i in range(0,256,8):
-        print("    .byte  " + ",".join(f"${j:02x}" for j in weight_list[i:i+8]), file=file)
+    print(assembly.format(f"{len(weight_list)-2:02x}"), file=file)
+    print( "weightTable:", file=file)
+    for i in range(0,len(weight_list)-1,8):
+        print("    .byte  " + ",".join(f"${j:02x}" for j in table[i:i+8]), file=file)
     print("", file=file)
 finally:
     if output:
