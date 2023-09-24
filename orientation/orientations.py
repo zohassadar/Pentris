@@ -41,7 +41,7 @@ f1_left = Orientation(
 
 f1 = Piece(
     name="F1",
-    tile_index=0x7B,
+    tile_index=0x7D,
     orientations=[
         f1_up,
         f1_right,
@@ -194,7 +194,7 @@ l_up = Orientation(
 
 l = Piece(
     name="L",
-    tile_index=0x7B,
+    tile_index=0x7C,
     orientations=[
         l_right,
         l_down,
@@ -219,7 +219,7 @@ x_solo = Orientation(
 
 x = Piece(
     name="X",
-    tile_index=0x7C,
+    tile_index=0x7B,
     orientations=[
         x_solo,
     ],
@@ -280,7 +280,7 @@ z_vertical = Orientation(
 
 z = Piece(
     name="Z",
-    tile_index=0x7B,
+    tile_index=0x7C,
     orientations=[
         z_horizontal,
         z_vertical,
@@ -327,7 +327,7 @@ q_left = Orientation(
 
 q = Piece(
     name="Q",
-    tile_index=0x7C,
+    tile_index=0x7D,
     orientations=[
         q_up,
         q_right,
@@ -375,7 +375,7 @@ p_left = Orientation(
 
 p = Piece(
     name="P",
-    tile_index=0x7D,
+    tile_index=0x7C,
     orientations=[
         p_up,
         p_right,
@@ -425,7 +425,7 @@ n_left = Orientation(
 
 n = Piece(
     name="N",
-    tile_index=0x7B,
+    tile_index=0x7C,
     orientations=[
         n_up,
         n_right,
@@ -474,7 +474,7 @@ g_left = Orientation(
 
 g = Piece(
     name="G",
-    tile_index=0x7C,
+    tile_index=0x7D,
     orientations=[
         g_up,
         g_right,
@@ -524,7 +524,7 @@ t_left = Orientation(
 
 t = Piece(
     name="T",
-    tile_index=0x7D,
+    tile_index=0x7B,
     orientations=[
         t_up,
         t_right,
@@ -623,7 +623,7 @@ v_left = Orientation(
 
 v = Piece(
     name="V",
-    tile_index=0x7C,
+    tile_index=0x7B,
     orientations=[
         v_up,
         v_right,
@@ -674,7 +674,7 @@ w_left = Orientation(
 
 w = Piece(
     name="W",
-    tile_index=0x7D,
+    tile_index=0x7B,
     orientations=[
         w_up,
         w_right,
@@ -725,7 +725,7 @@ y1_down = Orientation(
 
 y1 = Piece(
     name="Y1",
-    tile_index=0x7C,
+    tile_index=0x7D,
     orientations=[
         y1_left,
         y1_up,
@@ -776,7 +776,7 @@ y2_up = Orientation(
 
 y2 = Piece(
     name="Y2",
-    tile_index=0x7D,
+    tile_index=0x7C,
     orientations=[
         y2_right,
         y2_down,
