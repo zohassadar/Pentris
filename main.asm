@@ -4031,7 +4031,7 @@ adjustHighScores:
         lda     score
         sta     highScoreScoresA,x
         ldx     highScoreEntryRawPos
-        lda     levelNumber
+        lda     startLevel
         sta     highScoreLevels,x
         jmp     highScoreEntryScreen
 
