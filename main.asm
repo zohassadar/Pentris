@@ -2862,43 +2862,7 @@ playState_spawnNextTetrimino:
         sta     autorepeatY
 @ret:   rts
 
-chooseNextTetrimino:
-        lda     gameMode
-        cmp     #$05
-        bne     pickRandomTetrimino
-        ldx     demoIndex
-        inc     demoIndex
-        lda     demoTetriminoTypeTable,x
-        tax
-        lda     spawnTable,x
-        rts
-
-pickRandomTetrimino:
-        jsr     @realStart
-        rts
-
-@realStart:
-        ldx     #$10
-        inc     spawnCount
-        lda     rng_seed
-        clc
-        adc     spawnCount
-@nextPiece:
-        cmp     weightTable,x
-        bcs     @foundPiece
-        dex
-        bmi     @foundPiece
-        jmp     @nextPiece
-@foundPiece:
-        inx
-        lda     spawnTable,x
-        sta     spawnID
-        rts
-
-weightTable:
-        .byte  $04,$08,$19,$2a,$2d,$34,$3b,$56
-        .byte  $71,$83,$95,$a1,$b1,$ba,$c5,$d5
-        .byte  $e5
+.include "orientation/weight_table_and_rng.asm"
 
 ; ORIENTATION
 tetriminoTypeFromOrientation:
@@ -5764,40 +5728,6 @@ setOrientationTable:
 .segment        "unreferenced_data1": absolute
 
 .include "orientation/orientation_table.asm"
-.include "orientation/weight_table_and_rng.asm"
-; pieceDistributionTable:
-;     .byte  $02,$08,$03,$03,$03,$0a,$08,$09
-;     .byte  $0c,$07,$09,$0d,$07,$01,$07,$10
-;     .byte  $0d,$00,$09,$0d,$03,$03,$08,$11
-;     .byte  $02,$02,$0a,$08,$02,$0b,$07,$0b
-;     .byte  $0a,$06,$03,$02,$0b,$07,$0a,$11
-;     .byte  $09,$07,$05,$10,$06,$05,$11,$0c
-;     .byte  $0a,$07,$08,$11,$11,$09,$02,$08
-;     .byte  $0b,$06,$0c,$03,$0b,$08,$04,$02
-;     .byte  $11,$0c,$09,$0b,$07,$11,$0f,$0a
-;     .byte  $11,$0c,$07,$0c,$08,$09,$0c,$08
-;     .byte  $09,$10,$04,$07,$08,$0f,$07,$0c
-;     .byte  $11,$0c,$0e,$03,$0d,$10,$0a,$07
-;     .byte  $09,$0d,$0d,$0d,$0f,$07,$07,$0f
-;     .byte  $0a,$04,$08,$11,$08,$02,$0f,$09
-;     .byte  $03,$08,$08,$0d,$0f,$08,$0f,$08
-;     .byte  $03,$10,$00,$08,$11,$0a,$11,$09
-;     .byte  $10,$0e,$03,$11,$10,$07,$0e,$0e
-;     .byte  $0b,$07,$11,$11,$09,$08,$07,$06
-;     .byte  $0e,$0b,$07,$0f,$0f,$03,$08,$0e
-;     .byte  $0e,$0c,$0a,$05,$07,$0a,$09,$0b
-;     .byte  $09,$10,$0a,$02,$07,$08,$02,$0e
-;     .byte  $01,$0c,$01,$10,$08,$02,$0a,$07
-;     .byte  $11,$0a,$11,$02,$0e,$02,$0a,$09
-;     .byte  $11,$0f,$11,$10,$0c,$10,$07,$0f
-;     .byte  $03,$03,$0f,$09,$11,$0e,$11,$11
-;     .byte  $08,$07,$03,$0f,$08,$09,$0c,$11
-;     .byte  $05,$08,$06,$11,$11,$0a,$05,$02
-;     .byte  $0d,$08,$0c,$0e,$02,$0b,$05,$03
-;     .byte  $03,$06,$07,$0f,$11,$10,$0a,$07
-;     .byte  $10,$0b,$10,$0f,$02,$06,$05,$0c
-;     .byte  $00,$0f,$09,$0a,$07,$11,$10,$10
-;     .byte  $0c,$07,$08,$02,$01,$00,$08,$0b
 
 ; End of "unreferenced_data1" segment
 
