@@ -49,15 +49,18 @@ validation = sum(repeats for id,repeats in weight_table.values())
 if validation != 256:
     sys.exit(f"Piece ID repeats must add up to 256.  This adds up to {validation}")
 
-weight_list = []
-for name, (id, repeat) in weight_table.items():
-    for _ in range(repeat):
-        weight_list.append(id)
+weight_list = [repeat for id,repeat in sorted(weight_table.values())]
 
-random.shuffle(weight_list)
+table = []
+current_total = 0
+for weight in weight_list:
+    current_total+=weight
+    table.append(current_total)
 
-for i in range(0,256,8):
-    print("    .byte  " + ",".join(f"${j:02x}" for j in weight_list[i:i+8]))
+table.pop()
+
+for i in range(0,17,8):
+    print("    .byte  " + ",".join(f"${j:02x}" for j in table[i:i+8]))
 
 sys.exit()
 
