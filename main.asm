@@ -48,9 +48,6 @@ effectiveTetriminoX   := $0070 ; TetriminoX is a value between 0-19.
 renderedVramRow       := $0071 ; Used to keep the original vramRow between playfields
 renderedPlayfield     := $0072  ; The playfield being rendered
 
-
-levelNumberTmp := $007F
-
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
 spriteIndexInOamContentLookup:= $00A2
@@ -1249,7 +1246,7 @@ gameModeState_initGameState:
         sta     twoPlayerPieceDelayPiece
         lda     gameType
         beq     @skipTypeBInit
-        lda     #$0
+        lda     #$25
         sta     lines
 @skipTypeBInit:
         lda     #$47
