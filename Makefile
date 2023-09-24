@@ -107,3 +107,6 @@ orientation/orientation_to_next_offset.py: orientation/orientations.py
 
 orientation/hidden_piece_id.py: orientation/orientations.py
 		touch orientation/hidden_piece_id.py
+
+orientation/weight_table_and_rng.py: orientation/orientations.py
+		touch orientation/weight_table_and_rng.py
