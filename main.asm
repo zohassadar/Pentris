@@ -48,6 +48,10 @@ effectiveTetriminoX   := $0070 ; TetriminoX is a value between 0-19.
 renderedVramRow       := $0071 ; Used to keep the original vramRow between playfields
 renderedPlayfield     := $0072  ; The playfield being rendered
 
+previousX := $0073
+previousY := $0074
+previousPiece := $0075
+
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
 spriteIndexInOamContentLookup:= $00A2
@@ -482,7 +486,7 @@ branchOnPlayStatePlayer1:
         .addr   playState_updateLinesAndStatistics
         .addr   playState_bTypeGoalCheck
         .addr   playState_receiveGarbage
-        .addr   playState_spawnNextTetrimino
+        .addr   playState_spawnNextTetrimino ; chain rendering here
         .addr   playState_noop
         .addr   playState_updateGameOverCurtain
         .addr   playState_incrementPlayState
@@ -491,6 +495,16 @@ playState_playerControlsActiveTetrimino:
         jsr     rotate_tetrimino
         jsr     drop_tetrimino
         rts
+
+
+
+fulfillRenderQueue:
+clearOldPiece:
+drawNewPiece:
+renderPlayfield:
+renderScoreLevelLines:
+renderStat:
+
 
 
 gameMode_legalScreen:
@@ -5770,19 +5784,20 @@ renderCurrentPiece:
         bcc     @ret
         ldy     #$05
         ldx     #$00
-; clearPieceLoop:
-;         lda     currentPieceClearing,x
-;         sta     PPUADDR
-;         lda     currentPieceClearing+1,x
-;         sta     PPUADDR
-;         lda     #$FF
-;         sta     PPUDATA
-;         inx
-;         inx
-;         inx
-;         dey
-;         bne     clearPieceLoop
-
+@clearPieceLoop:
+        lda     currentPieceClearing,x
+        ; beq     @skipClear
+        sta     PPUADDR
+        lda     currentPieceClearing+1,x
+        sta     PPUADDR
+        lda     #$FF
+        sta     PPUDATA
+        inx
+        inx
+        inx
+        dey
+        bne     @clearPieceLoop
+@skipClear:
         ldy     #$05
         ldx     #$00
 @renderPieceLoop:
@@ -5792,7 +5807,6 @@ renderCurrentPiece:
         sta     PPUADDR
         lda     currentPieceStaging+2,x
         sta     PPUDATA
-
         inx
         inx
         inx
@@ -5860,8 +5874,34 @@ pieceLoop:
         lda     generalCounter5
         cmp     #$05
         bne     pieceLoop
-        rts
-
+;         lda #$02
+;         cmp playState
+;         bcs @pieceActive
+; @pieceActive:
+;         lda currentPiece
+;         cmp previousPiece
+;         beq @orientationUnchanged
+;         bne @clearClearing
+; @orientationUnchanged:
+;         lda tetriminoY
+;         cmp previousY
+;         beq @yUnchanged
+;         bne @clearClearing
+; @yUnchanged:
+;         lda tetriminoX
+;         cmp previousX
+;         beq @xUnchanged
+; @clearClearing:
+;         lda #$00
+;         sta currentPieceClearing
+; @xUnchanged:
+;         lda tetriminoY
+;         sta previousY
+;         lda tetriminoX
+;         sta previousX
+;         lda currentPiece
+;         sta previousPiece
+@ret:   rts
 
 
 drawBlankPiece:
