@@ -2561,21 +2561,23 @@ render_mode_play_and_demo:
         beq     @playstateCurtainAnimation
 
         ; Draw all of the rows for either the left or the right playfield
-        lda     renderedPlayfield
-        sta     playfieldAddr+1
         lda     vramRow
         sta     renderedVramRow
+@playItAgain:
+        lda     renderedPlayfield
+        sta     playfieldAddr+1
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
         jsr     copyPlayfieldRowToVRAM
-        jsr     copyPlayfieldRowToVRAM
+        ; jsr     copyPlayfieldRowToVRAM
         lda     renderedPlayfield
         eor     #$01
         sta     renderedPlayfield
         cmp     #$05
-        beq     @renderLines
+        bne     @renderLines
         lda     renderedVramRow
         sta     vramRow
+        jmp     @playItAgain
 @renderLines:
         lda     outOfDateRenderFlags
         and     #$01
