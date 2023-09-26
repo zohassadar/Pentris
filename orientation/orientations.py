@@ -42,6 +42,7 @@ f1_left = Orientation(
 f1 = Piece(
     name="F1",
     tile_index=0x7D,
+    stats_addr=0x2a10,
     orientations=[
         f1_up,
         f1_right,
@@ -93,6 +94,7 @@ f2_left = Orientation(
 f2 = Piece(
     name="F2",
     tile_index=0x7C,
+    stats_addr=0x2a18,
     orientations=[
         f2_up,
         f2_right,
@@ -144,6 +146,7 @@ j_down = Orientation(
 j = Piece(
     name="J",
     tile_index=0x7D,
+    stats_addr=0x28f0,
     orientations=[
         j_left,
         j_up,
@@ -195,6 +198,7 @@ l_up = Orientation(
 l = Piece(
     name="L",
     tile_index=0x7C,
+    stats_addr=0x28f8,
     orientations=[
         l_right,
         l_down,
@@ -220,6 +224,7 @@ x_solo = Orientation(
 x = Piece(
     name="X",
     tile_index=0x7B,
+    stats_addr=0x2a68,
     orientations=[
         x_solo,
     ],
@@ -250,6 +255,7 @@ s_vertical = Orientation(
 s = Piece(
     name="S",
     tile_index=0x7D,
+    stats_addr=0x2a70,
     orientations=[
         s_horizontal,
         s_vertical,
@@ -281,6 +287,7 @@ z_vertical = Orientation(
 z = Piece(
     name="Z",
     tile_index=0x7C,
+    stats_addr=0x2a78,
     orientations=[
         z_horizontal,
         z_vertical,
@@ -328,6 +335,7 @@ q_left = Orientation(
 q = Piece(
     name="Q",
     tile_index=0x7D,
+    stats_addr=0x2ad0,
     orientations=[
         q_up,
         q_right,
@@ -376,6 +384,7 @@ p_left = Orientation(
 p = Piece(
     name="P",
     tile_index=0x7C,
+    stats_addr=0x2ad8,
     orientations=[
         p_up,
         p_right,
@@ -426,6 +435,7 @@ n_left = Orientation(
 n = Piece(
     name="N",
     tile_index=0x7C,
+    stats_addr=0x29b8,
     orientations=[
         n_up,
         n_right,
@@ -475,6 +485,7 @@ g_left = Orientation(
 g = Piece(
     name="G",
     tile_index=0x7D,
+    stats_addr=0x29b0,
     orientations=[
         g_up,
         g_right,
@@ -525,6 +536,7 @@ t_left = Orientation(
 t = Piece(
     name="T",
     tile_index=0x7B,
+    stats_addr=0x2a08,
     orientations=[
         t_up,
         t_right,
@@ -573,6 +585,7 @@ u_left = Orientation(
 u = Piece(
     name="U",
     tile_index=0x7B,
+    stats_addr=0x28e8,
     orientations=[
         u_up,
         u_right,
@@ -624,6 +637,7 @@ v_left = Orientation(
 v = Piece(
     name="V",
     tile_index=0x7B,
+    stats_addr=0x29A8,
     orientations=[
         v_up,
         v_right,
@@ -675,6 +689,7 @@ w_left = Orientation(
 w = Piece(
     name="W",
     tile_index=0x7B,
+    stats_addr=0x2948,
     orientations=[
         w_up,
         w_right,
@@ -726,6 +741,7 @@ y1_down = Orientation(
 y1 = Piece(
     name="Y1",
     tile_index=0x7D,
+    stats_addr=0x2950,
     orientations=[
         y1_left,
         y1_up,
@@ -777,6 +793,7 @@ y2_up = Orientation(
 y2 = Piece(
     name="Y2",
     tile_index=0x7C,
+    stats_addr=0x2958,
     orientations=[
         y2_right,
         y2_down,
@@ -807,6 +824,7 @@ i_vertical = Orientation(
 )  # fmt: skip
 
 i = Piece(
+    stats_addr=0x2ac8,
     name="I",
     tile_index=0x7B,
     orientations=[

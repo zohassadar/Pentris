@@ -63,6 +63,7 @@ class Piece:
     tile_index: int
     orientations: list[Orientation | HiddenOrientation]
     hidden: bool = False
+    stats_addr: int = 0xffff
 
     def __hash__(self):
         return hash(self.name)

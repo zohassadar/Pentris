@@ -48,6 +48,8 @@ effectiveTetriminoX   := $0070 ; TetriminoX is a value between 0-19.
 renderedVramRow       := $0071 ; Used to keep the original vramRow between playfields
 renderedPlayfield     := $0072  ; The playfield being rendered
 
+pauseScreen := $0080
+
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
 spriteIndexInOamContentLookup:= $00A2
@@ -224,6 +226,16 @@ CNROM_BG0 := $00
 CNROM_BG1 := $10
 CNROM_SPRITE0 := $00
 CNROM_SPRITE1 := $08
+
+
+BUTTON_DOWN := $4
+BUTTON_UP := $8
+BUTTON_RIGHT := $1
+BUTTON_LEFT := $2
+BUTTON_B := $40
+BUTTON_A := $80
+BUTTON_SELECT := $20
+BUTTON_START := $10
 
 .segment        "PRG_chunk1": absolute
 
@@ -506,7 +518,8 @@ gameMode_legalScreen:
 .endif
         jsr     bulkCopyToPpu
         .addr   legal_screen_palette
-        jsr     bulkCopyToPpu
+        lda     #$20 ; offset
+        jsr     copyRleNametableToPpu
         .addr   legal_screen_nametable
         jsr     waitForVBlankAndEnableNmi
         jsr     updateAudioWaitForNmiAndResetOamStaging
@@ -613,7 +626,7 @@ render_mode_legal_and_title_screens:
 gameMode_gameTypeMenu:
 .ifndef CNROM
         inc     initRam
-        lda     #$10
+        lda     #$13
         jsr     setMMC1Control
 .endif
         lda     #$01
@@ -622,7 +635,8 @@ gameMode_gameTypeMenu:
         jsr     disableNmi
         jsr     bulkCopyToPpu
         .addr   menu_palette
-        jsr     bulkCopyToPpu
+        lda     #$20
+        jsr     copyRleNametableToPpu
         .addr   game_type_menu_nametable
 .ifdef CNROM
         lda     #CNROM_BANK0
@@ -758,7 +772,7 @@ L830B:  lda     #$FF
 gameMode_levelMenu:
 .ifndef CNROM
         inc     initRam
-        lda     #$10
+        lda     #$13
         jsr     setMMC1Control
 .endif
         jsr     updateAudio2
@@ -779,7 +793,8 @@ gameMode_levelMenu:
 .endif
         jsr     bulkCopyToPpu
         .addr   menu_palette
-        jsr     bulkCopyToPpu
+        lda     #$20
+        jsr     copyRleNametableToPpu
         .addr   level_menu_nametable
         lda     gameType
         bne     @skipTypeBHeightDisplay
@@ -1033,7 +1048,11 @@ gameModeState_initGameBackground:
 .endif
         jsr     bulkCopyToPpu
         .addr   game_palette
-        jsr     bulkCopyToPpu
+        lda     #$28
+        jsr     copyRleNametableToPpu
+        .addr   stats_nametable
+        lda     #$20
+        jsr     copyRleNametableToPpu
         .addr   game_nametable
         lda     #$23
         sta     PPUADDR
@@ -2630,14 +2649,26 @@ render_mode_play_and_demo:
 @renderStats:
         lda     outOfDateRenderFlags
         and     #$40
-        bne     @continue
-        jmp     @renderTetrisFlashAndSound
-@continue:
-        ; stats rendering was here
-@endOfPpuPatching:
+        beq     @renderTetrisFlashAndSound
+        ldx     currentPiece
+        lda     tetriminoTypeFromOrientation, x
+        sta     tmpCurrentPiece
+@renderPieceStat:
+        lda     tmpCurrentPiece
+        asl
+        tax
+        lda     pieceToPpuStatAddr,x
+        sta     PPUADDR
+        lda     pieceToPpuStatAddr+1,x
+        sta     PPUADDR
+        lda     statsByType+1,x
+        sta     PPUDATA
+        lda     statsByType,x
+        jsr     twoDigsToPPU
         lda     outOfDateRenderFlags
         and     #$BF
         sta     outOfDateRenderFlags
+@endOfPpuPatching:
 @renderTetrisFlashAndSound:
         lda     #$3F
         sta     PPUADDR
@@ -2657,10 +2688,10 @@ render_mode_play_and_demo:
         lda     #$09
         sta     soundEffectSlot1Init
 @setPaletteColor:
-.ifdef CNROM
+; .ifdef CNROM
         lda     currentPpuCtrl
         sta     PPUCTRL
-.endif
+; .endif
         stx     PPUDATA
         ldy     #$00
         sty     ppuScrollX
@@ -2670,9 +2701,7 @@ render_mode_play_and_demo:
         sty     PPUSCROLL
         rts
 
-pieceToPpuStatAddr:
-        .dbyt   $2186,$21C6,$2206,$2246
-        .dbyt   $2286,$22C6,$2306
+.include "orientation/piece_to_stats_addresses.asm"
 levelDisplayTable:
         .byte   $00,$01,$02,$03,$04,$05,$06,$07
         .byte   $08,$09,$10,$11,$12,$13,$14,$15
@@ -4109,7 +4138,7 @@ highScoreIndexToHighScoreScoresOffset:
 highScoreEntryScreen:
 .ifndef CNROM
         inc     initRam
-        lda     #$10
+        lda     #$13
         jsr     setMMC1Control
 .endif
         lda     #$09
@@ -4324,7 +4353,11 @@ gameModeState_startButtonHandling:
 @checkIfInGame:
         lda     renderMode
         cmp     #$03
-        bne     @ret
+        beq     @dontReturn
+        inc     gameModeState
+        rts
+
+@dontReturn:
         lda     newlyPressedButtons_player1
         and     #$10
         bne     @startPressed
@@ -4342,27 +4375,61 @@ gameModeState_startButtonHandling:
         lda     #$00
         sta     renderMode
         jsr     updateAudioAndWaitForNmi
-        lda     #$16
-        sta     PPUMASK
-        lda     #$FF
+        ; lda     #$16
+        ; sta     PPUMASK
+        ; lda     #$FF
         ldx     #$02
         ldy     #$02
         jsr     memset_page
 @pauseLoop:
-        lda     #$70
+        lda     pauseScreen
+        bne     @skipSprites
+        lda     #$58
         sta     spriteXOffset
-        lda     #$77
+        lda     #$4b
         sta     spriteYOffset
         lda     #$05
         sta     spriteIndexInOamContentLookup
         jsr     loadSpriteIntoOamStaging
+        jsr     stageSpriteForCurrentPiece
+        jsr     stageSpriteForNextPiece
+@skipSprites:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_SELECT
+        beq     @selectNotPressed
+        lda     pauseScreen
+        eor     #$02
+        sta     pauseScreen
+        lda     #$16
+        sta     PPUMASK
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     currentPpuCtrl
+        ora     pauseScreen
+        sta     currentPpuCtrl
+        sta     PPUCTRL
+        lda     pauseScreen
+        lsr
+        clc
+        adc     #$03
+        sta     generalCounter
+        jsr     changeCHRBank0
+        lda     generalCounter 
+        jsr     changeCHRBank1 
+        jmp     @pauseLoop
+
+@selectNotPressed:
         lda     newlyPressedButtons_player1
         cmp     #$10
         beq     @resume
         jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     #$1E
+        sta     PPUMASK
         jmp     @pauseLoop
 
-@resume:lda     #$1E
+@resume:
+        lda     #$03
+        jsr     changeCHRBank0
+        lda     #$1E
         sta     PPUMASK
         lda     #$00
         sta     musicStagingNoiseHi
@@ -5533,6 +5600,9 @@ switch_s_plus_2a:
         jmp     (tmp1)
 
 
+.include "gfx/nametables/rle.asm"
+
+
 .ifdef CNROM
 changeCHRBank:
         pha
@@ -5698,6 +5768,8 @@ level_menu_nametable:
         .incbin "gfx/nametables/level_menu_nametable.bin"
 game_nametable:
         .incbin "gfx/nametables/game_nametable.bin"
+stats_nametable:
+        .incbin "gfx/nametables/stats_nametable.bin"
 enter_high_score_nametable:
         .incbin "gfx/nametables/enter_high_score_nametable.bin"
 high_scores_nametable:
@@ -7705,7 +7777,7 @@ reset:  cld
         jsr     changeCHRBank
 .else
         inc     reset
-        lda     #$10
+        lda     #$13
         jsr     setMMC1Control
         lda     #$00
         jsr     changeCHRBank0
