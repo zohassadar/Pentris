@@ -236,6 +236,7 @@ BUTTON_B := $40
 BUTTON_A := $80
 BUTTON_SELECT := $20
 BUTTON_START := $10
+ALMOST_ANY := BUTTON_DOWN+BUTTON_UP+BUTTON_LEFT+BUTTON_RIGHT+BUTTON_A+BUTTON_B
 
 .segment        "PRG_chunk1": absolute
 
@@ -1142,13 +1143,13 @@ gameModeState_initGameState:
         ldx     #$04
         ldy     #$05
         jsr     memset_page
-        ldx     #$24
+        ldx     #$23
         lda     #$00
 ; statsByType
 @initStatsByType:
         sta     $0300,x
         dex
-        bne     @initStatsByType
+        bpl     @initStatsByType
         lda     #$04
         sta     renderedPlayfield
         lda     #$07
@@ -1404,9 +1405,13 @@ gameModeState_updateCountersAndNonPlayerState:
         ldx     #CNROM_SPRITE1
         jsr     changeCHRBank
 .else
-        lda     #$03
+        lda     pauseScreen
+        lsr
+        clc
+        adc     #$03
+        sta     generalCounter
         jsr     changeCHRBank0
-        lda     #$03
+        lda     generalCounter
         jsr     changeCHRBank1
 .endif
         lda     #$00
@@ -1623,6 +1628,10 @@ shift_tetrimino:
 @ret:   rts
 
 stageSpriteForCurrentPiece:
+        lda     pauseScreen
+        beq     @continue
+        rts
+@continue:
         lda     tetriminoX
         asl     a
         asl     a
@@ -1691,6 +1700,10 @@ stageSpriteForCurrentPiece:
         rts
 
 stageSpriteForNextPiece:
+        lda     pauseScreen
+        beq     @continue
+        rts
+@continue:
         lda     displayNextPiece
         bne     @ret
         lda     #$CC
@@ -2775,7 +2788,9 @@ copyPlayfieldRowToVRAM:
         sta     vramRow
 @ret:   rts
 
+.ifndef AEPPOZ
 updateLineClearingAnimation:
+.endif
         lda     frameCounter
         and     #$03
         bne     @ret
@@ -2818,6 +2833,9 @@ updateLineClearingAnimation:
         lda     rowY
         cmp     #$07
         bmi     @ret
+.ifdef AEPPOZ
+updateLineClearingAnimation:
+.endif
         inc     playState
 @ret:   rts
 
@@ -3064,6 +3082,43 @@ playState_lockTetrimino:
 @ret:   rts
 
 playState_updateGameOverCurtain:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START
+        beq     @startNotPressed
+        lda     score+2
+        cmp     #$50
+        bcc     @exitGame
+        jsr     endingAnimation_maybe
+@exitGame:
+        lda     pauseScreen
+        beq     @noToggle
+        lda     currentPpuCtrl
+        and     #$FD
+        sta     currentPpuCtrl
+
+@noToggle:
+        lda     #$00
+        sta     playState
+        sta     pauseScreen
+        sta     newlyPressedButtons_player1
+        rts
+
+@startNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #ALMOST_ANY
+        beq     @almostAnyButtonNotPressed
+        jsr     togglePauseScreen
+        jsr     updateAudioAndWaitForNmi
+        lda     #$1E
+        sta     currentPpuMask
+        sta     PPUMASK
+@almostAnyButtonNotPressed:
+@ret:
+        rts
+
+        
+
+playState_updateGameOverCurtainOld:
         lda     curtainRow
         cmp     #$16
         beq     @curtainFinished
@@ -3142,13 +3197,25 @@ playState_checkForCompletedRows:
 @checkIfRowComplete:
         lda     leftPlayfield,y
         cmp     #$EF
+.ifdef AEPPOZ
+        bne     @AEPPOZSkip
+.else
         beq     @rowNotComplete
+.endif
         lda     rightPlayfield,y
         cmp     #$EF
+.ifdef AEPPOZ
+        bne     @AEPPOZSkip
+.else
         beq     @rowNotComplete
+.endif
         iny
         dex
         bne     @checkIfRowComplete
+.ifdef AEPPOZ
+        jmp     @rowNotComplete
+.endif
+@AEPPOZSkip:
         lda     #$0A
         sta     soundEffectSlot1Init
         inc     completedLines
@@ -3386,13 +3453,13 @@ L9C75:  lda     score+2
         adc     #$06
         sta     score+2
 L9C84:  lda     score+2
-        and     #$F0
-        cmp     #$A0
-        bcc     L9C94
-        lda     #$99
-        sta     score
-        sta     score+1
-        sta     score+2
+        ; and     #$F0
+        ; cmp     #$A0
+        ; bcc     L9C94
+        ; lda     #$99
+        ; sta     score
+        ; sta     score+1
+        ; sta     score+2
 L9C94:  dec     generalCounter
         bne     L9C37
         lda     outOfDateRenderFlags
@@ -4395,29 +4462,12 @@ gameModeState_startButtonHandling:
         jsr     stageSpriteForNextPiece
 @skipSprites:
         lda     newlyPressedButtons_player1
-        and     #BUTTON_SELECT
-        beq     @selectNotPressed
-        lda     pauseScreen
-        eor     #$02
-        sta     pauseScreen
-        lda     #$16
-        sta     PPUMASK
-        jsr     updateAudioWaitForNmiAndResetOamStaging
-        lda     currentPpuCtrl
-        ora     pauseScreen
-        sta     currentPpuCtrl
-        sta     PPUCTRL
-        lda     pauseScreen
-        lsr
-        clc
-        adc     #$03
-        sta     generalCounter
-        jsr     changeCHRBank0
-        lda     generalCounter 
-        jsr     changeCHRBank1 
+        and     #ALMOST_ANY
+        beq     @almostAnyNotPressed
+        jsr     togglePauseScreen
         jmp     @pauseLoop
 
-@selectNotPressed:
+@almostAnyNotPressed:
         lda     newlyPressedButtons_player1
         cmp     #$10
         beq     @resume
@@ -4432,12 +4482,37 @@ gameModeState_startButtonHandling:
         lda     #$1E
         sta     PPUMASK
         lda     #$00
+        sta     pauseScreen
         sta     musicStagingNoiseHi
         sta     vramRow
         lda     #$03
         sta     renderMode
 @ret:   inc     gameModeState
         rts
+
+togglePauseScreen:
+        lda     pauseScreen
+        eor     #$02
+        sta     pauseScreen
+        lda     #$16
+        sta     currentPpuMask
+        sta     PPUMASK
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     currentPpuCtrl
+        and     #$FD
+        ora     pauseScreen
+        sta     currentPpuCtrl
+        sta     PPUCTRL
+        lda     pauseScreen
+        lsr
+        clc
+        adc     #$03
+        sta     generalCounter
+        jsr     changeCHRBank0
+        lda     generalCounter 
+        jmp     changeCHRBank1
+
+
 
 playState_bTypeGoalCheck:
         lda     gameType
@@ -4560,17 +4635,25 @@ typebSuccessGraphicRightRow3:
 sleep_for_14_vblanks:
         lda     #$14
         sta     sleepCounter
-@loop:  jsr     updateAudioWaitForNmiAndResetOamStaging
+@loop: 
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START
+        bne     @break
+        jsr     updateAudioWaitForNmiAndResetOamStaging
         lda     sleepCounter
         bne     @loop
-        rts
+@break: rts
 
 sleep_for_a_vblanks:
         sta     sleepCounter
-@loop:  jsr     updateAudioWaitForNmiAndResetOamStaging
+@loop:  
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START
+        bne     @break
+        jsr     updateAudioWaitForNmiAndResetOamStaging
         lda     sleepCounter
         bne     @loop
-        rts
+@break: rts
 
 ending_initTypeBVars:
         lda     #$00
