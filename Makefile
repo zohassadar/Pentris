@@ -76,7 +76,7 @@ $(pentris_obj): %.o: %.asm $$(dep)
 		$(CA65) $(CAFLAGS) $*.asm -o $@
 
 %: %.cfg
-		$(LD65) $(LDFLAGS) -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(pentris_obj)
+		$(LD65) $(LDFLAGS) -m $(basename $@).map -Ln $(basename $@).lbl --dbgfile $(basename $@).dbg -o $@ -C $< $(pentris_obj)
 
 %.bin: %.py
 		$(pythonExecutable) $?

@@ -1,6 +1,6 @@
 import pathlib
 import sys
-
+import subprocess
 import nametable_builder
 
 """
@@ -99,8 +99,9 @@ starting_addresses = [(32, 0), (32, 32), (32, 64), (32, 96), (32, 128), (32, 160
 
 if __name__ == "__main__":
     try:
+        raw_output = file.parent / output.name.replace(".bin", ".raw")
         nametable_builder.build_nametable(
-            output,
+            raw_output,
             table,
             attributes,
             characters,
@@ -108,6 +109,8 @@ if __name__ == "__main__":
             lengths,
             starting_addresses,
         )
+        subprocess.run(["node", str(file.parent / "compress.js"), raw_output, output])
+        raw_output.unlink()
     except Exception as exc:
         print(
             f"Unable to build nametable: {type(exc).__name__}: {exc!s}", file=sys.stderr
