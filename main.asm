@@ -49,6 +49,12 @@ renderedVramRow       := $0071 ; Used to keep the original vramRow between playf
 renderedPlayfield     := $0072  ; The playfield being rendered
 
 pauseScreen := $0080
+levelControlMode := $0081
+customLevel := $0082
+
+menuMoveThrottle := $0083
+menuThrottleTmp := $0084
+heartsAndReady := $0085
 
 spriteXOffset   := $00A0
 spriteYOffset   := $00A1
@@ -238,6 +244,8 @@ BUTTON_SELECT := $20
 BUTTON_START := $10
 ALMOST_ANY := BUTTON_DOWN+BUTTON_UP+BUTTON_LEFT+BUTTON_RIGHT+BUTTON_A+BUTTON_B
 
+INITIAL_CUSTOM_LEVEL := 29
+
 .segment        "PRG_chunk1": absolute
 
 ; incremented to reset MMC1 reg
@@ -418,6 +426,10 @@ initRamContinued:
         sta     gameModeState
         sta     gameMode
         sta     frameCounter+1
+
+        lda #INITIAL_CUSTOM_LEVEL
+        sta customLevel
+
 @mainLoop:
         jsr     branchOnGameMode
         cmp     gameModeState
@@ -797,11 +809,14 @@ gameMode_levelMenu:
         lda     #$20
         jsr     copyRleNametableToPpu
         .addr   level_menu_nametable
-        lda     gameType
-        bne     @skipTypeBHeightDisplay
-        jsr     bulkCopyToPpu
-        .addr   height_menu_nametablepalette_patch
-@skipTypeBHeightDisplay:
+        lda     #$28
+        jsr     copyRleNametableToPpu
+        .addr   level_menu_nametable
+;         lda     gameType
+;         bne     @skipTypeBHeightDisplay
+;         jsr     bulkCopyToPpu
+;         .addr   height_menu_nametablepalette_patch
+; @skipTypeBHeightDisplay:
         jsr     showHighScores
         jsr     waitForVBlankAndEnableNmi
         jsr     updateAudioWaitForNmiAndResetOamStaging
@@ -828,7 +843,7 @@ gameMode_levelMenu_processPlayer1Navigation:
         sta     selectingLevelOrHeight
         lda     newlyPressedButtons_player1
         sta     newlyPressedButtons
-        jsr     gameMode_levelMenu_handleLevelHeightNavigation
+        jsr     levelControl
         lda     selectingLevelOrHeight
         sta     originalY
         lda     newlyPressedButtons_player1
@@ -880,7 +895,7 @@ gameMode_levelMenu_processPlayer1Navigation:
         jmp     gameMode_levelMenu_processPlayer1Navigation
 
 ; Starts by checking if right pressed
-gameMode_levelMenu_handleLevelHeightNavigation:
+levelControlNormal:
         lda     newlyPressedButtons
         cmp     #$01
         bne     @checkLeftPressed
@@ -890,7 +905,7 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         bne     @rightPressedForHeightSelection
         lda     startLevel
         cmp     #$09
-        beq     @checkLeftPressed
+        beq     @toCustomLevel
         inc     startLevel
         jmp     @checkLeftPressed
 
@@ -926,11 +941,19 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         bne     @downPressedForHeightSelection
         lda     startLevel
         cmp     #$05
-        bpl     @checkUpPressed
+        bpl     @switchToDisplayOptions
         clc
         adc     #$05
         sta     startLevel
         jmp     @checkUpPressed
+@switchToDisplayOptions:
+        inc     levelControlMode
+        inc     levelControlMode
+        rts
+
+@toCustomLevel:
+        inc levelControlMode
+        rts
 
 @downPressedForHeightSelection:
         lda     startHeight
@@ -1008,6 +1031,145 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         sta     spriteXOffset
         jsr     loadSpriteIntoOamStaging
 @ret:   rts
+
+; levelControlCustomLevel:
+;         lda     newlyPressedButtons_player1
+;         and     #BUTTON_LEFT
+;         beq     @leftNotPressed
+;         dec     levelControlMode
+; @leftNotPressed:
+;         lda     newlyPressedButtons_player1
+;         and     #BUTTON_DOWN
+;         beq     @downNotPressed
+;         inc     levelControlMode
+; @downNotPressed:
+;         lda     #$08
+;         sta     spriteYOffset
+;         sta     spriteIndexInOamContentLookup
+;         sta     spriteXOffset
+;         jsr     loadSpriteIntoOamStaging
+;         rts
+
+
+handleReadyInput:
+        lda newlyPressedButtons
+        cmp #BUTTON_SELECT
+        bne @notSelect
+        lda #$01
+        sta soundEffectSlot1Init
+        lda heartsAndReady
+        eor #$80
+        sta heartsAndReady
+@notSelect:
+        rts
+
+levelControlCustomLevel:
+        jsr handleReadyInput
+        lda frameCounter
+        and #$03
+        beq @indicatorEnd
+        lda #$4E
+        sta spriteYOffset
+        lda #$B0
+        sta spriteXOffset
+        lda #$21
+        sta spriteIndexInOamContentLookup
+        jsr loadSpriteIntoOamStaging
+@indicatorEnd:
+
+        ; lda #BUTTON_RIGHT
+        ; jsr menuThrottle
+        ; beq @checkUpPressed
+        ; clc
+        ; lda customLevel
+        ; adc #$A
+        ; sta customLevel
+        ; jsr @changeLevel
+; @checkUpPressed:
+        lda #BUTTON_UP
+        jsr menuThrottle
+        beq @checkDownPressed
+        inc customLevel
+        jsr @changeLevel
+@checkDownPressed:
+        lda #BUTTON_DOWN
+        jsr menuThrottle
+        beq @checkLeftPressed
+        dec customLevel
+        jsr @changeLevel
+@checkLeftPressed:
+
+        lda newlyPressedButtons
+        cmp #BUTTON_LEFT
+        bne @ret
+        lda #$01
+        sta soundEffectSlot1Init
+        lda #$0
+        sta levelControlMode
+@ret:
+        rts
+
+@changeLevel:
+        lda #$1
+        sta soundEffectSlot1Init
+        lda outOfDateRenderFlags
+        ora #$1
+        sta outOfDateRenderFlags
+        rts
+
+
+
+levelControlToggle:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP
+        beq     @upNotPressed
+        dec     levelControlMode
+        dec     levelControlMode
+@upNotPressed:
+        lda     #$10
+        sta     spriteYOffset
+        sta     spriteIndexInOamContentLookup
+        sta     spriteXOffset
+        jsr     loadSpriteIntoOamStaging
+        rts
+
+
+levelControl:
+        lda levelControlMode
+        jsr switch_s_plus_2a
+        .addr   levelControlNormal
+        .addr   levelControlCustomLevel
+        .addr   levelControlToggle
+        .addr   levelControlNormal
+        .addr   levelControlNormal
+        ; .addr   levelControlHearts
+        ; .addr   levelControlClearHighScores
+        ; .addr   levelControlClearHighScoresConfirm
+menuThrottle: ; add DAS-like movement to the menu
+        sta menuThrottleTmp
+        lda newlyPressedButtons_player1
+        cmp menuThrottleTmp
+        beq menuThrottleNew
+        lda heldButtons_player1
+        cmp menuThrottleTmp
+        bne @endThrottle
+        dec menuMoveThrottle
+        beq menuThrottleContinue
+@endThrottle:
+        lda #0
+        rts
+
+menuThrottleStart := $10
+menuThrottleRepeat := $4
+menuThrottleNew:
+        lda #menuThrottleStart
+        sta menuMoveThrottle
+        rts
+menuThrottleContinue:
+        lda #menuThrottleRepeat
+        sta menuMoveThrottle
+        rts
+
 
 levelToSpriteYOffset:
         .byte   $53,$53,$53,$53,$53,$63,$63,$63
