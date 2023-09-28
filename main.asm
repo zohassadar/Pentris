@@ -3473,7 +3473,7 @@ L9C94:  dec     generalCounter
         rts
 
 pointsTable:
-        .word   $0000,$0040,$0100,$0300
+        .word   $0000,$0150,$0300,$0600
         .word   $1200,$2400
 updatePlayfield:
         ldx     tetriminoY
