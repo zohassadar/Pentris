@@ -1,6 +1,8 @@
 WINDOWS := $(shell which wine ; echo $$?)
 UNAME_S := $(shell uname -s)
 
+VERSION := v1.2
+
 pentris_obj := main.o pentris-ram.o pentris.o
 cc65Path := tools/cc65
 
@@ -63,6 +65,21 @@ patch: $(pentris_obj)
 patch: 
 	tools/flips-linux --create clean.nes $(pentris) pentris.bps
 
+all:
+	touch *.asm
+	touch gfx/nametables/*.py
+	touch gfx/*.png
+	$(MAKE)
+	$(MAKE) patch
+	mv pentris.bps Pentris_$(VERSION).bps
+	mv pentris.nes Pentris_$(VERSION).nes
+	touch *.asm
+	touch gfx/nametables/*.py
+	touch gfx/*.png
+	$(MAKE) flags ANYDAS
+	$(MAKE) patch
+	mv pentris.bps PentrisAnydas_$(VERSION).bps
+	mv pentris.nes PentrisAnydas_$(VERSION).nes
 
 # Build tools when building the rom.
 # This has to happen before the rules are processed, since that's when scan_includes is run.

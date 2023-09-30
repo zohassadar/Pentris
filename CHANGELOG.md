@@ -21,3 +21,6 @@
     |4|1200|N/A|
     |5|2400|N/A|
 
+
+## [1.2]
+* Revert to classic scoring table
