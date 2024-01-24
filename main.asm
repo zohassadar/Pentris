@@ -219,6 +219,7 @@ JOY2_APUFC      := $4017                        ; read: bits 0-4 joy data lines 
 
 MMC1_CHR0       := $BFFF
 MMC1_CHR1       := $DFFF
+MMC1_PRG        := $FFFF
 
 CNROM_BANK0 := $00
 CNROM_BANK1 := $01
@@ -5908,15 +5909,11 @@ setOrientationTable:
         sta    currentOrientationTile+1
         rts
 
-; End of "PRG_chunk1" segment
-.code
 
 
-.segment        "unreferenced_data1": absolute
 
 .include "orientation/orientation_table.asm"
 
-; End of "unreferenced_data1" segment
 
 
 .ifdef ANYDAS
@@ -6050,7 +6047,7 @@ anydasControllerInput:
 @ret3:  rts
 .endif
 
-
+; End of "PRG_chunk1" segment
 .code
 
 
@@ -7833,7 +7830,7 @@ music_endings_noiseScript:
 
 .segment        "unreferenced_data4": absolute
 
-.include "data/unreferenced_data4.asm"
+; .include "data/unreferenced_data4.asm"
 
 ; End of "unreferenced_data4" segment
 .code
@@ -7873,11 +7870,8 @@ reset:  cld
 .endif
         jmp     initRam
 
-.include "data/unreferenced_data5.asm"
-MMC1_PRG:
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00
-        .byte   $00
+; .include "data/unreferenced_data5.asm"
+
 
 ; End of "PRG_chunk3" segment
 .code
