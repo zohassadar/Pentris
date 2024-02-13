@@ -3,7 +3,7 @@ UNAME_S := $(shell uname -s)
 
 VERSION := v1.2
 
-pentris_obj := main.o pentris-ram.o pentris.o
+pentris_obj := main.o pentris.o
 cc65Path := tools/cc65
 
 ifeq (flags,$(firstword $(MAKECMDGOALS)))
@@ -32,7 +32,7 @@ LD65 := $(WINE) $(cc65Path)/bin/ld65
 nesChrEncode := python3 tools/nes-util/nes_chr_encode.py
 pythonExecutable := python
 
-pentris.nes: pentris.o main.o pentris-ram.o
+pentris.nes: pentris.o main.o
 
 pentris:= pentris.nes
 
