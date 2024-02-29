@@ -168,9 +168,13 @@ linesAddress: .res $2
 linesData: .res $3
 levelAddress: .res $2
 levelData: .res $2
-paletteAddress: .res $2
-paletteData: .res $20
-.res $5F
+paletteTetrisAddress: .res $2
+paletteTetrisData: .res $1
+paletteBGAddress: .res $2
+paletteBGData: .res $4
+paletteSpriteAddress: .res $2
+paletteSpriteData: .res $4
+.res $72
 oamStaging:	.res $100	; $0200
 statsByType:	.res $100	; $0300
 leftPlayfield:	.res $C8	; $0400
