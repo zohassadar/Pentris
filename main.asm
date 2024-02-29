@@ -2352,7 +2352,7 @@ sprite4ACathedralRocket:
         .byte   $D0,$3B,$23,$18
         .byte   $D0,$3C,$23,$20
         .byte   $D0,$3E,$23,$30
-        .byte   $D0,$3F,$23,$38
+        ; .byte   $D0,$3F,$23,$38
         .byte   $D8,$48,$23,$00
         .byte   $D8,$49,$23,$08
         .byte   $D8,$4A,$23,$10
