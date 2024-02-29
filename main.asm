@@ -34,6 +34,7 @@ SND_CHN         := $4015
 JOY1            := $4016
 JOY2_APUFC      := $4017                        ; read: bits 0-4 joy data lines (bit 0 being normal controller), bits 6-7 are FC inhibit and mode
 
+MMC1_Control    := $9FFF
 MMC1_CHR0       := $BFFF
 MMC1_CHR1       := $DFFF
 MMC1_PRG        := $FFFF
@@ -70,19 +71,23 @@ nmi:    pha
 .ifdef ANYDAS
         jmp     renderAnydasMenu
 returnFromAnydasRender:
-        nop
-.else
-        lda     #$00
-        sta     oamStagingLength
 .endif
         jsr     render
+        lda     #$02
+        sta     OAMDMA
+        lda     #$00
+        sta     PPUSCROLL
+        sta     PPUSCROLL
+        lda     currentPpuCtrl
+        sta     PPUCTRL
+        lda     #$00
+        sta     oamStagingLength
         dec     sleepCounter
         lda     sleepCounter
         cmp     #$FF
         bne     @jumpOverIncrement
         inc     sleepCounter
 @jumpOverIncrement:
-        jsr     copyOamStagingToOam
         lda     frameCounter
         clc
         adc     #$01
@@ -93,11 +98,7 @@ returnFromAnydasRender:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
-        lda     #$00
-        sta     ppuScrollX
-        sta     PPUSCROLL
-        sta     ppuScrollY
-        sta     PPUSCROLL
+
         lda     #$01
         sta     verticalBlankingInterval
 .ifdef ANYDAS
@@ -130,12 +131,15 @@ returnFromAnydasRender:
 irq:    rti
 
 render: lda     renderMode
+        cmp     #$0
+        beq     dumpRenderQueue
         jsr     switch_s_plus_2a
         .addr   render_mode_legal_and_title_screens
         .addr   render_mode_menu_screens
         .addr   render_mode_congratulations_screen
         .addr   render_mode_play_and_demo
         .addr   render_mode_ending_animation
+.include "render.asm"
 initRamContinued:
         ldy     #$06
         sty     tmp2
@@ -3768,7 +3772,6 @@ L9FE9:  ldy     #$00
 
 showHighScores:
         jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
-MMC1_Control    := * + 1
         .addr   high_scores_nametable
         lda     #$00
         sta     generalCounter2
@@ -5315,14 +5318,6 @@ generateNextPseudorandomNumber:
         inx
         dey
         bne     @updateNextByteInSeed
-        rts
-
-; canon is initializeOAM
-copyOamStagingToOam:
-        lda     #$00
-        sta     OAMADDR
-        lda     #$02
-        sta     OAMDMA
         rts
 
 pollController_actualRead:

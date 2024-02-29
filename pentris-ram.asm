@@ -47,7 +47,8 @@ effectiveTetriminoX:  .res 1 ; $0070
 renderedVramRow:  .res 1 ; $0071
 renderedPlayfield:  .res 1 ; $0072
 pauseScreen: .res 1
-.res 44
+stackPointer: .res 1
+.res 43
 
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1
