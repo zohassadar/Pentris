@@ -137,7 +137,7 @@ render: lda     renderMode
         .addr   render_mode_legal_and_title_screens
         .addr   render_mode_menu_screens
         .addr   render_mode_congratulations_screen
-        .addr   render_mode_play_and_demo
+        .addr   dumpRenderQueue
         .addr   render_mode_ending_animation
 .include "render.asm"
 initRamContinued:
@@ -1451,7 +1451,7 @@ shift_tetrimino:
         sta     autorepeatX
 @ret:   rts
 
-stageSpriteForCurrentPiece:
+; stageSpriteForCurrentPiece:
         lda     pauseScreen
         beq     @continue
         rts
