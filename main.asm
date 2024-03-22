@@ -2885,6 +2885,7 @@ updatePaletteForLevel:
         rts
 ; 4 bytes per level (bg, fg, c3, c4)
 colorTable:
+; borrowed from https://github.com/kirjavascript/TetrisGYM/blob/ca3000722e52777b2309dcd16273082da5a1b7f2/src/nmi/render_mode_play_and_demo.asm#L353
         .dbyt   $0F30,$2112,$0F30,$291A,$0F30,$2414,$0F30,$2A12
         .dbyt   $0F30,$2B15,$0F30,$222B,$0F30,$0016,$0F30,$0513
         .dbyt   $0F30,$1612,$0F30,$2716,$60E6,$69A5,$69C9,$1430
