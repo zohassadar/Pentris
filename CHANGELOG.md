@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 * Clear up unused data
+* Restore proper glitched colors
 
 ## [1.2]
 * Add Anydas build flag

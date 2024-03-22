@@ -2885,16 +2885,22 @@ updatePaletteForLevel:
         rts
 ; 4 bytes per level (bg, fg, c3, c4)
 colorTable:
-        .byte   $0F,$30,$21,$12   ; level *0
-        .byte   $0F,$30,$29,$1A   ; level *1
-        .byte   $0F,$30,$24,$14   ; level *2
-        .byte   $0F,$30,$2A,$12   ; level *3
-        .byte   $0F,$30,$2B,$15   ; level *4
-        .byte   $0F,$30,$22,$2B   ; level *5
-        .byte   $0F,$30,$00,$16   ; level *6
-        .byte   $0F,$30,$05,$13   ; level *7
-        .byte   $0F,$30,$16,$12   ; level *8
-        .byte   $0F,$30,$27,$16   ; level *9
+        .dbyt   $0F30,$2112,$0F30,$291A,$0F30,$2414,$0F30,$2A12
+        .dbyt   $0F30,$2B15,$0F30,$222B,$0F30,$0016,$0F30,$0513
+        .dbyt   $0F30,$1612,$0F30,$2716,$60E6,$69A5,$69C9,$1430
+        .dbyt   $04A9,$2085,$69E6,$89A5,$89C9,$1430,$04A9,$2085
+        .dbyt   $8960,$A549,$C920,$3056,$A5BE,$C901,$F020,$A5A4
+        .dbyt   $C900,$D00E,$E6A4,$A5B7,$85A5,$20EB,$9885,$A64C
+        .dbyt   $EA98,$A5A5,$C5B7,$D036,$A5A4,$C91C,$D030,$A900
+        .dbyt   $85A4,$8545,$8541,$A901,$8548,$A905,$8540,$A6BF
+        .dbyt   $BD56,$9985,$4220,$6999,$A5BE,$C901,$F007,$A5A6
+        .dbyt   $85BF,$4CE6,$9820,$EB98,$85BF,$A900,$854E,$60A5
+        .dbyt   $C0C9,$05D0,$12A6,$D3E6,$D3BD,$00DF,$4A4A,$4A4A
+        .dbyt   $2907,$AABD,$4E99,$6020,$0799,$60E6,$1AA5,$1718
+        .dbyt   $651A,$2907,$C907,$F008,$AABD,$4E99,$C519,$D01C
+        .dbyt   $A217,$A002,$2047,$ABA5,$1729,$0718,$6519,$C907
+        .dbyt   $9006,$38E9,$074C,$2A99,$AABD,$4E99,$8519,$6000
+        .dbyt   $0000,$0001,$0101,$0102,$0203,$0404,$0505,$0505
 
 ; This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here
 noop_disabledVramRowIncr:
