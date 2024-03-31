@@ -133,15 +133,15 @@ currentPpuCtrl:	.res 1	; $00FF
 .bss
 stack:
 oldPiece0Address: .res $2
-oldPiece0Data: .res $1
+oldPiece0Data: .res $1   ; always blank
 oldPiece1Address: .res $2
-oldPiece1Data: .res $1
+oldPiece1Data: .res $1  ; always blank
 oldPiece2Address: .res $2
-oldPiece2Data: .res $1
+oldPiece2Data: .res $1  ; always blank
 oldPiece3Address: .res $2
-oldPiece3Data: .res $1
+oldPiece3Data: .res $1  ; always blank
 oldPiece4Address: .res $2
-oldPiece4Data: .res $1
+oldPiece4Data: .res $1  ; always blank
 newPiece0Address: .res $2
 newPiece0Data: .res $1
 newPiece1Address: .res $2

@@ -131,8 +131,6 @@ returnFromAnydasRender:
 irq:    rti
 
 render: lda     renderMode
-        cmp     #$0
-        beq     dumpRenderQueue
         jsr     switch_s_plus_2a
         .addr   render_mode_legal_and_title_screens
         .addr   render_mode_menu_screens
@@ -208,6 +206,7 @@ initRamContinued:
         sta     PPUMASK
         jsr     LE006
         jsr     updateAudio2
+        jsr     stageOldPieces
         ; lda     #$C0
         ; sta     stack
         ; lda     #$80

@@ -93,6 +93,7 @@ counter := generalCounter5
 
 
 stageSpriteForCurrentPiece:
+        jsr     clearOldPiece
         lda     currentPiece
         cmp     #$3f
         beq     @ret
@@ -148,19 +149,25 @@ stageSpriteForCurrentPiece:
 @ret:   rts
 
 
-; drawBlankPiece:
-;         ldy     #$05
-;         ldx     #$00
-; blankPieceLoop:
-;         lda    #$20
-;         sta    currentPieceStaging,x
-;         lda    #$68
-;         sta    currentPieceStaging+1,x
-;         lda    #$FF
-;         sta    currentPieceStaging+2,x
-;         inx
-;         inx
-;         inx
-;         dey
-;         bne     blankPieceLoop
-;         rts
+clearOldPiece:
+        ldy     #$0C
+@blankPieceLoop:
+        lda stack+15,y
+        sta stack,y
+        lda stack+15+1,y
+        sta stack+1,y
+        dey
+        dey
+        dey
+        bpl @blankPieceLoop
+        rts
+        
+
+stageOldPieces:
+        lda #$FF
+        sta oldPiece0Data
+        sta oldPiece1Data
+        sta oldPiece2Data
+        sta oldPiece3Data
+        sta oldPiece4Data
+        rts
