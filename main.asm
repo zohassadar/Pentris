@@ -137,6 +137,7 @@ render: lda     renderMode
         .addr   render_mode_congratulations_screen
         .addr   dumpRenderQueue
         .addr   render_mode_ending_animation
+        .addr   render_mode_pause
 .include "render.asm"
 initRamContinued:
         ldy     #$06
@@ -435,6 +436,7 @@ render_mode_legal_and_title_screens:
         lda     currentPpuCtrl
         and     #$FC
         sta     currentPpuCtrl
+render_mode_pause:
         lda     #$00
         sta     ppuScrollX
         sta     PPUSCROLL
@@ -2491,7 +2493,7 @@ render_mode_play_and_demo:
 @renderStats:
         lda     outOfDateRenderFlags
         and     #$40
-        beq     @renderTetrisFlashAndSound
+        beq     renderTetrisFlashAndSound
         ldx     currentPiece
         lda     tetriminoTypeFromOrientation, x
         sta     tmpCurrentPiece
@@ -2510,8 +2512,7 @@ render_mode_play_and_demo:
         lda     outOfDateRenderFlags
         and     #$BF
         sta     outOfDateRenderFlags
-@endOfPpuPatching:
-@renderTetrisFlashAndSound:
+renderTetrisFlashAndSound:
         lda     #$3F
         sta     PPUADDR
         lda     #$0E
@@ -2681,7 +2682,8 @@ updateLineClearingAnimation:
 updateLineClearingAnimation:
 .endif
         inc     playState
-@ret:   rts
+@ret:   
+        jmp     renderTetrisFlashAndSound
 
 leftColumns:
         .byte   $06,$05,$04,$03,$02,$01,$00
@@ -2700,29 +2702,27 @@ updatePaletteForLevel:
         asl     a
         asl     a
         tax
-        lda     #$00
-        sta     generalCounter
-@copyPalette:
-        lda     #$3F
-        sta     PPUADDR
-        lda     #$08
-        clc
-        adc     generalCounter
-        sta     PPUADDR
+;         lda     #$00
+;         sta     generalCounter
+; @copyPalette:
+;         lda     #$3F
+;         sta     PPUADDR
+;         lda     #$08
+;         clc
+;         adc     generalCounter
+;         sta     PPUADDR
         lda     colorTable,x
-        sta     PPUDATA
+        sta     paletteBGData
+        sta     paletteSpriteData
         lda     colorTable+1,x
-        sta     PPUDATA
+        sta     paletteBGData+1
+        sta     paletteSpriteData+1
         lda     colorTable+1+1,x
-        sta     PPUDATA
+        sta     paletteBGData+2
+        sta     paletteSpriteData+2
         lda     colorTable+1+1+1,x
-        sta     PPUDATA
-        lda     generalCounter
-        clc
-        adc     #$10
-        sta     generalCounter
-        cmp     #$20
-        bne     @copyPalette
+        sta     paletteBGData+3
+        sta     paletteSpriteData+3
         rts
 ; 4 bytes per level (bg, fg, c3, c4)
 colorTable:
@@ -4284,7 +4284,7 @@ gameModeState_startButtonHandling:
 
 @pause: lda     #$05
         sta     musicStagingNoiseHi
-        lda     #$00
+        lda     #$05
         sta     renderMode
         jsr     updateAudioAndWaitForNmi
         ; lda     #$16

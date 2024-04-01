@@ -61,6 +61,12 @@ dumpRenderQueue:
 
     ldx stackPointer
     txs
+
+    lda     currentPpuCtrl
+    sta     PPUCTRL
+    ldy     #$00
+    sty     PPUSCROLL
+    sty     PPUSCROLL
     rts
 
 
@@ -249,6 +255,65 @@ stage_playfield_render:
         bne    @normalRender
         rts
 @normalRender:
+
+;lines
+
+        lda    lines+1
+        sta    linesData
+        lda    lines
+        lsr
+        lsr
+        lsr
+        lsr
+        sta    linesData+1
+        lda    lines
+        and    #$0F
+        sta    linesData+2
+
+        ldx    levelNumber
+        lda    levelDisplayTable,x
+        lsr
+        lsr
+        lsr
+        lsr
+        sta    levelData
+        lda    levelDisplayTable,x
+        and    #$0F
+        sta    levelData+1
+
+        lda    score+2
+        lsr
+        lsr
+        lsr
+        lsr
+        sta    scoreData
+        lda    score+2
+        and    #$0F
+        sta    scoreData+1
+
+        lda    score+1
+        lsr
+        lsr
+        lsr
+        lsr
+        sta    scoreData+2
+        lda    score+1
+        and    #$0F
+        sta    scoreData+3
+
+
+        lda    score
+        lsr
+        lsr
+        lsr
+        lsr
+        sta    scoreData+4
+        lda    score
+        and    #$0F
+        sta    scoreData+5
+
+        jsr    updatePaletteForLevel
+
         ldx    #$4F
         lda    #$00
 @clearRenderQueue:
