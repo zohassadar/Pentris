@@ -202,13 +202,44 @@ clearOldPiece:
         rts
         
 
-stageOldPieces:
+stageRenderQueue:
         lda #$FF
         sta oldPiece0Data
         sta oldPiece1Data
         sta oldPiece2Data
         sta oldPiece3Data
         sta oldPiece4Data
+
+        lda #$20
+        sta linesAddress
+        lda #$6F
+        sta linesAddress+1
+
+        lda #$22
+        sta scoreAddress
+        lda #$17
+        sta scoreAddress+1
+
+        lda #$22
+        sta levelAddress
+        lda #$D8
+        sta levelAddress+1
+
+        lda #$3F
+        sta paletteTetrisAddress
+        lda #$0E
+        sta paletteTetrisAddress+1
+
+        lda #$3F
+        sta paletteBGAddress
+        lda #$08
+        sta paletteBGAddress+1
+
+        lda #$3F
+        sta paletteSpriteAddress
+        lda #$18
+        sta paletteSpriteAddress+1
+
         rts
 
 

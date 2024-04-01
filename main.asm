@@ -206,7 +206,7 @@ initRamContinued:
         sta     PPUMASK
         jsr     LE006
         jsr     updateAudio2
-        jsr     stageOldPieces
+        jsr     stageRenderQueue
         ; lda     #$C0
         ; sta     stack
         ; lda     #$80
