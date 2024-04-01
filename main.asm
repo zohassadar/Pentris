@@ -3098,6 +3098,8 @@ playState_checkForCompletedRows:
 @incrementLineIndex:
         inc     lineIndex
         lda     lineIndex
+        cmp     #$01
+        beq     @updatePlayfieldComplete  ; do first two rows at once so check totals 4 instead of 5
         cmp     #$05
         bmi     @ret
         ldy     completedLines
@@ -4322,6 +4324,10 @@ gameModeState_startButtonHandling:
         jmp     @pauseLoop
 
 @resume:
+        lda     pauseScreen
+        beq     @noToggle
+        jsr     togglePauseScreen
+@noToggle:
         lda     #$03
         jsr     changeCHRBank0
         lda     #$1E
