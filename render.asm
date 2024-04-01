@@ -130,6 +130,13 @@ stageSpriteForCurrentPiece:
         asl
         tax                                             ; y + offset to get row
 
+        ; x should only be negative if piece is hidden??
+        bpl     @notHidden
+        lda     #$00
+        sta     newPiece0Address,y
+        sta     newPiece0Address+1,y
+        jmp     @resume
+@notHidden:
         lda     vramPlayfieldRows,x
         clc
         adc     tmpXOffset
@@ -141,6 +148,7 @@ stageSpriteForCurrentPiece:
         lda     tmpTile
         sta     newPiece0Address+2,y
 
+@resume:
         pla
         tay
 
