@@ -1,0 +1,6 @@
+fix stats screen switch when paused (works fine after topout)
+write score/lines/level
+write palettes
+write tetris flash palette entry
+adjust timing to give 10-18 frames of entry delay
+move nextbox!!
