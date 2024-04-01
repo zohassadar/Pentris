@@ -859,6 +859,12 @@ render_mode_menu_screens:
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+        lda     #$00
+        sta     newPiece0Address
+        sta     newPiece1Address
+        sta     newPiece2Address
+        sta     newPiece3Address
+        sta     newPiece4Address
 .ifdef CNROM
         lda     #CNROM_BANK1
         ldy     #CNROM_BG1
