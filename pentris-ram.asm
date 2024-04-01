@@ -13,7 +13,8 @@ spawnCount:	.res 1	; $001A
 .res 24
 verticalBlankingInterval:	.res 1	; $0033
 unused_0E: .res 1 ; $0034
-.res 11
+currentVramRender: .res 1
+.res 10
 tetriminoX:	.res 1	; $0040
 tetriminoY:	.res 1	; $0041
 currentPiece:	.res 1	; $0042
@@ -132,6 +133,16 @@ currentPpuCtrl:	.res 1	; $00FF
 
 .bss
 stack:
+row0Address: .res $2
+row0Data: .res $E
+row1Address: .res $2
+row1Data: .res $E
+row2Address: .res $2
+row2Data: .res $E
+row3Address: .res $2
+row3Data: .res $E
+row4Address: .res $2
+row4Data: .res $E
 oldPiece0Address: .res $2
 oldPiece0Data: .res $1   ; always blank
 oldPiece1Address: .res $2
@@ -152,16 +163,6 @@ newPiece3Address: .res $2
 newPiece3Data: .res $1
 newPiece4Address: .res $2
 newPiece4Data: .res $1
-row0Address: .res $2
-row0Data: .res $E
-row1Address: .res $2
-row1Data: .res $E
-row2Address: .res $2
-row2Data: .res $E
-row3Address: .res $2
-row3Data: .res $E
-row4Address: .res $2
-row4Data: .res $E
 scoreAddress: .res $2
 scoreData: .res $6
 linesAddress: .res $2

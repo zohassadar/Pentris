@@ -2570,39 +2570,54 @@ twoDigsToPPU:
 
 copyPlayfieldRowToVRAM:
         ldx     vramRow
-        cpx     #$17
+        cpx     #$16
         bpl     @ret
         lda     multBy7Table,x
         tay
         txa
         asl     a
         tax
+        ; inx
+        lda     vramPlayfieldRows,x
+        pha
+        lda     vramPlayfieldRows+1,x
+        pha
+        ldx     currentVramRender
+        pla
+        sta     stack,x
         inx
-        lda     vramPlayfieldRows,x
-        sta     PPUADDR
-        dex
-        lda     playfieldAddr+1
-        cmp     #$05
-        beq     @rightPlayfield
-        jmp     @leftPlayfield
-@rightPlayfield:
-        lda     vramPlayfieldRows,x
-        clc
-        adc     #$07
-        sta     PPUADDR
-        jmp     @copyRow
+        pla
+        sta     stack,x
+        inx
+        ; sta     PPUADDR
+        ; dex
+;         lda     playfieldAddr+1
+;         cmp     #$05
+;         beq     @rightPlayfield
+;         jmp     @leftPlayfield
+; @rightPlayfield:
+;         lda     vramPlayfieldRows,x
+;         clc
+;         adc     #$07
+;         sta     PPUADDR
+;         jmp     @copyRow
 
-@leftPlayfield:
-        lda     vramPlayfieldRows,x
-        sta     PPUADDR
-@copyRow:
-        ldx     #$07
+; @leftPlayfield:
+        ; lda     vramPlayfieldRows,x
+        ; sta     PPUADDR
+; @copyRow:
+        lda     #$07
+        sta     generalCounter
 @copyByte:
-        lda     (playfieldAddr),y
-        sta     PPUDATA
+        lda     leftPlayfield,y
+        sta     stack,x
+        lda     rightPlayfield,y
+        sta     stack+7,x
         iny
-        dex
+        inx
+        dec     generalCounter
         bne     @copyByte
+
         inc     vramRow
         lda     vramRow
         cmp     #$16
@@ -5132,6 +5147,7 @@ rocketToXOffsetTable:
 LAA2A:  .byte   $BF,$BF,$BF,$BF,$C7
 ; canon is waitForVerticalBlankingInterval
 updateAudioWaitForNmiAndResetOamStaging:
+        jsr     stage_playfield_render
         jsr     updateAudio_jmp
         lda     #$00
         sta     verticalBlankingInterval
