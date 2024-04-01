@@ -13,6 +13,11 @@
 .endmacro
 
 dumpRenderQueue:
+    lda playState
+    cmp #$4
+    bne @normalDump
+    jmp updateLineClearingAnimation
+@normalDump:
     tsx
     stx stackPointer
     ldx #$FF
@@ -159,21 +164,21 @@ clearOldPiece:
         sta     oldPiece2Address
         sta     oldPiece3Address
         sta     oldPiece4Address
-        sta     oldPiece0Address+1
-        sta     oldPiece1Address+1
-        sta     oldPiece2Address+1
-        sta     oldPiece3Address+1
-        sta     oldPiece4Address+1
+        ; sta     oldPiece0Address+1
+        ; sta     oldPiece1Address+1
+        ; sta     oldPiece2Address+1
+        ; sta     oldPiece3Address+1
+        ; sta     oldPiece4Address+1
         sta     newPiece0Address
         sta     newPiece1Address
         sta     newPiece2Address
         sta     newPiece3Address
         sta     newPiece4Address
-        sta     newPiece0Address+1
-        sta     newPiece1Address+1
-        sta     newPiece2Address+1
-        sta     newPiece3Address+1
-        sta     newPiece4Address+1
+        ; sta     newPiece0Address+1
+        ; sta     newPiece1Address+1
+        ; sta     newPiece2Address+1
+        ; sta     newPiece3Address+1
+        ; sta     newPiece4Address+1
         rts
 @normalClear:
         ldy     #$0C

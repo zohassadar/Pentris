@@ -3117,6 +3117,8 @@ playState_checkForCompletedRows:
 @ret:   rts
 
 playState_receiveGarbage:
+        lda    #$3f
+        sta    currentPiece
 @ret:  inc     playState
 @delay:  rts
 
