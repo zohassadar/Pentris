@@ -205,6 +205,11 @@ stageOldPieces:
 
 
 stage_playfield_render:
+        lda    playState
+        cmp    #$04
+        bne    @normalRender
+        rts
+@normalRender:
         ldx    #$4F
         lda    #$00
 @clearRenderQueue:
