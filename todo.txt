@@ -1,9 +1,0 @@
-fix stats screen switch when paused (works fine after topout) - DONE
-write score/lines/level - DONE
-write palettes - DONE
-write tetris flash palette entry - DONE
-adjust timing to give 10-18 frames of entry delay - DONE
-move nextbox!! - DONE
-write stats entries to second page
-test/fix cnrom
-
