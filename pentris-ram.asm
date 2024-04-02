@@ -175,7 +175,9 @@ paletteBGAddress: .res $2
 paletteBGData: .res $4
 paletteSpriteAddress: .res $2
 paletteSpriteData: .res $4
-.res $72
+statsAddress: .res $2
+statsData: .res $3
+.res $6d
 oamStaging:	.res $100	; $0200
 statsByType:	.res $100	; $0300
 leftPlayfield:	.res $C8	; $0400

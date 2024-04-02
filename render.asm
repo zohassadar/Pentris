@@ -59,6 +59,10 @@ dumpRenderQueue:
     sendAddress
     sendData 4
 
+; stats
+    sendAddress
+    sendData 3
+
     ldx stackPointer
     txs
 
@@ -311,6 +315,26 @@ stage_playfield_render:
         lda    score
         and    #$0F
         sta    scoreData+5
+
+        ldx     currentPiece
+        lda     tetriminoTypeFromOrientation, x
+        asl
+        tax
+        lda     pieceToPpuStatAddr,x
+        sta     statsAddress
+        lda     pieceToPpuStatAddr+1,x
+        sta     statsAddress+1
+        lda     statsByType+1,x
+        sta     statsData
+        lda     statsByType,x
+        lsr
+        lsr
+        lsr
+        lsr
+        sta     statsData+1
+        lda     statsByType,x
+        and     #$0F
+        sta     statsData+2
 
         jsr    updatePaletteForLevel
 
