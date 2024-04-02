@@ -3,8 +3,12 @@ tmp1:	.res 1	; $0000
 tmp2:	.res 1	; $0001
 tmp3:	.res 1	; $0002
 .res 2 
-tmpBulkCopyToPpuReturnAddr: .res 1 ; $0005
-.res 14
+tmpBulkCopyToPpuReturnAddr: .res 2 ; $0005
+anydasMenu: .res 1
+anydasDASValue: .res 1
+anydasARRValue: .res 1
+anydasARECharge: .res 1
+.res 9
 patchToPpuAddr: .res 1             ; $0014
 .res 2
 rng_seed:	.res 2	; $0017

@@ -5783,19 +5783,19 @@ renderAnydasMenu:
         beq @continueRendering
         jmp @clearOAMStagingAndReturn
 @continueRendering:
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$70
         sta PPUADDR
         lda anydasDASValue
         jsr twoDigsToPPU
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$90
         sta PPUADDR
         lda anydasARRValue
         jsr twoDigsToPPU
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$B5
         sta PPUADDR
@@ -5812,7 +5812,7 @@ renderAnydasMenu:
         lda #$FF
         sta PPUDATA
         ldx #$FF
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$72
         sta PPUADDR
@@ -5822,7 +5822,7 @@ renderAnydasMenu:
 @notDasOption:
         stx PPUDATA
         ldx #$FF
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$92
         sta PPUADDR
@@ -5833,7 +5833,7 @@ renderAnydasMenu:
 @notARROption:
         stx PPUDATA
         ldx #$FF
-        lda #$26
+        lda #$22
         sta PPUADDR
         lda #$B7
         sta PPUADDR
