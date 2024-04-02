@@ -41,6 +41,8 @@ MMC1_PRG        := $FFFF
 
 CNROM_BANK0 := $00
 CNROM_BANK1 := $01
+CNROM_BANK2 := $02
+
 CNROM_BG0 := $00
 CNROM_BG1 := $10
 CNROM_SPRITE0 := $00
@@ -1233,13 +1235,21 @@ rngTable:
         .byte   $EF,$7B,$EF,$7C,$7D,$7D,$EF
         .byte   $EF
 gameModeState_updateCountersAndNonPlayerState:
+        lda     pauseScreen
 .ifdef CNROM
+        beq     @gameMode
+@statsMode:
+        lda     #CNROM_BANK2
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        beq     @changeChrBank
+@gameMode:
         lda     #CNROM_BANK1
         ldy     #CNROM_BG1
         ldx     #CNROM_SPRITE1
+@changeChrBank:
         jsr     changeCHRBank
 .else
-        lda     pauseScreen
         lsr
         clc
         adc     #$03
@@ -4215,8 +4225,15 @@ gameModeState_startButtonHandling:
         beq     @noToggle
         jsr     togglePauseScreen
 @noToggle:
+.ifndef CNROM
         lda     #$03
         jsr     changeCHRBank0
+.else
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG1
+        ldx     #CNROM_SPRITE1
+        jsr     changeCHRBank
+.endif
         lda     #$1E
         sta     PPUMASK
         lda     #$00
@@ -4242,6 +4259,7 @@ togglePauseScreen:
         sta     currentPpuCtrl
         sta     PPUCTRL
         lda     pauseScreen
+.ifndef CNROM
         lsr
         clc
         adc     #$03
@@ -4249,6 +4267,19 @@ togglePauseScreen:
         jsr     changeCHRBank0
         lda     generalCounter 
         jmp     changeCHRBank1
+.else
+        beq     @gameMode
+@statsMode:
+        lda     #CNROM_BANK2
+        ldy     #CNROM_BG0
+        ldx     #CNROM_SPRITE0
+        jmp     changeCHRBank
+@gameMode:
+        lda     #CNROM_BANK1
+        ldy     #CNROM_BG1
+        ldx     #CNROM_SPRITE1
+        jmp     changeCHRBank
+.endif
 
 
 
@@ -5438,7 +5469,7 @@ changeCHRBank:
         sta     chrBankTable,x
         rts
 chrBankTable:
-        .byte   $00,$01
+        .byte   $00,$01,$02
 .else
 setMMC1Control:
         sta     MMC1_Control
