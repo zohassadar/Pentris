@@ -3,6 +3,8 @@
 ## [Unreleased]
 * Clear up unused data
 * Restore proper glitched colors
+* Move next box
+* Entry delay is 10-18 frames
 
 ## [1.2]
 * Add Anydas build flag
