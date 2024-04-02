@@ -131,13 +131,16 @@ returnFromAnydasRender:
 irq:    rti
 
 render: lda     renderMode
+        cmp     #$03
+        beq     skip_switch_s_plus_2a
         jsr     switch_s_plus_2a
         .addr   render_mode_legal_and_title_screens
         .addr   render_mode_menu_screens
         .addr   render_mode_congratulations_screen
-        .addr   dumpRenderQueue
+        .byte   $00,$00
         .addr   render_mode_ending_animation
         .addr   render_mode_pause
+skip_switch_s_plus_2a:
 .include "render.asm"
 initRamContinued:
         ldy     #$06
