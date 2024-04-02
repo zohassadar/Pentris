@@ -1,4 +1,3 @@
-
 import pathlib
 import sys
 
@@ -14,7 +13,7 @@ Unless modified, it will reproduce the original.
 file = pathlib.Path(__file__)
 output = file.parent / file.name.replace(".py", ".bin")
 
-original_sha1sum = "081ed83e792c4c38c0ae0cc8854d135ac942363f"
+original_sha1sum = "f9334a75707c0c260a9f7195fb578bb799820258"
 
 characters = (
     #0123456789ABCDEF
@@ -39,7 +38,7 @@ characters = (
 table = """
 ÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓ
 ÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓÒÓ
-ÒÓ............................ÒÓ
+ÒÓ.qtvUhÝñО...................ÒÓ
 ÒÓ............................ÒÓ
 ÒÓ.....SCORE..000000..........ÒÓ
 ÒÓ............................ÒÓ
@@ -111,7 +110,6 @@ if __name__ == "__main__":
         )
     except Exception as exc:
         print(
-            f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
+            f"Unable to build nametable: {type(exc).__name__}: {exc!s}", file=sys.stderr
         )
         sys.exit(1)
-
