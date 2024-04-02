@@ -1,6 +1,12 @@
 # Changelog
 
-## [1.1]
+## [Unreleased]
+* Clear up unused data
+* Restore proper glitched colors
+* Move next box
+* Entry delay is 10-18 frames
+
+## [1.2]
 * Add Anydas build flag
 * Fixed bug with toprow bug
 * Fixed b-type level display bug
@@ -11,16 +17,3 @@
 * Piece stats available from pause or topout by pressing dpad or a/b
 * Reduced entry delay from 20-40 frames to 15-29 (breaking demo)
 * Demo disabled until new demo is recorded
-* Scoring table updated:
-
-    |Lines Cleared|New Base Value|Previous|
-    |-|-|-|
-    |1|150|40|
-    |2|300|100|
-    |3|600|300|
-    |4|1200|N/A|
-    |5|2400|N/A|
-
-
-## [1.2]
-* Revert to classic scoring table

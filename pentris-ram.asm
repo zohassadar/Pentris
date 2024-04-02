@@ -2,14 +2,23 @@
 tmp1:	.res 1	; $0000
 tmp2:	.res 1	; $0001
 tmp3:	.res 1	; $0002
-.res 20
+.res 2 
+tmpBulkCopyToPpuReturnAddr: .res 2 ; $0005
+anydasMenu: .res 1
+anydasDASValue: .res 1
+anydasARRValue: .res 1
+anydasARECharge: .res 1
+.res 9
+patchToPpuAddr: .res 1             ; $0014
+.res 2
 rng_seed:	.res 2	; $0017
 spawnID:	.res 1	; $0019
 spawnCount:	.res 1	; $001A
 .res 24
 verticalBlankingInterval:	.res 1	; $0033
 unused_0E: .res 1 ; $0034
-.res 11
+currentVramRender: .res 1
+.res 10
 tetriminoX:	.res 1	; $0040
 tetriminoY:	.res 1	; $0041
 currentPiece:	.res 1	; $0042
@@ -42,15 +51,18 @@ statsPiecesTotal: .res 2  ; $006E
 effectiveTetriminoX:  .res 1 ; $0070
 renderedVramRow:  .res 1 ; $0071
 renderedPlayfield:  .res 1 ; $0072
-
-.res 45
+pauseScreen: .res 1
+stackPointer: .res 1
+.res 43
 
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1
 spriteIndexInOamContentLookup:	.res 1	; $00A2
-.res 3
-nextPiece_2player:	.res 1	; $00A6
-verticalBlankingWaitRequested_andSomethingElse:	.res 1	; $00A7
+outOfDateRenderFlags: .res 1 ; $00A3
+twoPlayerPieceDelayCounter: .res 1 ; $00A4
+twoPlayerPieceDelayPlayer: .res 1 ; $00A5
+twoPlayerPieceDelayPiece:	.res 1	; $00A6
+gameModeState:	.res 1	; $00A7
 generalCounter:	.res 1	; $00A8
 generalCounter2:	.res 1	; $00A9
 generalCounter3:	.res 1	; $00AA
@@ -59,17 +71,17 @@ generalCounter5:	.res 1	; $00AC
 selectingLevelOrHeight:	.res 1	; $00AD
 originalY:	.res 1	; $00AE
 dropSpeed:	.res 1	; $00AF
-.res 1
+tmpCurrentPiece: .res 1 ; $00B0
 frameCounter:	.res 2	; $00B1
 oamStagingLength:	.res 1	; $00B3
 .res 1
-newlyPressedButtons_mirror:	.res 1	; $00B5
-pressedButtons_mirror:	.res 1	; $00B6
+newlyPressedButtons:	.res 1	; $00B5
+heldButtons:	.res 1	; $00B6
 activePlayer:	.res 1	; $00B7
 playfieldAddr:	.res 2	; $00B8
-.res 1
-totalGarbageInactivePlayer:	.res 1	; $00BB
-totalGarbage:	.res 1	; $00BC
+allegro: .res 1 ; $00BA
+pendingGarbage:	.res 1	; $00BB
+pendingGarbageInactivePlayer:	.res 1	; $00BC
 renderMode:	.res 1	; $00BD
  .res 1	; $00BE
 nextPiece:	.res 1	; $00BF
@@ -78,18 +90,23 @@ gameType:	.res 1	; $00C1
 musicType:	.res 1	; $00C2
 sleepCounter:	.res 1	; $00C3
 ending:	.res 1	; $00C4
-.res 9
-heldButtons:	.res 1	; $00CE
-repeats:	.res 1	; $00CF
+ending_customVars:	.res 1	; $00C5
+.res 6
+ending_currentSprite: .res 1 ;$00CC
+ending_typeBCathedralFrameDelayCounter: .res 1 ; $00CD
+demo_heldButtons:	.res 1	; $00CE
+demo_repeats:	.res 1	; $00CF
 .res 1
-demoButtonsTable_index:	.res 1	; $00D1
+demoButtonsAddr:	.res 1	; $00D1
 demoButtonsTable_indexOverflowed:	.res 1	; $00D2
 demoIndex:	.res 1	; $00D3
 highScoreEntryNameOffsetForLetter:	.res 1	; $00D4
 highScoreEntryRawPos:	.res 1	; $00D5
 highScoreEntryNameOffsetForRow:	.res 1	; $00D6
 highScoreEntryCurrentLetter:	.res 1	; $00D7
-.res 7
+lineClearStatsByType:	.res 4	; $00D8
+
+totalScore: .res 3 ; $00DC
 displayNextPiece:	.res 1	; $00DF
 AUDIOTMP1:	.res 1	; $00E0
 AUDIOTMP2:	.res 1	; $00E1
@@ -107,23 +124,69 @@ currentAudioSlot:	.res 1	; $00EF
 .res 1
 unreferenced_buttonMirror:  .res 3  ; $00F1
 .res 1
-newlyPressedButtons:	.res 1	; $00F5
-pressedButtons:	.res 1	; $00F6
-getHeldButtons:	.res 1	; $00F7
-.res 3
-joy1Location:	.res 1	; $00FB
+newlyPressedButtons_player1:	.res 1	; $00F5
+newlyPressedButtons_player2:	.res 1	; $00F6
+heldButtons_player1:	.res 1	; $00F7
+heldButtons_player2: .res 1 ; $00F8
 .res 2
+joy1Location:	.res 1	; $00FB
+ppuScrollY: .res 1 ; $00FC
+ppuScrollX: .res 1 ; $00FD
 currentPpuMask:	.res 1	; $00FE
 currentPpuCtrl:	.res 1	; $00FF
 
 .bss
-stack:	.res $FF	; $0100
-.res 1
+stack:
+row0Address: .res $2
+row0Data: .res $E
+row1Address: .res $2
+row1Data: .res $E
+row2Address: .res $2
+row2Data: .res $E
+row3Address: .res $2
+row3Data: .res $E
+row4Address: .res $2
+row4Data: .res $E
+oldPiece0Address: .res $2
+oldPiece0Data: .res $1   ; always blank
+oldPiece1Address: .res $2
+oldPiece1Data: .res $1  ; always blank
+oldPiece2Address: .res $2
+oldPiece2Data: .res $1  ; always blank
+oldPiece3Address: .res $2
+oldPiece3Data: .res $1  ; always blank
+oldPiece4Address: .res $2
+oldPiece4Data: .res $1  ; always blank
+newPiece0Address: .res $2
+newPiece0Data: .res $1
+newPiece1Address: .res $2
+newPiece1Data: .res $1
+newPiece2Address: .res $2
+newPiece2Data: .res $1
+newPiece3Address: .res $2
+newPiece3Data: .res $1
+newPiece4Address: .res $2
+newPiece4Data: .res $1
+scoreAddress: .res $2
+scoreData: .res $6
+linesAddress: .res $2
+linesData: .res $3
+levelAddress: .res $2
+levelData: .res $2
+paletteTetrisAddress: .res $2
+paletteTetrisData: .res $1
+paletteBGAddress: .res $2
+paletteBGData: .res $4
+paletteSpriteAddress: .res $2
+paletteSpriteData: .res $4
+statsAddress: .res $2
+statsData: .res $3
+.res $6d
 oamStaging:	.res $100	; $0200
 statsByType:	.res $100	; $0300
-playfield:	.res $C8	; $0400
+leftPlayfield:	.res $C8	; $0400
 .res 56
-playfieldForSecondPlayer:	.res $C8	; $0500
+rightPlayfield:	.res $C8	; $0500
 .res 184
 musicStagingSq1Lo:	.res 1	; $0680
 musicStagingSq1Hi:	.res 1	; $0681
@@ -152,7 +215,7 @@ musicChanNoteDurationRemaining:	.res $04	; $06B4
 musicChanNoteDuration:	.res $04	; $06B8
 musicChanProgLoopCounter:	.res $04	; $06BC
 musicStagingSq1Sweep:	.res $02	; $06C0
-.res 2
+.res 1
 musicChanNote:  .res 4  ; $06C3
 .res 1
 musicChanInhibit:	.res $03	; $06C8
