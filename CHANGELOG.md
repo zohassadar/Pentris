@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-* Clear up unused data
+
+## [1.3]
 * Restore proper glitched colors
 * Move next box
 * Entry delay is 10-18 frames
