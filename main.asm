@@ -894,9 +894,9 @@ gameModeState_initGameBackground:
         bne     @typeB
         lda     #$0A
         sta     PPUDATA
-        lda     #$21
+        lda     #$20
         sta     PPUADDR
-        lda     #$B7
+        lda     #$97
         sta     PPUADDR
         lda     highScoreScoresA
         jsr     twoDigsToPPU
@@ -909,9 +909,9 @@ gameModeState_initGameBackground:
 @typeB: 
         lda     #$0B
         sta     PPUDATA
-        lda     #$21
+        lda     #$20
         sta     PPUADDR
-        lda     #$B7
+        lda     #$97
         sta     PPUADDR
         lda     highScoreScoresB
         jsr     twoDigsToPPU
@@ -1542,7 +1542,7 @@ stageSpriteForNextPiece:
         clc
         adc     nextOffsetX,x
         sta     generalCounter3
-        lda     #$22
+        lda     #$72
         clc
         adc     nextOffsetY,x
         sta     generalCounter4

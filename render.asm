@@ -221,9 +221,9 @@ stageRenderQueue:
         lda #$6F
         sta linesAddress+1
 
-        lda #$22
+        lda #$20
         sta scoreAddress
-        lda #$17
+        lda #$F7
         sta scoreAddress+1
 
         lda #$22
