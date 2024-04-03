@@ -73,34 +73,6 @@ dumpRenderQueue:
     sty     PPUSCROLL
     rts
 
-
-fillRenderQueue:
-    lda #$20
-    sta oldPiece0Address
-    sta oldPiece1Address
-    sta oldPiece2Address
-    sta oldPiece3Address
-    sta oldPiece4Address
-    sta newPiece0Address
-    sta newPiece1Address
-    sta newPiece2Address
-    sta newPiece3Address
-    sta newPiece4Address
-    sta row0Address
-    sta row1Address
-    sta row2Address
-    sta row3Address
-    sta row4Address
-    sta linesAddress
-    sta scoreAddress
-    sta levelAddress
-    sta paletteTetrisAddress
-    sta paletteBGAddress
-    sta paletteSpriteAddress
-    rts
-
-
-
 tmpYOffset := generalCounter
 tmpXOffset := generalCounter2
 tmpTile := generalCounter3
