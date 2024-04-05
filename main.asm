@@ -59,6 +59,10 @@ BUTTON_SELECT := $20
 BUTTON_START := $10
 ALMOST_ANY := BUTTON_DOWN+BUTTON_UP+BUTTON_LEFT+BUTTON_RIGHT+BUTTON_A+BUTTON_B
 
+; contains macros to lda & cmp the hidden piece ID
+.include "orientation/hidden_piece_id.asm"
+
+
 .segment        "PRG_chunk1": absolute
 
 ; incremented to reset MMC1 reg
@@ -2801,7 +2805,7 @@ playState_updateGameOverCurtainOld:
         tay
         lda     #$00
         sta     generalCounter3
-.include "orientation/hidden_piece_id.asm"
+        ldaHiddenPiece
         sta     currentPiece
 @drawCurtainRow:
         lda     #$4F
@@ -2913,7 +2917,7 @@ playState_checkForCompletedRows:
         iny
         cpy     #$07
         bne     @clearRowTopRow
-.include "orientation/hidden_piece_id.asm"
+        ldaHiddenPiece
         sta     currentPiece
         jmp     @incrementLineIndex
 
@@ -2951,7 +2955,7 @@ playState_checkForCompletedRows:
 @ret:   rts
 
 playState_receiveGarbage:
-        lda    #$3f
+        ldaHiddenPiece
         sta    currentPiece
 @ret:  inc     playState
 @delay:  rts
@@ -3377,7 +3381,7 @@ gameModeState_vblankThenRunState2:
         rts
 
 playState_unassignOrientationId:
-.include "orientation/hidden_piece_id.asm"
+        ldaHiddenPiece
         sta     currentPiece
         rts
 

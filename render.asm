@@ -82,7 +82,7 @@ counter := generalCounter5
 stageSpriteForCurrentPiece:
         jsr     clearOldPiece
         lda     currentPiece
-        cmp     #$3f
+        cmpHiddenPiece
         beq     @ret
         jsr     setOrientationTable
         lda     #$00
@@ -146,7 +146,7 @@ stageSpriteForCurrentPiece:
 
 clearOldPiece:
         lda     currentPiece
-        cmp     #$3f
+        cmpHiddenPiece
         bne     @normalClear
         lda     #$00
         sta     oldPiece0Address  ; is all of this necessary?
