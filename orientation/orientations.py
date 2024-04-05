@@ -834,6 +834,89 @@ i = Piece(
 )
 
 
+l4_right = Orientation(
+    ("....."
+     "..X.."
+     "..X.."
+     "..XX."
+     "....."),
+    name="L4Right",
+)  # fmt: skip
+
+l4_down = Orientation(
+    ("....."
+     "....."
+     ".XXX."
+     ".X..."
+     "....."),
+    name="L4Down",
+    spawn=True,
+    next_offset_x=0,
+)  # fmt: skip
+
+l4_left = Orientation(
+    ("....."
+     ".XX.."
+     "..X.."
+     "..X.."
+     "....."),
+    name="L4Left",
+)  # fmt: skip
+
+l4_up = Orientation(
+    ("....."
+     "...X."
+     ".XXX."
+     "....."
+     "....."),
+    name="L4Up",
+)  # fmt: skip
+
+l4 = Piece(
+    name="L4",
+    tile_index=0x7C,
+    stats_addr=0x2B2F,
+    orientations=[
+        l4_right,
+        l4_down,
+        l4_left,
+        l4_up,
+    ],
+)
+
+
+i4_horizontal = Orientation(
+    ("..X.."
+     "..X.."
+     "..X.."
+     "..X.."
+     "....."),
+    name="I4Vertical",
+)  # fmt: skip
+
+i4_vertical = Orientation(
+    ("....."
+     "....."
+     "XXXX."
+     "....."
+     "....."),
+    name="I4Horizontal",
+    spawn=True,
+    next_offset_x=4,
+)  # fmt: skip
+
+i4 = Piece(
+    stats_addr=0x2B34,
+    name="I4",
+    tile_index=0x7B,
+    orientations=[
+        i4_horizontal,
+        i4_vertical,
+    ],
+)
+
+
+
 hidden_orientation = HiddenOrientation(5)
 
 
@@ -868,6 +951,30 @@ weight_table = {
     v: 9,
 }
 
+# testing weight table
+weight_table = {
+    i: 0,
+    j: 0,
+    l: 0,
+    x: 0,
+    s: 0,
+    z: 0,
+    n: 0,
+    g: 0,
+    u: 0,
+    t: 0,
+    f1: 0,
+    f2: 0,
+    p: 0,
+    q: 0,
+    w: 0,
+    y1: 0,
+    y2: 0,
+    v: 0,
+    l4: 128,
+    i4: 128,
+}
+
 
 table = OrientationTable(
     [
@@ -889,6 +996,8 @@ table = OrientationTable(
         y1,
         y2,
         i,
+        l4,
+        i4,
         hidden,
     ]
 )
