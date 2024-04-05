@@ -821,6 +821,7 @@ i_vertical = Orientation(
     name="IHorizontal",
     spawn=True,
     next_offset_x=0,
+    next_offset_y=4,
 )  # fmt: skip
 
 i = Piece(
@@ -830,6 +831,61 @@ i = Piece(
     orientations=[
         i_horizontal,
         i_vertical,
+    ],
+)
+
+o4_solo = Orientation(
+    ("....."
+     ".XX.."
+     ".XX.."
+     "....."
+     "....."),
+    name="04Solo",
+    spawn=True,
+    next_offset_y=8,
+    next_offset_x=4,
+    spawn_offset_y=1,
+)  # fmt: skip
+
+
+o4 = Piece(
+    name="O4",
+    tile_index=0x7B,
+    stats_addr=0x2B16,
+    orientations=[
+        o4_solo,
+    ],
+)
+
+
+s4_horizontal = Orientation(
+    ("....."
+     "....."
+     "..XX."
+     ".XX.."
+     "....."),
+    name="S4Horizontal",
+    spawn=True,
+    next_offset_y=0,
+    spawn_offset_y=0,
+)  # fmt: skip
+
+s4_vertical = Orientation(
+    ("....."
+     "..X.."
+     "..XX."
+     "...X."
+     "....."),
+    name="S4Vertical",
+)  # fmt: skip
+
+s4 = Piece(
+    name="S4",
+    tile_index=0x7D,
+    stats_addr=0x2B2A,
+    orientations=[
+        s4_horizontal,
+        s4_vertical,
     ],
 )
 
@@ -903,6 +959,7 @@ i4_vertical = Orientation(
     name="I4Horizontal",
     spawn=True,
     next_offset_x=4,
+    next_offset_y=4,
 )  # fmt: skip
 
 i4 = Piece(
@@ -971,8 +1028,10 @@ weight_table = {
     y1: 0,
     y2: 0,
     v: 0,
-    l4: 128,
-    i4: 128,
+    o4: 64,
+    s4: 64,
+    l4: 64,
+    i4: 64,
 }
 
 
@@ -996,6 +1055,8 @@ table = OrientationTable(
         y1,
         y2,
         i,
+        o4,
+        s4,
         l4,
         i4,
         hidden,
