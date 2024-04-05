@@ -983,7 +983,7 @@ gameModeState_initGameState:
         ldx     #$04
         ldy     #$05
         jsr     memset_page
-        ldx     #$23
+        ldx     #$2A
         lda     #$00
 ; statsByType
 @initStatsByType:

@@ -834,6 +834,144 @@ i = Piece(
     ],
 )
 
+t4_up = Orientation(
+    ("....."
+     "..X.."
+     ".XXX."
+     "....."
+     "....."),
+    name="T4Up",
+)  # fmt: skip
+
+t4_right = Orientation(
+    ("....."
+     "..X.."
+     "..XX."
+     "..X.."
+     "....."),
+    name="T4Right",
+)  # fmt: skip
+
+t4_down = Orientation(
+    ("....."
+     "....."
+     ".XXX."
+     "..X.."
+     "....."),
+    name="T4Down",
+    spawn=True,
+)  # fmt: skip
+
+t4_left = Orientation(
+    ("....."
+     "..X.."
+     ".XX.."
+     "..X.."
+     "....."),
+    name="T4Left",
+)  # fmt: skip
+
+t4 = Piece(
+    name="T4",
+    tile_index=0x7B,
+    stats_addr=0x2B07,
+    orientations=[
+        t4_up,
+        t4_right,
+        t4_down,
+        t4_left,
+    ],
+)
+
+
+
+j4_left = Orientation(
+    ("....."
+     "..X.."
+     "..X.."
+     ".XX.."
+     "....."),
+    name="J4Left",
+)  # fmt: skip
+
+
+j4_up = Orientation(
+    ("....."
+     ".X..."
+     ".XXX."
+     "....."
+     "....."),
+    name="J4Up",
+)  # fmt: skip
+
+j4_right = Orientation(
+    ("....."
+     "..XX."
+     "..X.."
+     "..X.."
+     "....."),
+    name="J4Right",
+)  # fmt: skip
+
+j4_down = Orientation(
+    ("....."
+     "....."
+     ".XXX."
+     "...X."
+     "....."),
+    name="J4Down",
+    spawn=True,
+    next_offset_x=0,
+)  # fmt: skip
+
+j4 = Piece(
+    name="J4",
+    tile_index=0x7D,
+    stats_addr=0x2B0C,
+    orientations=[
+        j4_left,
+        j4_up,
+        j4_right,
+        j4_down,
+    ],
+)
+
+
+
+
+z4_horizontal = Orientation(
+    ("....."
+     "....."
+     ".XX.."
+     "..XX."
+     "....."),
+    name="Z4Horizontal",
+    spawn=True,
+    next_offset_y=0,
+    spawn_offset_y=0,
+)  # fmt: skip
+
+z4_vertical = Orientation(
+    ("....."
+     "...X."
+     "..XX."
+     "..X.."
+     "....."),
+    name="Z4Vertical",
+)  # fmt: skip
+
+z4 = Piece(
+    name="Z4",
+    tile_index=0x7C,
+    stats_addr=0x2B11,
+    orientations=[
+        z4_horizontal,
+        z4_vertical,
+    ],
+)
+
+
+
 o4_solo = Orientation(
     ("....."
      ".XX.."
@@ -1008,32 +1146,6 @@ weight_table = {
     v: 9,
 }
 
-# testing weight table
-weight_table = {
-    i: 0,
-    j: 0,
-    l: 0,
-    x: 0,
-    s: 0,
-    z: 0,
-    n: 0,
-    g: 0,
-    u: 0,
-    t: 0,
-    f1: 0,
-    f2: 0,
-    p: 0,
-    q: 0,
-    w: 0,
-    y1: 0,
-    y2: 0,
-    v: 0,
-    o4: 64,
-    s4: 64,
-    l4: 64,
-    i4: 64,
-}
-
 
 table = OrientationTable(
     [
@@ -1055,10 +1167,13 @@ table = OrientationTable(
         y1,
         y2,
         i,
-        o4,
-        s4,
-        l4,
-        i4,
+        # t4,
+        # j4,
+        # z4,
+        # o4,
+        # s4,
+        # l4,
+        # i4,
         hidden,
     ]
 )
