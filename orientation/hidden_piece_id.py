@@ -20,13 +20,16 @@ for piece in table.pieces:
 
 try:
     file = open(output, "w+") if output else sys.stdout
-    print(f""".macro cmpHiddenPiece
+    print(
+        f""".macro cmpHiddenPiece
         cmp    #${i:02x}
 .endmacro
 
 .macro ldaHiddenPiece
         lda    #${i:02x}
-.endmacro""", file=file)
+.endmacro""",
+        file=file,
+    )
 finally:
     if output:
         file.close()

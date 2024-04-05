@@ -63,18 +63,26 @@ class Piece:
     tile_index: int
     orientations: list[Orientation | HiddenOrientation]
     hidden: bool = False
-    stats_addr: int = 0xffff
+    stats_addr: int = 0xFFFF
 
     def __hash__(self):
         return hash(self.name)
-    
+
+
 @dataclass
 class OrientationTable:
     pieces: list[Piece]
+
     def length(self):
         return len(self.pieces)
+
     def indexes(self):
-        return [index for index,piece in enumerate(sorted(self.pieces, key=lambda piece: piece.name))]
+        return [
+            index
+            for index, piece in enumerate(
+                sorted(self.pieces, key=lambda piece: piece.name)
+            )
+        ]
 
 
 def output_bytes(row: list[int]):

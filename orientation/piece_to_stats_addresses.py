@@ -14,8 +14,8 @@ stats_addresses = [piece.stats_addr for piece in table.pieces if not piece.hidde
 
 try:
     file = open(output, "w+") if output else sys.stdout
-    print ("pieceToPpuStatAddr:", file=file)
-    print (f"    .dbyt    {','.join(f'${sa:04x}' for sa in stats_addresses)}", file=file)
+    print("pieceToPpuStatAddr:", file=file)
+    print(f"    .dbyt    {','.join(f'${sa:04x}' for sa in stats_addresses)}", file=file)
     print("", file=file)
 finally:
     if output:
