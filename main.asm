@@ -604,7 +604,101 @@ L830B:  lda     #$FF
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     L830B
 
+menuLimits:
+        .byte   $40,$40,$02,$02,$02,$04,$07
+
+getSeedInput:
+        sec
+        sbc     #$01
+        lsr
+        tax
+        lda     #$01
+        bcs     @noShift
+        asl
+        asl
+        asl
+        asl
+@noShift:
+        sta     tmp1
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP+BUTTON_DOWN
+        beq     @upDownNotPressed
+        and     #BUTTON_DOWN
+        beq     @upPressed
+        lda     sps_seed,x
+        sec
+        sbc     tmp1
+        sta     sps_seed,x
+        ldy     tmp1
+        cpy     #$01
+        bne     @noReset
+        and     #$0F
+        cmp     #$0F
+        beq     @add16
+
+        jmp     @noReset
+@add16:
+        lda     sps_seed,x
+        clc
+        adc     #$10
+        sta     sps_seed,x
+@noReset:
+        jmp     @upDownNotPressed
+
+@upPressed:
+        lda     sps_seed,x
+        clc
+        adc     tmp1
+        sta     sps_seed,x
+        ldy     tmp1
+        cpy     #$01
+        bne     @upDownNotPressed
+        and     #$0F
+        bne     @upDownNotPressed
+        lda     sps_seed,x
+        sec
+        sbc     #$10
+        sta     sps_seed,x
+
+@upDownNotPressed:
+        lda     seedPosition
+        asl
+        asl
+        asl
+        adc     #$90
+        sta     oamStaging+3
+        lda     #$C7
+        sta     oamStaging
+        lda     #$63
+        sta     oamStaging+1
+        jmp     flashAndChooseHole
+
 getMenuInput:
+        ldx     menuMode
+        cpx     #$09
+        beq     @leftRightNotPressed
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_LEFT+BUTTON_RIGHT
+        beq     @leftRightNotPressed
+        and     #BUTTON_LEFT
+        beq     @rightPressed
+        dec     menuOffset-2,x
+        bpl     @leftRightNotPressed
+        inc     menuOffset-2,x
+        beq     @leftRightNotPressed
+@rightPressed:
+        inc     menuOffset-2,x
+        lda     menuOffset-2,x
+        cmp     menuLimits-2,x
+        bne     @leftRightNotPressed
+        dec     menuOffset-2,x
+
+@leftRightNotPressed:
+        lda     seedPosition
+        beq     @noSeedInput
+        jmp     getSeedInput
+
+@noSeedInput:
         lda     newlyPressedButtons_player1
         and     #BUTTON_UP
         beq     @upNotPressed
@@ -631,6 +725,7 @@ getMenuInput:
         sta     oamStaging
         lda     #$28
         sta     oamStaging+3
+flashAndChooseHole:
         jsr     flashNewMenuCursor
         jmp     chooseRandomHole_player1
 
