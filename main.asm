@@ -5560,12 +5560,11 @@ enter_high_score_nametable:
 high_scores_nametable:
         .incbin "gfx/nametables/high_scores_nametable.bin"
 height_menu_nametablepalette_patch:
-        .byte   $3F,$0A
-        .byte   $01,$16          ; attr 2,3 of background palette 3
-        .byte   $20,$6D,$01,$0A  ; sprite palette 0
-        .byte   $20,$F3,$48      ; attr 0,1,2 of sprite palette 1
-        .byte   $FF
+        .byte   $3F,$0A,$01,$16 ; palette
 
+        .byte   $20,$6D,$01,$0A ; "A"
+
+        .byte   $20,$F3,$48,$FF ; patch upper nt
         .byte   $21,$13,$48,$FF
         .byte   $21,$33,$48,$FF
         .byte   $21,$53,$47,$FF
@@ -5574,7 +5573,7 @@ height_menu_nametablepalette_patch:
         .byte   $21,$B3,$47,$FF
         .byte   $21,$D3,$47,$FF
 
-        .byte   $28,$F3,$48,$FF
+        .byte   $28,$F3,$48,$FF ; patch lower nt
         .byte   $29,$13,$48,$FF
         .byte   $29,$33,$48,$FF
         .byte   $29,$53,$47,$FF
@@ -5582,7 +5581,8 @@ height_menu_nametablepalette_patch:
         .byte   $29,$93,$47,$FF
         .byte   $29,$B3,$47,$FF
         .byte   $29,$D3,$47,$FF
-        ;.byte   $22,$33,$48,$FF
+
+        ;.byte   $22,$33,$48,$FF ; from original game, useless
         ;.byte   $22,$53,$48,$FF
         ;.byte   $22,$73,$48,$FF
         ;.byte   $22,$93,$47,$FF
@@ -5590,6 +5590,7 @@ height_menu_nametablepalette_patch:
         ;.byte   $22,$D3,$47,$FF
         ;.byte   $22,$F3,$47,$FF
         ;.byte   $23,$13,$47,$FF
+
         .byte   $FF
 type_b_lvl9_ending_nametable:
         .incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
