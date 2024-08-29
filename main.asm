@@ -636,6 +636,8 @@ gameMode_levelMenu:
         .addr   level_menu_nametable
         jsr     bulkCopyToPpu
         .addr   high_scores_nametable
+        jsr     bulkCopyToPpu
+        .addr   show_scores_nametable_patch
         lda     gameType
         bne     @skipTypeBHeightDisplay
         jsr     bulkCopyToPpu
@@ -5559,6 +5561,12 @@ enter_high_score_nametable:
 ; actually custom menu nametable
 high_scores_nametable:
         .incbin "gfx/nametables/high_scores_nametable.bin"
+
+show_scores_nametable_patch:
+        .byte $2A,$0F,$06
+        .byte $1C,$0C,$18,$1B,$0E,$1C ; SCORES
+        .byte $FF
+
 height_menu_nametablepalette_patch:
         .byte   $3F,$0A,$01,$16 ; palette
 
