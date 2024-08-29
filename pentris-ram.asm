@@ -2,13 +2,15 @@
 tmp1:	.res 1	; $0000
 tmp2:	.res 1	; $0001
 tmp3:	.res 1	; $0002
-.res 2 
+.res 2
 tmpBulkCopyToPpuReturnAddr: .res 2 ; $0005
 anydasMenu: .res 1
 anydasDASValue: .res 1
 anydasARRValue: .res 1
 anydasARECharge: .res 1
-.res 9
+menuMode: .res 1 ; 0 = original, 1 = toggle, 2 = menu
+menuScreen: .res 1 ; 0 = original, 2 = menu screen
+.res 7
 patchToPpuAddr: .res 1             ; $0014
 .res 2
 rng_seed:	.res 2	; $0017
@@ -258,3 +260,5 @@ highScoreScoresA:	.res $C	; $0730
 highScoreScoresB:	.res $C	; $073C
 highScoreLevels:	.res $08	; $0748
 initMagic:	.res $05	; $0750
+
+.assert initMagic = $750, error, "Ram might be messed up"

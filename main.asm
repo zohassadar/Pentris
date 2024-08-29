@@ -642,6 +642,15 @@ gameMode_levelMenu:
         bne     @skipTypeBHeightDisplay
         jsr     bulkCopyToPpu
         .addr   height_menu_nametablepalette_patch
+
+    ; make menu arrow yellow
+        lda     #$3F
+        sta     PPUADDR
+        lda     #$1D
+        sta     PPUADDR
+        lda     #$27
+        sta     PPUDATA
+
 @skipTypeBHeightDisplay:
         jsr     showHighScores
         jsr     waitForVBlankAndEnableNmi
@@ -664,7 +673,72 @@ gameMode_levelMenu:
         sta     startLevel
         jmp     @forceStartLevelToRange
 
+toggleMenuScreen:
+        lda     menuScreen
+        eor     #$02
+        sta     menuScreen
+        ;lda     #$16
+        ;sta     currentPpuMask
+        ;sta     PPUMASK
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     currentPpuCtrl
+        and     #$FD
+        ora     menuScreen
+        sta     currentPpuCtrl
+        sta     PPUCTRL
+        jmp     showSelectionLevel
+
+checkMenuMode:
+        ; stage sprite no matter
+        ldx     oamStagingLength
+        lda     #$7F
+        sta     oamStaging
+        lda     #$27
+        sta     oamStaging+1
+        lda     #$03
+        sta     oamStaging+2
+        lda     #$40
+        sta     oamStaging+3
+        lda     #$04
+        ; assumes that oamStagingLength is 0
+        ; this is unsafe maybe, if sprites are ever staged before this
+        sta     oamStagingLength
+
+        lda     menuMode
+        beq     originalMenu
+        cmp     #$01
+        bne     originalMenu   ; going to be new menu
+        lda     frameCounter
+        and     #$03
+        bne     @skipSkippingShowingToggleCursor
+        ; hide every 4th frame
+        lda     #$FF
+        sta     oamStaging
+
+@skipSkippingShowingToggleCursor:
+
+
+        jsr     showSelectionLevel
+
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START+BUTTON_A
+        beq     @checkUpPressed
+        jsr     toggleMenuScreen
+@checkUpPressed:
+
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP
+        beq     @upNotPressed
+        dec     menuMode
+@upNotPressed:
+        jmp     chooseRandomHole_player1
+
+
+
+
 gameMode_levelMenu_processPlayer1Navigation:
+        jmp     checkMenuMode
+originalMenu:
         lda     originalY
         sta     selectingLevelOrHeight
         lda     newlyPressedButtons_player1
@@ -693,20 +767,20 @@ gameMode_levelMenu_processPlayer1Navigation:
 @checkBPressed:
         lda     newlyPressedButtons_player1
         cmp     #$40
-        bne     @chooseRandomHole_player1
+        bne     chooseRandomHole_player1
         lda     #$02
         sta     soundEffectSlot1Init
         dec     gameMode
         rts
 
-@chooseRandomHole_player1:
+chooseRandomHole_player1:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
         and     #$0F
         cmp     #$0A
-        bpl     @chooseRandomHole_player1
+        bpl     chooseRandomHole_player1
         sta     garbageHole
 @chooseRandomHole_player2:
         ldx     #$17
@@ -767,7 +841,7 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         bne     @downPressedForHeightSelection
         lda     startLevel
         cmp     #$05
-        bpl     @checkUpPressed
+        bpl     @menuToggle
         clc
         adc     #$05
         sta     startLevel
@@ -776,10 +850,13 @@ gameMode_levelMenu_handleLevelHeightNavigation:
 @downPressedForHeightSelection:
         lda     startHeight
         cmp     #$03
-        bpl     @checkUpPressed
+        bpl     @menuToggle
         inc     startHeight
         inc     startHeight
         inc     startHeight
+        bne     @checkUpPressed
+@menuToggle:
+        inc     menuMode
 @checkUpPressed:
         lda     newlyPressedButtons
         cmp     #$08
@@ -805,22 +882,22 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         dec     startHeight
 @checkAPressed:
         lda     gameType
-        beq     @showSelection
+        beq     showSelection
         lda     newlyPressedButtons
         cmp     #$80
-        bne     @showSelection
+        bne     showSelection
         lda     #$01
         sta     soundEffectSlot1Init
         lda     selectingLevelOrHeight
         eor     #$01
         sta     selectingLevelOrHeight
-@showSelection:
+showSelection:
         lda     selectingLevelOrHeight
-        bne     @showSelectionLevel
+        bne     showSelectionLevel
         lda     frameCounter
         and     #$03
-        beq     @skipShowingSelectionLevel
-@showSelectionLevel:
+        beq     skipShowingSelectionLevel
+showSelectionLevel:
         ldx     startLevel
         lda     levelToSpriteYOffset,x
         sta     spriteYOffset
@@ -830,11 +907,13 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         lda     levelToSpriteXOffset,x
         sta     spriteXOffset
         jsr     loadSpriteIntoOamStaging
-@skipShowingSelectionLevel:
+skipShowingSelectionLevel:
         lda     gameType
         beq     @ret
         lda     selectingLevelOrHeight
         beq     @showSelectionHeight
+        lda     menuMode
+        bne     @showSelectionHeight
         lda     frameCounter
         and     #$03
         beq     @ret
@@ -864,7 +943,7 @@ musicSelectionTable:
         .byte   $03,$04,$05,$FF,$06,$07,$08,$FF
 render_mode_menu_screens:
         lda     currentPpuCtrl
-        and     #$FC
+        and     #$FE
         sta     currentPpuCtrl
         sta     PPUCTRL
         lda     #$00
@@ -2767,7 +2846,7 @@ playState_updateGameOverCurtain:
         and     #BUTTON_START
         beq     @startNotPressed
         lda     score+2
-        cmp     #$50
+        cmp     #$50    ; only show ending animation for 500k+
         bcc     @exitGame
         jsr     endingAnimation_maybe
 @exitGame:
@@ -5571,6 +5650,7 @@ height_menu_nametablepalette_patch:
         .byte   $3F,$0A,$01,$16 ; palette
 
         .byte   $20,$6D,$01,$0A ; "A"
+        .byte   $28,$6D,$01,$0A ; "A"
 
         .byte   $20,$F3,$48,$FF ; patch upper nt
         .byte   $21,$13,$48,$FF
