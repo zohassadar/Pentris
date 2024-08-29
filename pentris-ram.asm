@@ -2,15 +2,18 @@
 tmp1:	.res 1	; $0000
 tmp2:	.res 1	; $0001
 tmp3:	.res 1	; $0002
-.res 2
 tmpBulkCopyToPpuReturnAddr: .res 2 ; $0005
-anydasMenu: .res 1
 anydasDASValue: .res 1
 anydasARRValue: .res 1
 anydasARECharge: .res 1
+marathon: .res 1
+sxtokl: .res 1
+tetriminoMode: .res 1
+sps_seed: .res 3
+set_seed: .res 3
 menuMode: .res 1 ; 0 = original, 1 = toggle, 2 = menu
 menuScreen: .res 1 ; 0 = original, 2 = menu screen
-.res 7
+seedPosition: .res 1
 patchToPpuAddr: .res 1             ; $0014
 .res 2
 rng_seed:	.res 2	; $0017

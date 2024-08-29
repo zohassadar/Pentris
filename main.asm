@@ -604,6 +604,47 @@ L830B:  lda     #$FF
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     L830B
 
+getMenuInput:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP
+        beq     @upNotPressed
+        dec     menuMode
+        jmp     @moveSpriteAndGo
+
+@upNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_DOWN
+        beq     @downNotPressed
+        inc     menuMode
+        lda     menuMode
+        cmp     #$0A
+        bne     @moveSpriteAndGo
+        dec     menuMode
+
+@downNotPressed:
+@moveSpriteAndGo:
+        lda     menuMode
+        asl
+        asl
+        asl
+        adc     #$7F
+        sta     oamStaging
+        lda     #$28
+        sta     oamStaging+3
+        jsr     flashNewMenuCursor
+        jmp     chooseRandomHole_player1
+
+flashNewMenuCursor:
+        lda     frameCounter
+        and     #$03
+        bne     @skipSkippingShowingToggleCursor
+        ; hide every 4th frame
+        lda     #$FF
+        sta     oamStaging
+@skipSkippingShowingToggleCursor:
+        rts
+
+
 gameMode_levelMenu:
 .ifndef CNROM
         inc     initRam
@@ -688,7 +729,7 @@ toggleMenuScreen:
         sta     PPUCTRL
         jmp     showSelectionLevel
 
-checkMenuMode:
+gameMode_levelMenu_processPlayer1Navigation:
         ; stage sprite no matter
         ldx     oamStagingLength
         lda     #$7F
@@ -705,21 +746,19 @@ checkMenuMode:
         sta     oamStagingLength
 
         lda     menuMode
-        beq     originalMenu
-        cmp     #$01
-        bne     originalMenu   ; going to be new menu
-        lda     frameCounter
-        and     #$03
-        bne     @skipSkippingShowingToggleCursor
-        ; hide every 4th frame
-        lda     #$FF
-        sta     oamStaging
-
-@skipSkippingShowingToggleCursor:
+        bne     @newMenu
+        jmp     originalMenu
+@newMenu:
+        jsr     flashNewMenuCursor
 
 
         jsr     showSelectionLevel
 
+        lda     menuMode
+        cmp     #$01
+        beq     @checkForUpAndDown
+        jmp     getMenuInput
+@checkForUpAndDown:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START+BUTTON_A
         beq     @checkUpPressed
@@ -731,13 +770,18 @@ checkMenuMode:
         beq     @upNotPressed
         dec     menuMode
 @upNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_DOWN
+        beq     @downNotPressed
+        lda     menuScreen
+        beq     @downNotPressed
+        inc     menuMode
+@downNotPressed:
         jmp     chooseRandomHole_player1
 
 
 
 
-gameMode_levelMenu_processPlayer1Navigation:
-        jmp     checkMenuMode
 originalMenu:
         lda     originalY
         sta     selectingLevelOrHeight
@@ -956,7 +1000,11 @@ render_mode_menu_screens:
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+        lda     currentPpuCtrl
+        and     #$FC
+        sta     currentPpuCtrl
         lda     #$00
+        sta     menuScreen    ; reset
         sta     newPiece0Address
         sta     newPiece1Address
         sta     newPiece2Address
