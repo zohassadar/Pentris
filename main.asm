@@ -986,6 +986,85 @@ heightToPpuLowAddr:
 musicSelectionTable:
         .byte   $03,$04,$05,$FF,$06,$07,$08,$FF
 render_mode_menu_screens:
+; begin inefficient menu render
+
+; draw the easy ones first
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$57
+        sta     PPUADDR
+        lda     anydasDASValue
+        jsr     twoDigsToPPU
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$77
+        sta     PPUADDR
+        lda     anydasARRValue
+        jsr     twoDigsToPPU
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$96
+        sta     PPUADDR
+        lda     anydasARECharge
+        beq     @areOff
+        jsr     writeOn
+        bne     @tetriminos
+@areOff:
+        jsr     writeOff
+@tetriminos:
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$B6
+        sta     PPUADDR
+        lda     tetriminoMode
+        beq     @tetriminoOff
+        jsr     writeOn
+        bne     @sxtokl
+@tetriminoOff:
+        jsr     writeOff
+@sxtokl:
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$D6
+        sta     PPUADDR
+        lda     sxtokl
+        beq     @sxtoklOff
+        jsr     writeOn
+        bne     @marathon
+@sxtoklOff:
+        jsr     writeOff
+@marathon:
+        lda      #$2A
+        sta     PPUADDR
+        lda      #$F6
+        sta     PPUADDR
+        lda     marathon
+        beq     @marathonOff
+        ldy     #$FF
+        sty     PPUDATA
+        sty     PPUDATA
+        sta     PPUDATA
+        bne     @seed
+@marathonOff:
+        jsr     writeOff
+
+@seed:
+        lda      #$2B
+        sta     PPUADDR
+        lda     #$13
+        sta     PPUADDR
+        lda     sps_seed
+        jsr     twoDigsToPPU
+        lda     sps_seed+1
+        jsr     twoDigsToPPU
+        lda     sps_seed+2
+        jsr     twoDigsToPPU
+
+
         lda     currentPpuCtrl
         and     #$FE
         sta     currentPpuCtrl
@@ -996,6 +1075,25 @@ render_mode_menu_screens:
         sta     ppuScrollY
         sta     PPUSCROLL
         rts
+
+writeOff:
+        lda     #$18
+        sta     PPUDATA
+        lda     #$F
+        sta     PPUDATA
+        sta     PPUDATA
+        rts
+
+writeOn:
+        lda     #$FF
+        sta     PPUDATA
+        lda     #$18
+        sta     PPUDATA
+        lda     #$17
+        sta     PPUDATA
+        rts
+
+
 
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
