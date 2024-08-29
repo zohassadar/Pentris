@@ -603,6 +603,20 @@ L830B:  lda     #$FF
         jsr     loadSpriteIntoOamStaging
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     L830B
+checkForShuffle:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_SELECT
+        beq     @selectNotPressed
+
+        lda     rng_seed
+        sta     sps_seed
+        lda     rng_seed+1
+        sta     sps_seed+1
+        lda     frameCounter
+        eor     rng_seed+1
+        sta     sps_seed+2
+@selectNotPressed:
+        rts
 
 menuLimits:
         .byte   $40,$40,$02,$02,$02,$04,$07
@@ -661,6 +675,7 @@ getSeedInput:
         sta     sps_seed,x
 
 @upDownNotPressed:
+        jsr     checkForShuffle
         lda     seedPosition
         asl
         asl
@@ -697,7 +712,6 @@ getMenuInput:
         lda     seedPosition
         beq     @noSeedInput
         jmp     getSeedInput
-
 @noSeedInput:
         lda     newlyPressedButtons_player1
         and     #BUTTON_UP
@@ -714,8 +728,22 @@ getMenuInput:
         cmp     #$0A
         bne     @moveSpriteAndGo
         dec     menuMode
-
 @downNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START+BUTTON_A
+        beq     @startOrANotPressed
+        lda     menuMode
+        cmp     #$09
+        bne     @startOrANotPressed
+        lda     #$00
+        sta     sps_seed
+        sta     sps_seed+1
+        sta     sps_seed+2
+@startOrANotPressed:
+        lda     menuMode
+        cmp     #$08
+        bne     @moveSpriteAndGo
+        jsr     checkForShuffle
 @moveSpriteAndGo:
         lda     menuMode
         asl
