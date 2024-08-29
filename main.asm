@@ -631,6 +631,11 @@ gameMode_levelMenu:
         lda     #$20
         jsr     copyRleNametableToPpu
         .addr   level_menu_nametable
+        lda     #$28
+        jsr     copyRleNametableToPpu
+        .addr   level_menu_nametable
+        jsr     bulkCopyToPpu
+        .addr   high_scores_nametable
         lda     gameType
         bne     @skipTypeBHeightDisplay
         jsr     bulkCopyToPpu
@@ -915,7 +920,7 @@ gameModeState_initGameBackground:
         jsr     twoDigsToPPU
         jmp     gameModeState_initGameBackground_finish
 
-@typeB: 
+@typeB:
         lda     #$0B
         sta     PPUDATA
         lda     #$20
@@ -998,11 +1003,11 @@ gameModeState_initGameState:
         sta    statsPiecesTotal
         sta    statsPiecesTotal+1
 
-        lda     #$0A    ; starting on row 10 compensates for glitchy behavior 
+        lda     #$0A    ; starting on row 10 compensates for glitchy behavior
                         ; I *think* because the first time around is the only
                         ; time the full board is loaded (the rest only 4 at a time)
                         ; 40 new tiles worth of time was added to the process
-                        ; This work around causes only the bottom part of the 
+                        ; This work around causes only the bottom part of the
                         ; board to be redrawn
         sta     vramRow
         lda     #$00
@@ -1032,7 +1037,7 @@ gameModeState_initGameState:
         sta     $0499
         lda     #$09
         sta     lines
-        lda     #$00 
+        lda     #$00
         sta     lines+1
 .else
         sta     lines
@@ -1158,7 +1163,7 @@ initPlayfieldForTypeB:
         lda     #$0C
         sta     generalCounter  ; decrements
 
-typeBRows:  
+typeBRows:
         lda     generalCounter
         beq     initCopyPlayfieldToPlayer2
         lda     #$16
@@ -1170,7 +1175,7 @@ typeBRows:
         lda     #$06
         sta     generalCounter3 ; column
 
-typeBGarbageInRow:  
+typeBGarbageInRow:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
@@ -1191,7 +1196,7 @@ typeBGarbageInRow:
         dec     generalCounter3
         jmp     typeBGarbageInRow
 
-typeBGuaranteeBlank:  
+typeBGuaranteeBlank:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
@@ -1212,8 +1217,8 @@ typeBGuaranteeBlank:
         dec     generalCounter
         bne     typeBRows
 
-initCopyPlayfieldToPlayer2:  
- 
+initCopyPlayfieldToPlayer2:
+
 ; Player1 Blank Lines
         ldx     startHeight
         lda     typeBBlankInitCountByHeightTable,x
@@ -1222,17 +1227,17 @@ initCopyPlayfieldToPlayer2:
         tay
         lda     #$EF
 
-typeBBlankInitPlayer1:  
+typeBBlankInitPlayer1:
         sta     (playfieldAddr),y
         dey
         cpy     #$FF
         bne     typeBBlankInitPlayer1
 
-endTypeBInit:  
+endTypeBInit:
         rts
 
 typeBBlankInitCountByHeightTable:
-        ; >>> "$" + ",$".join(f'{int(c,16)//10*7:02x}'.upper() 
+        ; >>> "$" + ",$".join(f'{int(c,16)//10*7:02x}'.upper()
         ;for c in "$C8,$AA,$96,$78,$64,$50".replace("$","").split(","))
         .byte   $8C,$77,$69,$54,$46,$38
 rngTable:
@@ -1314,7 +1319,7 @@ rotate_tetrimino:
 @restoreOrientationID:
         lda     originalY
         sta     currentPiece
-@ret:   
+@ret:
 
 
         rts
@@ -1531,7 +1536,7 @@ stageSpriteForNextPiece:
 @ret:   rts
 
 .include "orientation/orientation_to_next_offset.asm"
-        
+
 unreferenced_data2:
         .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF
         .byte   $00,$01,$02,$03,$04,$05,$06,$07
@@ -2309,19 +2314,19 @@ isPositionValid:
         clc
         adc     (currentOrientationX),y     ; X offset
 ; Check if column is valid before getting normalized
-        cmp     #$0E    
+        cmp     #$0E
         bcs     @invalid
         tay
         lda     tetriminoXPlayfieldTable,y
         sta     playfieldAddr+1
         lda     effectiveTetriminoXTable,y
         lda     generalCounter4
-        clc     
+        clc
         adc     effectiveTetriminoXTable,y
         tay
         lda     (playfieldAddr),y
         ; Changed from a cmp.  $EF is always negative.  $7[BCD] is not.
-        bpl     @invalid 
+        bpl     @invalid
         inc     generalCounter5
         dec     generalCounter3
         bne     @checkSquare
@@ -2505,7 +2510,7 @@ updateLineClearingAnimation:
 updateLineClearingAnimation:
 .endif
         inc     playState
-@ret:   
+@ret:
         jmp     renderTetrisFlashAndSound
 
 leftColumns:
@@ -2790,7 +2795,7 @@ playState_updateGameOverCurtain:
 @ret:
         rts
 
-        
+
 
 playState_updateGameOverCurtainOld:
         lda     curtainRow
@@ -2900,7 +2905,7 @@ playState_checkForCompletedRows:
         dey
 @movePlayfieldDownOneRow:
         cpy     #$F9
-        bcs     @skipOverflow 
+        bcs     @skipOverflow
         lda     leftPlayfield,y
         sta     leftPlayfield+7,y
         lda     rightPlayfield,y
@@ -3196,7 +3201,7 @@ gameModeState_handleGameOver:
         ; next box to flicker during a line clear
         ; the comments in this link explain a lot
         ; https://github.com/kirjavascript/TetrisGYM/blob/master/src/gamemodestate/branch.asm
-        lda     #$01 
+        lda     #$01
         rts
 
 updateMusicSpeed:
@@ -3625,8 +3630,8 @@ L9FE9:  ldy     #$00
         rts
 
 showHighScores:
-        jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
-        .addr   high_scores_nametable
+;        jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
+;        .addr   high_scores_nametable
         lda     #$00
         sta     generalCounter2
         lda     gameType
@@ -4198,7 +4203,7 @@ togglePauseScreen:
         adc     #$03
         sta     generalCounter
         jsr     changeCHRBank0
-        lda     generalCounter 
+        lda     generalCounter
         jmp     changeCHRBank1
 .else
         beq     @gameMode
@@ -4332,12 +4337,12 @@ typebSuccessGraphicRightRow2:
 typebSuccessGraphicRightRow3:
         .byte   $3E,$3E,$3E,$3E,$3F
         .byte   $80
-        
+
 
 sleep_for_14_vblanks:
         lda     #$14
         sta     sleepCounter
-@loop: 
+@loop:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START
         bne     @break
@@ -4348,7 +4353,7 @@ sleep_for_14_vblanks:
 
 sleep_for_a_vblanks:
         sta     sleepCounter
-@loop:  
+@loop:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START
         bne     @break
@@ -5550,6 +5555,8 @@ stats_nametable:
         .incbin "gfx/nametables/stats_nametable.bin"
 enter_high_score_nametable:
         .incbin "gfx/nametables/enter_high_score_nametable.bin"
+
+; actually custom menu nametable
 high_scores_nametable:
         .incbin "gfx/nametables/high_scores_nametable.bin"
 height_menu_nametablepalette_patch:
@@ -5566,14 +5573,23 @@ height_menu_nametablepalette_patch:
         .byte   $21,$93,$47,$FF
         .byte   $21,$B3,$47,$FF
         .byte   $21,$D3,$47,$FF
-        .byte   $22,$33,$48,$FF
-        .byte   $22,$53,$48,$FF
-        .byte   $22,$73,$48,$FF
-        .byte   $22,$93,$47,$FF
-        .byte   $22,$B3,$47,$FF
-        .byte   $22,$D3,$47,$FF
-        .byte   $22,$F3,$47,$FF
-        .byte   $23,$13,$47,$FF
+
+        .byte   $28,$F3,$48,$FF
+        .byte   $29,$13,$48,$FF
+        .byte   $29,$33,$48,$FF
+        .byte   $29,$53,$47,$FF
+        .byte   $29,$73,$47,$FF
+        .byte   $29,$93,$47,$FF
+        .byte   $29,$B3,$47,$FF
+        .byte   $29,$D3,$47,$FF
+        ;.byte   $22,$33,$48,$FF
+        ;.byte   $22,$53,$48,$FF
+        ;.byte   $22,$73,$48,$FF
+        ;.byte   $22,$93,$47,$FF
+        ;.byte   $22,$B3,$47,$FF
+        ;.byte   $22,$D3,$47,$FF
+        ;.byte   $22,$F3,$47,$FF
+        ;.byte   $23,$13,$47,$FF
         .byte   $FF
 type_b_lvl9_ending_nametable:
         .incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
