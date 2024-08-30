@@ -1,7 +1,6 @@
-add valid sps routine, write on/off in menu.  use when valid
+use sps setting when valid
 use anydas settings
 add 0-arr
-make tetrimino switch work
 place tetrimino stats better, hide when off
 add marathon modes
 add sxtokl mode

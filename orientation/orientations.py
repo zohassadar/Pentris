@@ -1125,7 +1125,7 @@ hidden = Piece(
 )
 
 
-weight_table_original = {
+weight_table = {
     i: 27,
     j: 17,
     l: 17,
@@ -1147,7 +1147,7 @@ weight_table_original = {
 }
 
 
-weight_table = {
+weight_table_tetriminos = {
     i: 21,
     j: 12,
     l: 12,

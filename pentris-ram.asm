@@ -60,7 +60,9 @@ renderedVramRow:  .res 1 ; $0071
 renderedPlayfield:  .res 1 ; $0072
 pauseScreen: .res 1
 stackPointer: .res 1
-.res 43
+rngInitialY: .res 1
+currentWeightTable: .res 2
+.res 40
 
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1

@@ -1373,6 +1373,7 @@ gameModeState_initGameState:
         ldx     #$2A
         lda     #$00
 ; statsByType
+        jsr     setupRngBytes
 @initStatsByType:
         sta     $0300,x
         dex
