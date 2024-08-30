@@ -1367,10 +1367,10 @@ gameModeState_initGameState:
         ldx     #$04
         ldy     #$05
         jsr     memset_page
-        ldx     #$2A
-        lda     #$00
-; statsByType
         jsr     setupRngBytes
+        lda     #$00
+        ldx     #$4B
+; statsByType
 @initStatsByType:
         sta     $0300,x
         dex
