@@ -1868,7 +1868,7 @@ stageSpriteForNextPiece:
         adc     generalCounter4
         sta     oamStaging,x ; stage y coordinate of mino
         inx
-        lda     (currentOrientationTile),y
+        lda     currentTile
         sta     oamStaging,x ; stage block type of mino
         inx
         lda     #$02
@@ -3042,7 +3042,7 @@ playState_lockTetrimino:
 @lockSquare:
         lda     generalCounter5
         tay
-        lda     (currentOrientationTile),y
+        lda     currentTile
         sta     generalCounter2
         lda     tetriminoY
         clc
@@ -5924,21 +5924,21 @@ type_a_ending_nametable:
 
 
 setOrientationTable:
+        tax
+        lda    orientationTiles,x
+        sta    currentTile
+        txa
         asl
         tax
         lda    orientationTablesY,x
         sta    currentOrientationY
         lda    orientationTablesX,x
         sta    currentOrientationX
-        lda    orientationTablesTile,x
-        sta    currentOrientationTile
         inx
         lda    orientationTablesY,x
         sta    currentOrientationY+1
         lda    orientationTablesX,x
         sta    currentOrientationX+1
-        lda    orientationTablesTile,x
-        sta    currentOrientationTile+1
         rts
 
 

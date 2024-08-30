@@ -36,7 +36,7 @@ for piece in table.pieces:
         tilelabel = f"orientationTileFor{orientation.name}"
         output_x_refs.append(f"    .addr {xlabel}")
         output_y_refs.append(f"    .addr {ylabel}")
-        output_tile_refs.append(f"    .addr {tilelabel}")
+        #output_tile_refs.append(f"    .addr {tilelabel}")
 
         # allow for 4 pieces (or less?)
         while len(output_x) < 5:
@@ -50,8 +50,8 @@ for piece in table.pieces:
         output_xs.append(output_bytes(output_x))
         output_ys.append(ylabel + ":")
         output_ys.append(output_bytes(output_y))
-        output_tiles.append(tilelabel + ":")
-        output_tiles.append(output_bytes(output_tile))
+        #output_tiles.append(tilelabel + ":")
+        output_tiles.append(f"{output_bytes(output_tile[:1])} ; {tilelabel}")
 
 try:
     file = open(output, "w+") if output else sys.stdout
@@ -66,10 +66,10 @@ try:
         print(line, file=file)
     print("", file=file)
 
-    print("orientationTablesTile:", file=file)
-    for line in output_tile_refs:
-        print(line, file=file)
-    print("", file=file)
+    #print("orientationTablesTile:", file=file)
+    #for line in output_tile_refs:
+    #    print(line, file=file)
+    #print("", file=file)
 
     for line in output_ys:
         print(line, file=file)
@@ -80,7 +80,7 @@ try:
         print(line, file=file)
     print("", file=file)
 
-    # print("orientationTableTile:", file=file)
+    print("orientationTiles:", file=file)
     for line in output_tiles:
         print(line, file=file)
     print("", file=file)

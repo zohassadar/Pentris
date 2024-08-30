@@ -50,7 +50,8 @@ garbageHole:	.res 1	; $005A
 completedRow:	.res 5	; $0060
 currentOrientationY: .res 2 ;  $0065
 currentOrientationX: .res 2 ;  $0067
-currentOrientationTile: .res 2 ;  $0069
+currentTile: .res 1 ;  $0069
+.res 1
 statsPatchAddress:  .res 2 ;  $006B
 topRowValidityCheck: .res 1 ;  $006D
 statsPiecesTotal: .res 2  ; $006E
