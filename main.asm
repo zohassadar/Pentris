@@ -1793,28 +1793,28 @@ shift_tetrimino:
         sta     originalY
         lda     heldButtons
         and     #$04
-        bne     @ret
+        bne     shift_ret
         lda     newlyPressedButtons
         and     #$03
-        bne     @resetAutorepeatX
+        bne     resetAutorepeatX
         lda     heldButtons
         and     #$03
-        beq     @ret
+        beq     shift_ret
 ;.ifdef ANYDAS
         dec     autorepeatX
         lda     autorepeatX
         cmp     #$01
-        bpl     @ret
+        bpl     shift_ret
         lda     anydasARRValue
         sta     autorepeatX
-        jmp     @buttonHeldDown
-@resetAutorepeatX:
+        jmp     checkFor0Arr
+resetAutorepeatX:
         lda     anydasDASValue
 ;.else ; original das code
 ;        inc     autorepeatX
 ;        lda     autorepeatX
 ;        cmp     #$10
-;        bmi     @ret
+;        bmi     shift_ret
 ;        lda     #$0A
 ;        sta     autorepeatX
 ;        jmp     @buttonHeldDown
@@ -1823,29 +1823,29 @@ shift_tetrimino:
 ;        lda     #$00
 ;.endif
         sta     autorepeatX
-@buttonHeldDown:
+buttonHeldDown:
         lda     heldButtons
         and     #$01
-        beq     @notPressingRight
+        beq     notPressingRight
         inc     tetriminoX
         jsr     isPositionValid
-        bne     @restoreX
+        bne     restoreX
         lda     #$03
         sta     soundEffectSlot1Init
-        jmp     @ret
+        jmp     shift_ret
 
-@notPressingRight:
+notPressingRight:
         lda     heldButtons
         and     #$02
-        beq     @ret
+        beq     shift_ret
         dec     tetriminoX
         jsr     isPositionValid
-        bne     @restoreX
+        bne     restoreX
         lda     #$03
         sta     soundEffectSlot1Init
-        jmp     @ret
+        jmp     shift_ret
 
-@restoreX:
+restoreX:
         lda     originalY
         sta     tetriminoX
 ;.ifdef ANYDAS
@@ -1854,7 +1854,7 @@ shift_tetrimino:
 ;        lda     #$10
 ;.endif
         sta     autorepeatX
-@ret:   rts
+shift_ret:   rts
 
 
 stageSpriteForNextPiece:
@@ -5960,6 +5960,45 @@ incrementStatsAndSetAutorepeatX:
         bne     @ret
         sta     autorepeatX
 @ret:   rts
+
+
+; 0 Arr code by Kirby703
+checkFor0Arr:
+        lda     anydasARRValue
+        beq     @zeroArr
+        jmp     buttonHeldDown
+@zeroArr:
+        lda     heldButtons
+        and     #BUTTON_RIGHT
+        beq     @checkLeftPressed
+@shiftRight:
+        inc     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToLeft
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftRight
+@checkLeftPressed:
+        lda     heldButtons
+        and     #BUTTON_LEFT
+        beq     @leftNotPressed
+@shiftLeft:
+        dec     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToRight
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftLeft
+@shiftBackToLeft:
+        dec     tetriminoX
+        dec     tetriminoX
+@shiftBackToRight:
+        inc     tetriminoX
+        lda     #$01
+        sta     autorepeatX
+@leftNotPressed:
+        rts
+
 
 ; End of "PRG_chunk1" segment
 .code

@@ -1,5 +1,4 @@
 use sps setting when valid
-add 0-arr
 place tetrimino stats better, hide when off
 add marathon modes
 add sxtokl mode
