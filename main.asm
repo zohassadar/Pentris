@@ -686,7 +686,6 @@ getSeedInput:
         sta     oamStaging
         lda     #$63
         sta     oamStaging+1
-        jsr     isSeedValid
         jmp     flashAndChooseHole
 
 getMenuInput:
@@ -756,6 +755,7 @@ getMenuInput:
         sta     oamStaging+3
 flashAndChooseHole:
         jsr     flashNewMenuCursor
+        jsr     isSeedValid
         jmp     chooseRandomHole_player1
 
 flashNewMenuCursor:
