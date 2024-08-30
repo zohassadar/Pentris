@@ -793,7 +793,7 @@ gameMode_levelMenu:
         jsr     copyRleNametableToPpu
         .addr   level_menu_nametable
         jsr     bulkCopyToPpu
-        .addr   high_scores_nametable
+        .addr   menu_options_nametable
         jsr     bulkCopyToPpu
         .addr   show_scores_nametable_patch
         lda     gameType
@@ -5882,8 +5882,8 @@ enter_high_score_nametable:
         .incbin "gfx/nametables/enter_high_score_nametable.bin"
 
 ; actually custom menu nametable
-high_scores_nametable:
-        .incbin "gfx/nametables/high_scores_nametable.bin"
+menu_options_nametable:
+        .incbin "gfx/nametables/menu_options_nametable.bin"
 
 show_scores_nametable_patch:
         .byte $2A,$0F,$06

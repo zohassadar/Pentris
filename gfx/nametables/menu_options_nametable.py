@@ -41,7 +41,7 @@ __DAS_____________00__
 __ARR_____________00__
 __ARE_CHARGE_____OFF__
 __TETRIMINOS_____OFF__
-__SXTOKL_________OFF__
+__TRANSITION_____OFF__
 __MARATHON_______OFF__
 __SEED________000000__
 __RESET_SEED__________"""
