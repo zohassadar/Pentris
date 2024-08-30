@@ -1347,6 +1347,10 @@ gameModeState_initGameBackground_finish:
         lda     #$01
         sta     playState
         lda     startLevel
+        ldy     marathon
+        cpy     #$03  ; 3 starts at level 0
+        lda     #$00
+@noStartAtZero:
         sta     levelNumber
         inc     gameModeState
         rts
@@ -1766,7 +1770,13 @@ drop_tetrimino:
 
 @lookupDropSpeed:
         lda     #$01
+        ldx     marathon
+        beq     @notMarathon
+        ldx     startLevel ; use startLevel no matter what when marathon (1,2,3)
+        jmp     @tableLookup
+@notMarathon:
         ldx     levelNumber
+@tableLookup:
         cpx     #$1D
         bcs     @noTableLookup
         lda     framesPerDropTable,x
@@ -3369,6 +3379,9 @@ incrementLines:
 L9BC7:  lda     lines
         and     #$0F
         bne     @lineLoop
+        lda     marathon
+        cmp     #$01
+        beq     @lineLoop  ; marathon 1 never transitions
         lda     sxtokl
         bne     @nextLevel
         lda     lines+1
@@ -3424,7 +3437,13 @@ L9C27:  lda     outOfDateRenderFlags
 addLineClearPoints:
         lda     #$00
         sta     holdDownPoints
+        lda     marathon  ; use startLevel no matter what when marathon (1,2,3)
+        beq     @notMarathon
+        lda     startLevel
+        jmp     @marathon
+@notMarathon:
         lda     levelNumber
+@marathon:
         sta     generalCounter
         inc     generalCounter
 L9C37:  lda     completedLines
