@@ -74,10 +74,6 @@ nmi:    pha
         pha
         tya
         pha
-.ifdef ANYDAS
-        jmp     renderAnydasMenu
-returnFromAnydasRender:
-.endif
         jsr     render
         lda     #$02
         sta     OAMDMA
@@ -107,11 +103,7 @@ returnFromAnydasRender:
 
         lda     #$01
         sta     verticalBlankingInterval
-.ifdef ANYDAS
-        jsr     anydasControllerInput
-.else
         jsr     pollControllerButtons
-.endif
 .ifdef DEBUG
         lda     newlyPressedButtons_player1
         cmp     #$08
@@ -199,6 +191,12 @@ initRamContinued:
         lda     #$9A
         sta     initMagic+4
 @continueWarmBootInit:
+; default das values
+        lda     #$10
+        sta     anydasDASValue
+        lda     #$06
+        sta     anydasARRValue
+
         ldx     #$89
         stx     rng_seed
         dex
@@ -416,12 +414,7 @@ gameMode_titleScreen:
         beq     @startButtonPressed
         lda     frameCounter+1
         cmp     #$05
-.ifdef ANYDAS
-        beq     @dontGoToTimeout
-@dontGoToTimeout:
-.else
         beq     @timeout
-.endif
         jmp     @waitForStartButton
 
 ; Show menu screens
@@ -1807,7 +1800,7 @@ shift_tetrimino:
         lda     heldButtons
         and     #$03
         beq     @ret
-.ifdef ANYDAS
+;.ifdef ANYDAS
         dec     autorepeatX
         lda     autorepeatX
         cmp     #$01
@@ -1817,18 +1810,18 @@ shift_tetrimino:
         jmp     @buttonHeldDown
 @resetAutorepeatX:
         lda     anydasDASValue
-.else
-        inc     autorepeatX
-        lda     autorepeatX
-        cmp     #$10
-        bmi     @ret
-        lda     #$0A
-        sta     autorepeatX
-        jmp     @buttonHeldDown
-
-@resetAutorepeatX:
-        lda     #$00
-.endif
+;.else ; original das code
+;        inc     autorepeatX
+;        lda     autorepeatX
+;        cmp     #$10
+;        bmi     @ret
+;        lda     #$0A
+;        sta     autorepeatX
+;        jmp     @buttonHeldDown
+;
+;@resetAutorepeatX:
+;        lda     #$00
+;.endif
         sta     autorepeatX
 @buttonHeldDown:
         lda     heldButtons
@@ -1855,11 +1848,11 @@ shift_tetrimino:
 @restoreX:
         lda     originalY
         sta     tetriminoX
-.ifdef ANYDAS
+;.ifdef ANYDAS
         lda     #$01
-.else
-        lda     #$10
-.endif
+;.else ; original das code
+;        lda     #$10
+;.endif
         sta     autorepeatX
 @ret:   rts
 
@@ -2947,11 +2940,7 @@ playState_spawnNextTetrimino:
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
         sta     currentPiece
-.ifdef ANYDAS
         jsr     incrementStatsAndSetAutorepeatX
-.else
-        jsr     incrementPieceStat
-.endif
         jsr     chooseNextTetrimino
         sta     nextPiece
 @resetDownHold:
@@ -3714,11 +3703,7 @@ gameModeState_checkForResetKeyCombo:
         rts
 
 @reset: jsr     updateAudio2
-.ifdef ANYDAS
-        lda     #$01
-.else
         lda     #$00
-.endif
         sta     gameMode
         rts
 
@@ -5884,11 +5869,7 @@ defaultHighScoresTable:
 legal_screen_nametable:
         .incbin "gfx/nametables/legal_screen_nametable.bin"
 title_screen_nametable:
-.ifdef ANYDAS
-        .incbin "gfx/nametables/title_screen_nametable_anydas.bin"
-.else
         .incbin "gfx/nametables/title_screen_nametable.bin"
-.endif
 game_type_menu_nametable:
         .incbin "gfx/nametables/game_type_menu_nametable.bin"
 level_menu_nametable:
@@ -5969,16 +5950,9 @@ setOrientationTable:
         sta    currentOrientationX+1
         rts
 
-
-
-
 .include "orientation/orientation_table.asm"
 
-
-
-.ifdef ANYDAS
 ; Anydas code by HydrantDude
-
 incrementStatsAndSetAutorepeatX:
         jsr     incrementPieceStat
         lda     anydasARECharge
@@ -5986,126 +5960,6 @@ incrementStatsAndSetAutorepeatX:
         bne     @ret
         sta     autorepeatX
 @ret:   rts
-
-
-
-renderAnydasMenu:
-        lda gameMode
-        cmp #$01
-        beq @continueRendering
-        jmp @clearOAMStagingAndReturn
-@continueRendering:
-        lda #$22
-        sta PPUADDR
-        lda #$70
-        sta PPUADDR
-        lda anydasDASValue
-        jsr twoDigsToPPU
-        lda #$22
-        sta PPUADDR
-        lda #$90
-        sta PPUADDR
-        lda anydasARRValue
-        jsr twoDigsToPPU
-        lda #$22
-        sta PPUADDR
-        lda #$B5
-        sta PPUADDR
-        lda anydasARECharge
-        bne @areChargeOn
-        lda #$0F
-        sta PPUDATA
-        sta PPUDATA
-        bne @drawArrow
-@areChargeOn:
-        lda #$17
-        sta PPUDATA
-@drawArrow:
-        lda #$FF
-        sta PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$72
-        sta PPUADDR
-        lda anydasMenu
-        bne @notDasOption
-        ldx #$63
-@notDasOption:
-        stx PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$92
-        sta PPUADDR
-        lda anydasMenu
-        cmp #$01
-        bne @notARROption
-        ldx #$63
-@notARROption:
-        stx PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$B7
-        sta PPUADDR
-        lda anydasMenu
-        cmp #$02
-        bne @notAREOption
-        ldx #$63
-@notAREOption:
-        stx PPUDATA
-@clearOAMStagingAndReturn:
-        lda #$00
-        sta oamStagingLength
-        jmp returnFromAnydasRender
-
-anydasControllerInput:
-        jsr pollController
-        lda gameMode
-        cmp #$01
-        bne @ret3
-        lda newlyPressedButtons_player1
-        and #$0F
-        beq @ret3
-        and #$0C
-        beq @upDownNotPressed
-        and #$04
-        beq @downNotPressed
-        inc anydasMenu
-        lda anydasMenu
-        cmp #$03
-        bne @ret1
-        lda #$00
-        sta anydasMenu
-@ret1:  rts
-@downNotPressed:
-        dec anydasMenu
-        lda anydasMenu
-        cmp #$FF
-        bne @ret2
-        lda #$02
-        sta anydasMenu
-@ret2:
-        rts
-@upDownNotPressed:
-        ldx anydasMenu
-        cpx #$02
-        beq @toggleARECharge
-        lda newlyPressedButtons_player1
-        and #$01
-        beq @rightNotPressed
-        inc anydasDASValue,X
-        rts
-@rightNotPressed:
-        dec anydasDASValue,X
-        rts
-@toggleARECharge:
-        lda anydasARECharge
-        eor #$01
-        sta anydasARECharge
-@ret3:  rts
-.endif
 
 ; End of "PRG_chunk1" segment
 .code
