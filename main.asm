@@ -3368,10 +3368,10 @@ incrementLines:
         inc     lines+1
 L9BC7:  lda     lines
         and     #$0F
-        bne     L9BFB
-        jmp     L9BD0
-
-L9BD0:  lda     lines+1
+        bne     @lineLoop
+        lda     sxtokl
+        bne     @nextLevel
+        lda     lines+1
         sta     generalCounter2
         lda     lines
         sta     generalCounter
@@ -3385,14 +3385,15 @@ L9BD0:  lda     lines+1
         ror     generalCounter
         lda     levelNumber
         cmp     generalCounter
-        bpl     L9BFB
+        bpl     @lineLoop
+@nextLevel:
         inc     levelNumber
         lda     #$06
         sta     soundEffectSlot1Init
         lda     outOfDateRenderFlags
         ora     #$02
         sta     outOfDateRenderFlags
-L9BFB:  dex
+@lineLoop:  dex
         bne     incrementLines
 addHoldDownPoints:
         lda     holdDownPoints

@@ -1,4 +1,3 @@
 use sps setting when valid
 place tetrimino stats better, hide when off
 add marathon modes
-add sxtokl mode
