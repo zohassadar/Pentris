@@ -1125,7 +1125,7 @@ hidden = Piece(
 )
 
 
-weight_table = {
+weight_table_original = {
     i: 27,
     j: 17,
     l: 17,
@@ -1147,6 +1147,34 @@ weight_table = {
 }
 
 
+weight_table = {
+    i: 21,
+    j: 12,
+    l: 12,
+    x: 2,
+    s: 5,
+    z: 5,
+    n: 13,
+    g: 13,
+    u: 12,
+    t: 8,
+    f1: 2,
+    f2: 2,
+    p: 20,
+    q: 20,
+    w: 7,
+    y1: 10,
+    y2: 10,
+    v: 5,
+    t4: 11,
+    j4: 11,
+    z4: 11,
+    o4: 11,
+    s4: 11,
+    l4: 11,
+    i4: 11,
+        }
+
 table = OrientationTable(
     [
         f1,
@@ -1167,13 +1195,13 @@ table = OrientationTable(
         y1,
         y2,
         i,
-        # t4,
-        # j4,
-        # z4,
-        # o4,
-        # s4,
-        # l4,
-        # i4,
+        t4,
+        j4,
+        z4,
+        o4,
+        s4,
+        l4,
+        i4,
         hidden,
     ]
 )

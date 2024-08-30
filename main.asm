@@ -948,7 +948,7 @@ chooseRandomHole_player1:
         and     #$0F
         cmp     #$0A
         bpl     chooseRandomHole_player1
-        sta     garbageHole
+        ;sta     garbageHole
 @chooseRandomHole_player2:
         ldx     #$17
         ldy     #$02
@@ -957,7 +957,7 @@ chooseRandomHole_player1:
         and     #$0F
         cmp     #$0A
         bpl     @chooseRandomHole_player2
-        sta     unused_0E
+        ;sta     unused_0E
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     gameMode_levelMenu_processPlayer1Navigation
 
@@ -1112,6 +1112,11 @@ render_mode_menu_screens:
 ; begin inefficient menu render
 
 ; draw the easy ones first
+        lda     gameMode
+        cmp     #$04
+        bne     @draw
+        jmp     @dontDraw
+@draw:
         lda     #$2A
         sta     PPUADDR
         lda     #$57
@@ -1187,7 +1192,7 @@ render_mode_menu_screens:
         lda     sps_seed+2
         jsr     twoDigsToPPU
 
-
+@dontDraw:
         lda     currentPpuCtrl
         and     #$FE
         sta     currentPpuCtrl
@@ -1888,10 +1893,6 @@ stageSpriteForNextPiece:
 .include "orientation/orientation_to_next_offset.asm"
 
 unreferenced_data2:
-        .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF
-        .byte   $00,$01,$02,$03,$04,$05,$06,$07
-        .byte   $08,$09,$0A,$0B,$0C,$0D,$0E,$0F
-        .byte   $10,$11,$12,$13
 loadSpriteIntoOamStaging:
         clc
         lda     spriteIndexInOamContentLookup
@@ -2055,47 +2056,12 @@ sprite05PausePalette4:
         .byte   $00,$0E,$00,$20
         .byte   $FF
 sprite06TPiece:
-        .byte   $00,$7B,$02,$FC
-        .byte   $00,$7B,$02,$04
-        .byte   $00,$7B,$02,$0C
-        .byte   $08,$7B,$02,$04
-        .byte   $FF
 sprite07SPiece:
-        .byte   $00,$7D,$02,$04
-        .byte   $00,$7D,$02,$0C
-        .byte   $08,$7D,$02,$FC
-        .byte   $08,$7D,$02,$04
-        .byte   $FF
 sprite08ZPiece:
-        .byte   $00,$7C,$02,$FC
-        .byte   $00,$7C,$02,$04
-        .byte   $08,$7C,$02,$04
-        .byte   $08,$7C,$02,$0C
-        .byte   $FF
 sprite09JPiece:
-        .byte   $00,$7D,$02,$FC
-        .byte   $00,$7D,$02,$04
-        .byte   $00,$7D,$02,$0C
-        .byte   $08,$7D,$02,$0C
-        .byte   $FF
 sprite0ALPiece:
-        .byte   $00,$7C,$02,$FC
-        .byte   $00,$7C,$02,$04
-        .byte   $00,$7C,$02,$0C
-        .byte   $08,$7C,$02,$FC
-        .byte   $FF
 sprite0BOPiece:
-        .byte   $00,$7B,$02,$00
-        .byte   $00,$7B,$02,$08
-        .byte   $08,$7B,$02,$00
-        .byte   $08,$7B,$02,$08
-        .byte   $FF
 sprite0CIPiece:
-        .byte   $04,$7B,$02,$F8
-        .byte   $04,$7B,$02,$00
-        .byte   $04,$7B,$02,$08
-        .byte   $04,$7B,$02,$10
-        .byte   $FF
 sprite0EHighScoreNameCursor:
         .byte   $00,$FC,$21,$00,$FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
@@ -2908,19 +2874,19 @@ colorTable:
         .dbyt   $0F30,$2112,$0F30,$291A,$0F30,$2414,$0F30,$2A12
         .dbyt   $0F30,$2B15,$0F30,$222B,$0F30,$0016,$0F30,$0513
         .dbyt   $0F30,$1612,$0F30,$2716,$60E6,$69A5,$69C9,$1430
-        .dbyt   $04A9,$2085,$69E6,$89A5,$89C9,$1430,$04A9,$2085
-        .dbyt   $8960,$A549,$C920,$3056,$A5BE,$C901,$F020,$A5A4
-        .dbyt   $C900,$D00E,$E6A4,$A5B7,$85A5,$20EB,$9885,$A64C
-        .dbyt   $EA98,$A5A5,$C5B7,$D036,$A5A4,$C91C,$D030,$A900
-        .dbyt   $85A4,$8545,$8541,$A901,$8548,$A905,$8540,$A6BF
-        .dbyt   $BD56,$9985,$4220,$6999,$A5BE,$C901,$F007,$A5A6
-        .dbyt   $85BF,$4CE6,$9820,$EB98,$85BF,$A900,$854E,$60A5
-        .dbyt   $C0C9,$05D0,$12A6,$D3E6,$D3BD,$00DF,$4A4A,$4A4A
-        .dbyt   $2907,$AABD,$4E99,$6020,$0799,$60E6,$1AA5,$1718
-        .dbyt   $651A,$2907,$C907,$F008,$AABD,$4E99,$C519,$D01C
-        .dbyt   $A217,$A002,$2047,$ABA5,$1729,$0718,$6519,$C907
-        .dbyt   $9006,$38E9,$074C,$2A99,$AABD,$4E99,$8519,$6000
-        .dbyt   $0000,$0001,$0101,$0102,$0203,$0404,$0505,$0505
+     ;   .dbyt   $04A9,$2085,$69E6,$89A5,$89C9,$1430,$04A9,$2085
+     ;   .dbyt   $8960,$A549,$C920,$3056,$A5BE,$C901,$F020,$A5A4
+     ;   .dbyt   $C900,$D00E,$E6A4,$A5B7,$85A5,$20EB,$9885,$A64C
+     ;   .dbyt   $EA98,$A5A5,$C5B7,$D036,$A5A4,$C91C,$D030,$A900
+     ;   .dbyt   $85A4,$8545,$8541,$A901,$8548,$A905,$8540,$A6BF
+     ;   .dbyt   $BD56,$9985,$4220,$6999,$A5BE,$C901,$F007,$A5A6
+     ;   .dbyt   $85BF,$4CE6,$9820,$EB98,$85BF,$A900,$854E,$60A5
+     ;   .dbyt   $C0C9,$05D0,$12A6,$D3E6,$D3BD,$00DF,$4A4A,$4A4A
+     ;   .dbyt   $2907,$AABD,$4E99,$6020,$0799,$60E6,$1AA5,$1718
+     ;   .dbyt   $651A,$2907,$C907,$F008,$AABD,$4E99,$C519,$D01C
+     ;   .dbyt   $A217,$A002,$2047,$ABA5,$1729,$0718,$6519,$C907
+     ;   .dbyt   $9006,$38E9,$074C,$2A99,$AABD,$4E99,$8519,$6000
+     ;   .dbyt   $0000,$0001,$0101,$0102,$0203,$0404,$0505,$0505
 
 ; This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here
 noop_disabledVramRowIncr:
