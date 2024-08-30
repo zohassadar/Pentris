@@ -107,6 +107,9 @@ $(pentris_obj): %.o: %.asm $$(dep)
 orientation/orientation_table.py: orientation/orientations.py
 		touch orientation/orientation_table.py
 
+orientation/piece_to_stats_addresses.py: orientation/orientations.py
+		touch orientation/piece_to_stats_addresses.py
+
 orientation/spawn_table.py: orientation/orientations.py
 		touch orientation/spawn_table.py
 
