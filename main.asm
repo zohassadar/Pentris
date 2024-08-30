@@ -686,6 +686,7 @@ getSeedInput:
         sta     oamStaging
         lda     #$63
         sta     oamStaging+1
+        jsr     isSeedValid
         jmp     flashAndChooseHole
 
 getMenuInput:
@@ -1108,6 +1109,19 @@ heightToPpuLowAddr:
         .byte   $9C,$AC,$BC,$9C,$AC,$BC
 musicSelectionTable:
         .byte   $03,$04,$05,$FF,$06,$07,$08,$FF
+
+isSeedValid:
+        lda     #$01
+        sta     validSeed
+        lda     sps_seed
+        bne     @valid
+        lda     sps_seed+1
+        cmp     #$2
+        bcs     @valid
+        dec     validSeed
+@valid:
+        rts
+
 render_mode_menu_screens:
 ; begin inefficient menu render
 
@@ -1192,6 +1206,18 @@ render_mode_menu_screens:
         lda     sps_seed+2
         jsr     twoDigsToPPU
 
+        lda     #$2B
+        sta     PPUADDR
+        lda     #$0C
+        sta     PPUADDR
+        lda     validSeed
+        beq     @invalidSeed
+        jsr     writeOnWithoutSpace
+        lda     #$FF
+        sta     PPUDATA
+        bne     @dontDraw
+@invalidSeed:
+        jsr     writeOff
 @dontDraw:
         lda     currentPpuCtrl
         and     #$FE
@@ -1215,6 +1241,7 @@ writeOff:
 writeOn:
         lda     #$FF
         sta     PPUDATA
+writeOnWithoutSpace:
         lda     #$18
         sta     PPUDATA
         lda     #$17

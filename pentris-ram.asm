@@ -51,7 +51,7 @@ completedRow:	.res 5	; $0060
 currentOrientationY: .res 2 ;  $0065
 currentOrientationX: .res 2 ;  $0067
 currentTile: .res 1 ;  $0069
-.res 1
+validSeed: .res 1 ; 0 when invalid, 1 when valid
 statsPatchAddress:  .res 2 ;  $006B
 topRowValidityCheck: .res 1 ;  $006D
 statsPiecesTotal: .res 2  ; $006E
