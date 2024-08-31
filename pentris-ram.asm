@@ -12,7 +12,8 @@ sxtokl: .res 1
 marathon: .res 1
 seedPosition: .res 1
 sps_seed: .res 3
-set_seed: .res 3
+set_seed: .res 2
+sps_shuffles: .res 1
 menuMode: .res 1 ; 0 = original, 1 = toggle, 2 = menu
 menuScreen: .res 1 ; 0 = original, 2 = menu screen
 patchToPpuAddr: .res 1             ; $0014
@@ -28,7 +29,7 @@ currentVramRender: .res 1
 tetriminoX:	.res 1	; $0040
 tetriminoY:	.res 1	; $0041
 currentPiece:	.res 1	; $0042
-.res 1
+currentRngByte: .res 1
 levelNumber:	.res 1	; $0044
 fallTimer:	.res 1	; $0045
 autorepeatX:	.res 1	; $0046

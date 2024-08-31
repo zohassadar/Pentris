@@ -6,6 +6,71 @@ import random
 
 
 assembly = """
+initializeSPS:
+        ; LLLLLLLL LLLLLLLS CCCCSSSS
+        ; L = lsfr
+        ; S = spawnCount
+        ; C = starting shuffle count
+        lda    validSeed
+        beq    @ret
+        lda    sps_seed
+        sta    set_seed
+        lda    sps_seed+1
+        sta    set_seed+1
+
+        lsr    ; store unused lsfr bit to combine with lower nybble of sps_seed+2
+        lda    #$00
+        rol
+        rol
+        rol
+        rol
+        rol
+        sta    generalCounter
+        lda    sps_seed+2
+        and    #$0F
+        ora    generalCounter
+        sta    spawnCount
+
+        lda    sps_seed+2
+        lsr
+        lsr
+        lsr
+        lsr
+        bne    @no16
+        lda    #$10
+@no16:
+        clc
+        adc    #$02
+        sta    sps_shuffles ; 3 - 18
+@ret:
+        rts
+
+shuffleSPS:
+        lda     rng_seed
+        sta     currentRngByte
+        lda     validSeed
+        beq     @ret
+        lda     sps_shuffles
+        sta     generalCounter
+@loop:
+        ldx     #set_seed
+        ldy     #$02
+        jsr     generateNextPseudorandomNumber
+        dec     generalCounter
+        bne     @loop
+        lda     set_seed
+        sta     currentRngByte
+
+; varying number of shuffles
+        inc     sps_shuffles
+        lda     sps_shuffles
+        cmp     #$13
+        bne     @ret
+        lda     #$03
+        sta     sps_shuffles
+@ret:
+        rts
+
 rngInitYValues:
     .byte ${},${}
 
@@ -35,9 +100,10 @@ chooseNextTetrimino:
         rts
 
 pickRandomTetrimino:
+        jsr     shuffleSPS
         ldy     rngInitialY
         inc     spawnCount
-        lda     rng_seed
+        lda     currentRngByte
         clc
         adc     spawnCount
 @nextPiece:

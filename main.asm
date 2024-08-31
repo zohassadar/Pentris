@@ -1283,6 +1283,21 @@ gameModeState_initGameBackground:
         bne     @typeB
         lda     #$0A
         sta     PPUDATA
+
+; patch seed if valid
+        lda     validSeed
+        beq     @noSeed
+        lda     #$23
+        sta     PPUADDR
+        lda     #$57
+        sta     PPUADDR
+        lda     sps_seed
+        jsr     twoDigsToPPU
+        lda     sps_seed+1
+        jsr     twoDigsToPPU
+        lda     sps_seed+2
+        jsr     twoDigsToPPU
+@noSeed:
         lda     #$20
         sta     PPUADDR
         lda     #$97
@@ -1463,6 +1478,7 @@ gameModeState_initGameState:
         sta     renderMode
         lda     #$A0
         sta     autorepeatY
+        jsr     initializeSPS
         jsr     chooseNextTetrimino
 .ifdef DEBUG
         lda     #$3e
