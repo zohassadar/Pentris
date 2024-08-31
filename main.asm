@@ -752,7 +752,7 @@ getMenuInput:
 flashAndChooseHole:
         jsr     flashNewMenuCursor
         jsr     isSeedValid
-        jmp     chooseRandomHole_player1
+        jmp     checkBPressed
 
 flashNewMenuCursor:
         lda     frameCounter
@@ -897,7 +897,7 @@ gameMode_levelMenu_processPlayer1Navigation:
         beq     @downNotPressed
         inc     menuMode
 @downNotPressed:
-        jmp     chooseRandomHole_player1
+        jmp     checkBPressed
 
 
 
@@ -912,15 +912,15 @@ originalMenu:
         sta     originalY
         lda     newlyPressedButtons_player1
         cmp     #$10
-        bne     @checkBPressed
+        bne     checkBPressed
         lda     heldButtons_player1
         cmp     #$90
-        bne     @startAndANotPressed
+        bne     startAndANotPressed
         lda     startLevel
         clc
         adc     #$0A
         sta     startLevel
-@startAndANotPressed:
+startAndANotPressed:
         lda     #$00
         sta     gameModeState
         lda     #$02
@@ -928,10 +928,14 @@ originalMenu:
         inc     gameMode
         rts
 
-@checkBPressed:
+checkBPressed:
         lda     newlyPressedButtons_player1
-        cmp     #$40
-        bne     chooseRandomHole_player1
+        and     #BUTTON_B
+        beq     chooseRandomHole_player1
+        lda     #$00
+        sta     menuMode
+        sta     seedPosition
+        sta     menuScreen
         lda     #$02
         sta     soundEffectSlot1Init
         dec     gameMode
