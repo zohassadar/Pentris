@@ -1389,6 +1389,7 @@ gameModeState_initGameBackground_finish:
         lda     startLevel
         ldy     marathon
         cpy     #$03  ; 3 starts at level 0
+        bne     @noStartAtZero
         lda     #$00
 @noStartAtZero:
         sta     levelNumber

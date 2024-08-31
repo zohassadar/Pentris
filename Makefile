@@ -43,7 +43,7 @@ pentris:= pentris.nes
 .PHONY: dummy clean compare tools flags patch
 
 
-CAFLAGS = -g
+CAFLAGS = -g -D CNROM=1
 LDFLAGS =
 
 
