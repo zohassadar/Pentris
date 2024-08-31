@@ -16,7 +16,7 @@ if (param0 && param1) {
     var buffer = readStripe(param0);
 
     if (drawStats) {
-       
+
         // U
         drawRect(buffer,1,6,4,3,16)
 
@@ -33,7 +33,7 @@ if (param0 && param1) {
         drawRect(buffer,1,18,4,3,208)
 
         // I
-        drawRect(buffer,1,21,4,3,212)
+        drawRect(buffer,1,22,4,1,228)
 
 
 
@@ -78,6 +78,14 @@ if (param0 && param1) {
 
 
 
+        drawRect(buffer,1,24,2,1,0xD4) // T4
+        drawRect(buffer,7,24,2,1,0xD6) // J4
+        drawRect(buffer,13,24,2,1,0xD8) // Z4
+        drawRect(buffer,19,24,2,1,0xDA) // O4
+        drawRect(buffer,3,26,2,1,0xDC) // S4
+        drawRect(buffer,9,26,2,1,0xDE) // L4
+        drawRect(buffer,15,26,2,1,0xF4) // I4
+
 
 
 
@@ -88,4 +96,3 @@ if (param0 && param1) {
         buffer,
     );
 }
-

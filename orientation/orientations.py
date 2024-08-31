@@ -874,7 +874,7 @@ t4_left = Orientation(
 t4 = Piece(
     name="T4",
     tile_index=0x7B,
-    stats_addr=0x2B47,
+    stats_addr=0x2B06,
     orientations=[
         t4_up,
         t4_right,
@@ -927,7 +927,7 @@ j4_down = Orientation(
 j4 = Piece(
     name="J4",
     tile_index=0x7D,
-    stats_addr=0x2B4C,
+    stats_addr=0x2B0C,
     orientations=[
         j4_left,
         j4_up,
@@ -963,7 +963,7 @@ z4_vertical = Orientation(
 z4 = Piece(
     name="Z4",
     tile_index=0x7C,
-    stats_addr=0x2B51,
+    stats_addr=0x2B12,
     orientations=[
         z4_horizontal,
         z4_vertical,
@@ -989,7 +989,7 @@ o4_solo = Orientation(
 o4 = Piece(
     name="O4",
     tile_index=0x7B,
-    stats_addr=0x2B56,
+    stats_addr=0x2B18,
     orientations=[
         o4_solo,
     ],
@@ -1020,7 +1020,7 @@ s4_vertical = Orientation(
 s4 = Piece(
     name="S4",
     tile_index=0x7D,
-    stats_addr=0x2B6A,
+    stats_addr=0x2B48,
     orientations=[
         s4_horizontal,
         s4_vertical,
@@ -1069,7 +1069,7 @@ l4_up = Orientation(
 l4 = Piece(
     name="L4",
     tile_index=0x7C,
-    stats_addr=0x2B6F,
+    stats_addr=0x2B4E,
     orientations=[
         l4_right,
         l4_down,
@@ -1101,7 +1101,7 @@ i4_vertical = Orientation(
 )  # fmt: skip
 
 i4 = Piece(
-    stats_addr=0x2B74,
+    stats_addr=0x2B54,
     name="I4",
     tile_index=0x7B,
     orientations=[

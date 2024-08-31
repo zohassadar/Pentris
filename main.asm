@@ -461,6 +461,9 @@ gameMode_gameTypeMenu:
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+        lda     currentPpuCtrl
+        and     #$FD
+        sta     currentPpuCtrl
         jsr     bulkCopyToPpu
         .addr   menu_palette
         lda     #$20
