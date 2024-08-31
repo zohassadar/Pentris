@@ -69,5 +69,16 @@ make patch
 
 ### Thanks
 
+[CelestialAmber](https://github.com/CelestialAmber/TetrisNESDisasm) Original Disassembly
 
-This is based off of CelestialAmber's Tetris [dissassembly](https://github.com/CelestialAmber/TetrisNESDisasm), which is based off of ejona86's [taus](https://github.com/ejona86/taus).  Ideas for handling nametables were borrowed from kirjavascript's [TetrisGYM](https://github.com/kirjavascript/TetrisGYM).
+[ejona86](https://github.com/ejona86) infofile from which disassembly was derived and RLE tools
+
+[kirjavascript](https://github.com/kirjavascript/TetrisGYM) Menu & nametable tools
+
+[HydrantDude](https://github.com/hydrantdude) Original DAS Controls code
+
+[Kirby703](https://github.com/Kirby703) Original 0 Arr Code
+
+[qalle2](https://github.com/qalle2) nes utils
+
+
