@@ -461,6 +461,9 @@ gameMode_gameTypeMenu:
         sta     renderMode
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+        lda     currentPpuCtrl
+        and     #$FD
+        sta     currentPpuCtrl
         jsr     bulkCopyToPpu
         .addr   menu_palette
         lda     #$20
@@ -627,11 +630,14 @@ getSeedInput:
         asl
 @noShift:
         sta     tmp1
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_UP+BUTTON_DOWN
+        lda     #BUTTON_UP
+        jsr     menuThrottle
+        beq     @upNotPressed
+        bne     @upPressed
+@upNotPressed:
+        lda     #BUTTON_DOWN
+        jsr     menuThrottle
         beq     @upDownNotPressed
-        and     #BUTTON_DOWN
-        beq     @upPressed
         lda     sps_seed,x
         sec
         sbc     tmp1
@@ -685,11 +691,14 @@ getMenuInput:
         ldx     menuMode
         cpx     #$09
         beq     @leftRightNotPressed
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_LEFT+BUTTON_RIGHT
+        lda     #BUTTON_RIGHT
+        jsr     menuThrottle
+        beq     @rightNotPressed
+        bne     @rightPressed
+@rightNotPressed:
+        lda     #BUTTON_LEFT
+        jsr     menuThrottle
         beq     @leftRightNotPressed
-        and     #BUTTON_LEFT
-        beq     @rightPressed
         dec     menuOffset-2,x
         bpl     @leftRightNotPressed
         inc     menuOffset-2,x
@@ -706,15 +715,15 @@ getMenuInput:
         beq     @noSeedInput
         jmp     getSeedInput
 @noSeedInput:
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_UP
+        lda     #BUTTON_UP
+        jsr     menuThrottle
         beq     @upNotPressed
         dec     menuMode
         jmp     @moveSpriteAndGo
 
 @upNotPressed:
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_DOWN
+        lda     #BUTTON_DOWN
+        jsr     menuThrottle
         beq     @downNotPressed
         inc     menuMode
         lda     menuMode
@@ -749,7 +758,7 @@ getMenuInput:
 flashAndChooseHole:
         jsr     flashNewMenuCursor
         jsr     isSeedValid
-        jmp     chooseRandomHole_player1
+        jmp     checkBPressed
 
 flashNewMenuCursor:
         lda     frameCounter
@@ -881,21 +890,19 @@ gameMode_levelMenu_processPlayer1Navigation:
         beq     @checkUpPressed
         jsr     toggleMenuScreen
 @checkUpPressed:
-
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_UP
+        lda     #BUTTON_UP
+        jsr     menuThrottle
         beq     @upNotPressed
         dec     menuMode
 @upNotPressed:
-        lda     newlyPressedButtons_player1
-        and     #BUTTON_DOWN
+        lda     #BUTTON_DOWN
+        jsr     menuThrottle
         beq     @downNotPressed
         lda     menuScreen
         beq     @downNotPressed
         inc     menuMode
 @downNotPressed:
-        jmp     chooseRandomHole_player1
-
+        jmp     checkBPressed
 
 
 
@@ -909,15 +916,15 @@ originalMenu:
         sta     originalY
         lda     newlyPressedButtons_player1
         cmp     #$10
-        bne     @checkBPressed
+        bne     checkBPressed
         lda     heldButtons_player1
         cmp     #$90
-        bne     @startAndANotPressed
+        bne     startAndANotPressed
         lda     startLevel
         clc
         adc     #$0A
         sta     startLevel
-@startAndANotPressed:
+startAndANotPressed:
         lda     #$00
         sta     gameModeState
         lda     #$02
@@ -925,10 +932,14 @@ originalMenu:
         inc     gameMode
         rts
 
-@checkBPressed:
+checkBPressed:
         lda     newlyPressedButtons_player1
-        cmp     #$40
-        bne     chooseRandomHole_player1
+        and     #BUTTON_B
+        beq     chooseRandomHole_player1
+        lda     #$00
+        sta     menuMode
+        sta     seedPosition
+        sta     menuScreen
         lda     #$02
         sta     soundEffectSlot1Init
         dec     gameMode
@@ -993,9 +1004,9 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         beq     @checkDownPressed
         dec     startHeight
 @checkDownPressed:
-        lda     newlyPressedButtons
-        cmp     #$04
-        bne     @checkUpPressed
+        lda     #BUTTON_DOWN
+        jsr     menuThrottle
+        beq     @checkUpPressed
         lda     #$01
         sta     soundEffectSlot1Init
         lda     selectingLevelOrHeight
@@ -1241,7 +1252,15 @@ writeOnWithoutSpace:
         sta     PPUDATA
         rts
 
-
+hideTetriminoStatsPatch:
+        .byte  $2B,$23,$01,$FD ; lower left corner
+        .byte  $2B,$3C,$01,$FF ; lower right corner
+        .byte  $2B,$04,$58,$F7 ; inner black stripe
+        .byte  $2B,$24,$58,$FE ; border stripe
+        .byte  $2B,$40,$40,$F7 ; 2 black stripes
+        .byte  $2B,$80,$60,$F7 ; 1 black stripes
+        .byte  $2B,$F1,$46,$FF ; attributes
+        .byte  $FF
 
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
@@ -1275,6 +1294,12 @@ gameModeState_initGameBackground:
         lda     #$20
         jsr     copyRleNametableToPpu
         .addr   game_nametable
+
+        lda     tetriminoMode
+        bne     @tetriminoMode
+        jsr     bulkCopyToPpu
+        .addr   hideTetriminoStatsPatch
+@tetriminoMode:
         lda     #$23
         sta     PPUADDR
         lda     #$57
@@ -5997,6 +6022,12 @@ incrementStatsAndSetAutorepeatX:
         sta     autorepeatX
 @ret:   rts
 
+; End of "PRG_chunk1" segment
+.code
+
+
+.segment        "PRG_chunk2": absolute
+
 
 ; 0 Arr code by Kirby703
 checkFor0Arr:
@@ -6036,12 +6067,30 @@ checkFor0Arr:
         rts
 
 
-; End of "PRG_chunk1" segment
-.code
+menuThrottle: ; add DAS-like movement to the menu
+        sta menuThrottleTmp
+        lda newlyPressedButtons_player1
+        cmp menuThrottleTmp
+        beq menuThrottleNew
+        lda heldButtons_player1
+        cmp menuThrottleTmp
+        bne @endThrottle
+        dec menuMoveThrottle
+        beq menuThrottleContinue
+@endThrottle:
+        lda #0
+        rts
 
-
-.segment        "PRG_chunk2": absolute
-
+menuThrottleStart := $10
+menuThrottleRepeat := $4
+menuThrottleNew:
+        lda #menuThrottleStart
+        sta menuMoveThrottle
+        rts
+menuThrottleContinue:
+        lda #menuThrottleRepeat
+        sta menuMoveThrottle
+        rts
 .include "data/demo_data.asm"
 
 ; canon is updateAudio

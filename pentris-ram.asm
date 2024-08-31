@@ -21,7 +21,9 @@ patchToPpuAddr: .res 1             ; $0014
 rng_seed:	.res 2	; $0017
 spawnID:	.res 1	; $0019
 spawnCount:	.res 1	; $001A
-.res 24
+menuMoveThrottle: .res 1
+menuThrottleTmp: .res 1
+.res 22
 verticalBlankingInterval:	.res 1	; $0033
 unused_0E: .res 1 ; $0034
 currentVramRender: .res 1

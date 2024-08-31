@@ -1,5 +1,3 @@
-place tetrimino stats better, hide when off
-make b button go back in new menu
-add das to menu direction inputs
-fix level menu to game menu (ppuctrl)
+switch to cnrom
+test b endings (if enabled?) and a type ending
 validate sps test?
