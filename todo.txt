@@ -1,2 +1,3 @@
-add das to menu direction inputs
+switch to cnrom
+test b endings (if enabled?) and a type ending
 validate sps test?
