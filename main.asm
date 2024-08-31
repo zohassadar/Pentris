@@ -805,10 +805,6 @@ gameMode_levelMenu:
         .addr   menu_options_nametable
         jsr     bulkCopyToPpu
         .addr   show_scores_nametable_patch
-        lda     gameType
-        bne     @skipTypeBHeightDisplay
-        jsr     bulkCopyToPpu
-        .addr   height_menu_nametablepalette_patch
 
     ; make menu arrow yellow
         lda     #$3F
@@ -817,6 +813,11 @@ gameMode_levelMenu:
         sta     PPUADDR
         lda     #$27
         sta     PPUDATA
+
+        lda     gameType
+        bne     @skipTypeBHeightDisplay
+        jsr     bulkCopyToPpu
+        .addr   height_menu_nametablepalette_patch
 
 @skipTypeBHeightDisplay:
         jsr     showHighScores
