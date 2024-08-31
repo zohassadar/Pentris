@@ -1,4 +1,3 @@
-hide tetrimino stats when off
 make b button go back in new menu
 add das to menu direction inputs
 validate sps test?

@@ -1244,7 +1244,15 @@ writeOnWithoutSpace:
         sta     PPUDATA
         rts
 
-
+hideTetriminoStatsPatch:
+        .byte  $2B,$23,$01,$FD ; lower left corner
+        .byte  $2B,$3C,$01,$FF ; lower right corner
+        .byte  $2B,$04,$58,$F7 ; inner black stripe
+        .byte  $2B,$24,$58,$FE ; border stripe
+        .byte  $2B,$40,$40,$F7 ; 2 black stripes
+        .byte  $2B,$80,$60,$F7 ; 1 black stripes
+        .byte  $2B,$F1,$46,$FF ; attributes
+        .byte  $FF
 
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
@@ -1278,6 +1286,12 @@ gameModeState_initGameBackground:
         lda     #$20
         jsr     copyRleNametableToPpu
         .addr   game_nametable
+
+        lda     tetriminoMode
+        bne     @tetriminoMode
+        jsr     bulkCopyToPpu
+        .addr   hideTetriminoStatsPatch
+@tetriminoMode:
         lda     #$23
         sta     PPUADDR
         lda     #$57
