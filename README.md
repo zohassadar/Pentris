@@ -54,7 +54,7 @@ Play as long as you are able to survive at a consistent speed.
 
 1. Level transitions do not happen, game remains on the same level for as long as you are able to survive.
 2. Levels will transition normally, but speed and points will remain fixed based on your starting level.
-3. Similar to 1, speed and points will remain fixed based on the starting level you choose, but actual game will begin at level 0.
+3. Similar to 2, speed and points will remain fixed based on the starting level you choose, but actual game will begin at level 0.
 
 ### Seed
 
