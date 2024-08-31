@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.0 (beta)]
 * Same Piece Sets
 * Marathon mode
 * Transition mode

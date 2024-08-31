@@ -20,23 +20,45 @@ This is released as a BPS patch file that can be applied to the USA version of t
 
 ![BType](./assets/btype.png)
 
+Piece statistics are available by pressing A, B or any d-pad button when paused or after a topout.
+
 ![Stats](./assets/stats.png)
 
 ![StatsTetriminos](./assets/stats_tetriminos.png)
 
-### DAS
-### ARR
-### ARE CHARGE
+### DAS / ARR / ARE CHARGE
+
+The DAS setting, presented in hexadecimal, controls the initial delay in number of frames.  The Auto Repeat Rate (ARR), also presented in hexadecimal, controls how many frames between shifts after the initial delay.   The ARE Charge setting when enabled allows the DAS charge to occur during entry delay.
+
+See [this page](https://tetris.wiki/ARE) for an explanation of ARE.
+
 ### Tetriminos
 
 ![Tetriminos](./assets/tetriminos.png)
 
+Adds the 7 tetriminos into the mix.
+
 ### Transition
+
+Equivalent to Game Genie code SXTOKL.  Level transitions will happen every 10 lines regardless of start level.   Compatible with marathon modes 2 & 3.
+
 ### Marathon
+
+Play as long as you are able to survive at a consistent speed.
+
+1. Level transitions do not happen, game remains on the same level for as long as you are able to survive.
+2. Levels will transition normally, but speed and points will remain fixed based on your starting level.
+3. Similar to 1, speed and points will remain fixed based on the starting level you choose, but actual game will begin at level 0.
+
 ### Seed
 
 ![Seed](./assets/seed.png)
 
+Provides same piece sets for VS battles (or practice).  Compatible with Tetriminos, Marathon and Transition modes.  Will provide a different sequence when combined with Tetriminos.   Seed mode is disabled when any seed starting with `0000` or `0001` is selected.
+
+Press `select` to generate a random seed.
+
+Choose `RESET SEED` to zero out and disable seed.
 
 # Build
 
@@ -73,12 +95,10 @@ make patch
 
 [ejona86](https://github.com/ejona86) infofile from which disassembly was derived and RLE tools
 
-[kirjavascript](https://github.com/kirjavascript/TetrisGYM) Menu & nametable tools
+[kirjavascript](https://github.com/kirjavascript/TetrisGYM) SPS, Menu & nametable tools
 
 [HydrantDude](https://github.com/hydrantdude) Original DAS Controls code
 
 [Kirby703](https://github.com/Kirby703) Original 0 Arr Code
 
 [qalle2](https://github.com/qalle2) nes utils
-
-
