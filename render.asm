@@ -89,15 +89,15 @@ stageSpriteForCurrentPiece:
         sta     counter ; iterate through all five minos
         tay
 @pieceLoop:
-        lda     (currentOrientationY),y 
-        sta     tmpYOffset               ; Y offset 
+        lda     (currentOrientationY),y
+        sta     tmpYOffset               ; Y offset
         lda     (currentOrientationX),y
         sta     tmpXOffset              ; X offset
-        lda     (currentOrientationTile),y
+        lda     currentTile
         sta     tmpTile              ; Tile
 
         tya
-        pha             ; store Y 
+        pha             ; store Y
 
         lda     counter
         asl
@@ -182,7 +182,7 @@ clearOldPiece:
         dey
         bpl @blankPieceLoop
         rts
-        
+
 
 stageRenderQueue:
         lda #$FF

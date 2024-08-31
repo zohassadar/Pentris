@@ -74,10 +74,6 @@ nmi:    pha
         pha
         tya
         pha
-.ifdef ANYDAS
-        jmp     renderAnydasMenu
-returnFromAnydasRender:
-.endif
         jsr     render
         lda     #$02
         sta     OAMDMA
@@ -107,11 +103,7 @@ returnFromAnydasRender:
 
         lda     #$01
         sta     verticalBlankingInterval
-.ifdef ANYDAS
-        jsr     anydasControllerInput
-.else
         jsr     pollControllerButtons
-.endif
 .ifdef DEBUG
         lda     newlyPressedButtons_player1
         cmp     #$08
@@ -199,6 +191,12 @@ initRamContinued:
         lda     #$9A
         sta     initMagic+4
 @continueWarmBootInit:
+; default das values
+        lda     #$10
+        sta     anydasDASValue
+        lda     #$06
+        sta     anydasARRValue
+
         ldx     #$89
         stx     rng_seed
         dex
@@ -416,12 +414,7 @@ gameMode_titleScreen:
         beq     @startButtonPressed
         lda     frameCounter+1
         cmp     #$05
-.ifdef ANYDAS
-        beq     @dontGoToTimeout
-@dontGoToTimeout:
-.else
         beq     @timeout
-.endif
         jmp     @waitForStartButton
 
 ; Show menu screens
@@ -603,6 +596,171 @@ L830B:  lda     #$FF
         jsr     loadSpriteIntoOamStaging
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     L830B
+checkForShuffle:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_SELECT
+        beq     @selectNotPressed
+
+        lda     rng_seed
+        sta     sps_seed
+        lda     rng_seed+1
+        sta     sps_seed+1
+        lda     frameCounter
+        eor     rng_seed+1
+        sta     sps_seed+2
+@selectNotPressed:
+        rts
+
+menuLimits:
+        .byte   $40,$40,$02,$02,$02,$04,$07
+
+getSeedInput:
+        sec
+        sbc     #$01
+        lsr
+        tax
+        lda     #$01
+        bcs     @noShift
+        asl
+        asl
+        asl
+        asl
+@noShift:
+        sta     tmp1
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP+BUTTON_DOWN
+        beq     @upDownNotPressed
+        and     #BUTTON_DOWN
+        beq     @upPressed
+        lda     sps_seed,x
+        sec
+        sbc     tmp1
+        sta     sps_seed,x
+        ldy     tmp1
+        cpy     #$01
+        bne     @noReset
+        and     #$0F
+        cmp     #$0F
+        beq     @add16
+
+        jmp     @noReset
+@add16:
+        lda     sps_seed,x
+        clc
+        adc     #$10
+        sta     sps_seed,x
+@noReset:
+        jmp     @upDownNotPressed
+
+@upPressed:
+        lda     sps_seed,x
+        clc
+        adc     tmp1
+        sta     sps_seed,x
+        ldy     tmp1
+        cpy     #$01
+        bne     @upDownNotPressed
+        and     #$0F
+        bne     @upDownNotPressed
+        lda     sps_seed,x
+        sec
+        sbc     #$10
+        sta     sps_seed,x
+
+@upDownNotPressed:
+        jsr     checkForShuffle
+        lda     seedPosition
+        asl
+        asl
+        asl
+        adc     #$90
+        sta     oamStaging+3
+        lda     #$C7
+        sta     oamStaging
+        lda     #$63
+        sta     oamStaging+1
+        jmp     flashAndChooseHole
+
+getMenuInput:
+        ldx     menuMode
+        cpx     #$09
+        beq     @leftRightNotPressed
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_LEFT+BUTTON_RIGHT
+        beq     @leftRightNotPressed
+        and     #BUTTON_LEFT
+        beq     @rightPressed
+        dec     menuOffset-2,x
+        bpl     @leftRightNotPressed
+        inc     menuOffset-2,x
+        beq     @leftRightNotPressed
+@rightPressed:
+        inc     menuOffset-2,x
+        lda     menuOffset-2,x
+        cmp     menuLimits-2,x
+        bne     @leftRightNotPressed
+        dec     menuOffset-2,x
+
+@leftRightNotPressed:
+        lda     seedPosition
+        beq     @noSeedInput
+        jmp     getSeedInput
+@noSeedInput:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP
+        beq     @upNotPressed
+        dec     menuMode
+        jmp     @moveSpriteAndGo
+
+@upNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_DOWN
+        beq     @downNotPressed
+        inc     menuMode
+        lda     menuMode
+        cmp     #$0A
+        bne     @moveSpriteAndGo
+        dec     menuMode
+@downNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START+BUTTON_A
+        beq     @startOrANotPressed
+        lda     menuMode
+        cmp     #$09
+        bne     @startOrANotPressed
+        lda     #$00
+        sta     sps_seed
+        sta     sps_seed+1
+        sta     sps_seed+2
+@startOrANotPressed:
+        lda     menuMode
+        cmp     #$08
+        bne     @moveSpriteAndGo
+        jsr     checkForShuffle
+@moveSpriteAndGo:
+        lda     menuMode
+        asl
+        asl
+        asl
+        adc     #$7F
+        sta     oamStaging
+        lda     #$28
+        sta     oamStaging+3
+flashAndChooseHole:
+        jsr     flashNewMenuCursor
+        jsr     isSeedValid
+        jmp     chooseRandomHole_player1
+
+flashNewMenuCursor:
+        lda     frameCounter
+        and     #$03
+        bne     @skipSkippingShowingToggleCursor
+        ; hide every 4th frame
+        lda     #$FF
+        sta     oamStaging
+@skipSkippingShowingToggleCursor:
+        rts
+
 
 gameMode_levelMenu:
 .ifndef CNROM
@@ -631,10 +789,26 @@ gameMode_levelMenu:
         lda     #$20
         jsr     copyRleNametableToPpu
         .addr   level_menu_nametable
+        lda     #$28
+        jsr     copyRleNametableToPpu
+        .addr   level_menu_nametable
+        jsr     bulkCopyToPpu
+        .addr   menu_options_nametable
+        jsr     bulkCopyToPpu
+        .addr   show_scores_nametable_patch
         lda     gameType
         bne     @skipTypeBHeightDisplay
         jsr     bulkCopyToPpu
         .addr   height_menu_nametablepalette_patch
+
+    ; make menu arrow yellow
+        lda     #$3F
+        sta     PPUADDR
+        lda     #$1D
+        sta     PPUADDR
+        lda     #$27
+        sta     PPUDATA
+
 @skipTypeBHeightDisplay:
         jsr     showHighScores
         jsr     waitForVBlankAndEnableNmi
@@ -657,7 +831,75 @@ gameMode_levelMenu:
         sta     startLevel
         jmp     @forceStartLevelToRange
 
+toggleMenuScreen:
+        lda     menuScreen
+        eor     #$02
+        sta     menuScreen
+        ;lda     #$16
+        ;sta     currentPpuMask
+        ;sta     PPUMASK
+        jsr     updateAudioWaitForNmiAndResetOamStaging
+        lda     currentPpuCtrl
+        and     #$FD
+        ora     menuScreen
+        sta     currentPpuCtrl
+        sta     PPUCTRL
+        jmp     showSelectionLevel
+
 gameMode_levelMenu_processPlayer1Navigation:
+        ; stage sprite no matter
+        ldx     oamStagingLength
+        lda     #$7F
+        sta     oamStaging
+        lda     #$27
+        sta     oamStaging+1
+        lda     #$03
+        sta     oamStaging+2
+        lda     #$40
+        sta     oamStaging+3
+        lda     #$04
+        ; assumes that oamStagingLength is 0
+        ; this is unsafe maybe, if sprites are ever staged before this
+        sta     oamStagingLength
+
+        lda     menuMode
+        bne     @newMenu
+        jmp     originalMenu
+@newMenu:
+        jsr     flashNewMenuCursor
+
+
+        jsr     showSelectionLevel
+
+        lda     menuMode
+        cmp     #$01
+        beq     @checkForUpAndDown
+        jmp     getMenuInput
+@checkForUpAndDown:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_START+BUTTON_A
+        beq     @checkUpPressed
+        jsr     toggleMenuScreen
+@checkUpPressed:
+
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_UP
+        beq     @upNotPressed
+        dec     menuMode
+@upNotPressed:
+        lda     newlyPressedButtons_player1
+        and     #BUTTON_DOWN
+        beq     @downNotPressed
+        lda     menuScreen
+        beq     @downNotPressed
+        inc     menuMode
+@downNotPressed:
+        jmp     chooseRandomHole_player1
+
+
+
+
+originalMenu:
         lda     originalY
         sta     selectingLevelOrHeight
         lda     newlyPressedButtons_player1
@@ -686,21 +928,21 @@ gameMode_levelMenu_processPlayer1Navigation:
 @checkBPressed:
         lda     newlyPressedButtons_player1
         cmp     #$40
-        bne     @chooseRandomHole_player1
+        bne     chooseRandomHole_player1
         lda     #$02
         sta     soundEffectSlot1Init
         dec     gameMode
         rts
 
-@chooseRandomHole_player1:
+chooseRandomHole_player1:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
         lda     rng_seed
         and     #$0F
         cmp     #$0A
-        bpl     @chooseRandomHole_player1
-        sta     garbageHole
+        bpl     chooseRandomHole_player1
+        ;sta     garbageHole
 @chooseRandomHole_player2:
         ldx     #$17
         ldy     #$02
@@ -709,7 +951,7 @@ gameMode_levelMenu_processPlayer1Navigation:
         and     #$0F
         cmp     #$0A
         bpl     @chooseRandomHole_player2
-        sta     unused_0E
+        ;sta     unused_0E
         jsr     updateAudioWaitForNmiAndResetOamStaging
         jmp     gameMode_levelMenu_processPlayer1Navigation
 
@@ -760,7 +1002,7 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         bne     @downPressedForHeightSelection
         lda     startLevel
         cmp     #$05
-        bpl     @checkUpPressed
+        bpl     @menuToggle
         clc
         adc     #$05
         sta     startLevel
@@ -769,10 +1011,13 @@ gameMode_levelMenu_handleLevelHeightNavigation:
 @downPressedForHeightSelection:
         lda     startHeight
         cmp     #$03
-        bpl     @checkUpPressed
+        bpl     @menuToggle
         inc     startHeight
         inc     startHeight
         inc     startHeight
+        bne     @checkUpPressed
+@menuToggle:
+        inc     menuMode
 @checkUpPressed:
         lda     newlyPressedButtons
         cmp     #$08
@@ -798,22 +1043,22 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         dec     startHeight
 @checkAPressed:
         lda     gameType
-        beq     @showSelection
+        beq     showSelection
         lda     newlyPressedButtons
         cmp     #$80
-        bne     @showSelection
+        bne     showSelection
         lda     #$01
         sta     soundEffectSlot1Init
         lda     selectingLevelOrHeight
         eor     #$01
         sta     selectingLevelOrHeight
-@showSelection:
+showSelection:
         lda     selectingLevelOrHeight
-        bne     @showSelectionLevel
+        bne     showSelectionLevel
         lda     frameCounter
         and     #$03
-        beq     @skipShowingSelectionLevel
-@showSelectionLevel:
+        beq     skipShowingSelectionLevel
+showSelectionLevel:
         ldx     startLevel
         lda     levelToSpriteYOffset,x
         sta     spriteYOffset
@@ -823,11 +1068,13 @@ gameMode_levelMenu_handleLevelHeightNavigation:
         lda     levelToSpriteXOffset,x
         sta     spriteXOffset
         jsr     loadSpriteIntoOamStaging
-@skipShowingSelectionLevel:
+skipShowingSelectionLevel:
         lda     gameType
         beq     @ret
         lda     selectingLevelOrHeight
         beq     @showSelectionHeight
+        lda     menuMode
+        bne     @showSelectionHeight
         lda     frameCounter
         and     #$03
         beq     @ret
@@ -855,9 +1102,118 @@ heightToPpuLowAddr:
         .byte   $9C,$AC,$BC,$9C,$AC,$BC
 musicSelectionTable:
         .byte   $03,$04,$05,$FF,$06,$07,$08,$FF
+
+isSeedValid:
+        lda     #$01
+        sta     validSeed
+        lda     sps_seed
+        bne     @valid
+        lda     sps_seed+1
+        cmp     #$2
+        bcs     @valid
+        dec     validSeed
+@valid:
+        rts
+
 render_mode_menu_screens:
+; begin inefficient menu render
+
+; draw the easy ones first
+        lda     gameMode
+        cmp     #$04
+        bne     @draw
+        jmp     @dontDraw
+@draw:
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$57
+        sta     PPUADDR
+        lda     anydasDASValue
+        jsr     twoDigsToPPU
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$77
+        sta     PPUADDR
+        lda     anydasARRValue
+        jsr     twoDigsToPPU
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$96
+        sta     PPUADDR
+        lda     anydasARECharge
+        beq     @areOff
+        jsr     writeOn
+        bne     @tetriminos
+@areOff:
+        jsr     writeOff
+@tetriminos:
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$B6
+        sta     PPUADDR
+        lda     tetriminoMode
+        beq     @tetriminoOff
+        jsr     writeOn
+        bne     @sxtokl
+@tetriminoOff:
+        jsr     writeOff
+@sxtokl:
+
+        lda     #$2A
+        sta     PPUADDR
+        lda     #$D6
+        sta     PPUADDR
+        lda     sxtokl
+        beq     @sxtoklOff
+        jsr     writeOn
+        bne     @marathon
+@sxtoklOff:
+        jsr     writeOff
+@marathon:
+        lda      #$2A
+        sta     PPUADDR
+        lda      #$F6
+        sta     PPUADDR
+        lda     marathon
+        beq     @marathonOff
+        ldy     #$FF
+        sty     PPUDATA
+        sty     PPUDATA
+        sta     PPUDATA
+        bne     @seed
+@marathonOff:
+        jsr     writeOff
+
+@seed:
+        lda      #$2B
+        sta     PPUADDR
+        lda     #$13
+        sta     PPUADDR
+        lda     sps_seed
+        jsr     twoDigsToPPU
+        lda     sps_seed+1
+        jsr     twoDigsToPPU
+        lda     sps_seed+2
+        jsr     twoDigsToPPU
+
+        lda     #$2B
+        sta     PPUADDR
+        lda     #$0C
+        sta     PPUADDR
+        lda     validSeed
+        beq     @invalidSeed
+        jsr     writeOnWithoutSpace
+        lda     #$FF
+        sta     PPUDATA
+        bne     @dontDraw
+@invalidSeed:
+        jsr     writeOff
+@dontDraw:
         lda     currentPpuCtrl
-        and     #$FC
+        and     #$FE
         sta     currentPpuCtrl
         sta     PPUCTRL
         lda     #$00
@@ -867,10 +1223,34 @@ render_mode_menu_screens:
         sta     PPUSCROLL
         rts
 
+writeOff:
+        lda     #$18
+        sta     PPUDATA
+        lda     #$F
+        sta     PPUDATA
+        sta     PPUDATA
+        rts
+
+writeOn:
+        lda     #$FF
+        sta     PPUDATA
+writeOnWithoutSpace:
+        lda     #$18
+        sta     PPUDATA
+        lda     #$17
+        sta     PPUDATA
+        rts
+
+
+
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
+        lda     currentPpuCtrl
+        and     #$FC
+        sta     currentPpuCtrl
         lda     #$00
+        sta     menuScreen    ; reset
         sta     newPiece0Address
         sta     newPiece1Address
         sta     newPiece2Address
@@ -903,6 +1283,21 @@ gameModeState_initGameBackground:
         bne     @typeB
         lda     #$0A
         sta     PPUDATA
+
+; patch seed if valid
+        lda     validSeed
+        beq     @noSeed
+        lda     #$23
+        sta     PPUADDR
+        lda     #$57
+        sta     PPUADDR
+        lda     sps_seed
+        jsr     twoDigsToPPU
+        lda     sps_seed+1
+        jsr     twoDigsToPPU
+        lda     sps_seed+2
+        jsr     twoDigsToPPU
+@noSeed:
         lda     #$20
         sta     PPUADDR
         lda     #$97
@@ -915,7 +1310,7 @@ gameModeState_initGameBackground:
         jsr     twoDigsToPPU
         jmp     gameModeState_initGameBackground_finish
 
-@typeB: 
+@typeB:
         lda     #$0B
         sta     PPUDATA
         lda     #$20
@@ -967,6 +1362,10 @@ gameModeState_initGameBackground_finish:
         lda     #$01
         sta     playState
         lda     startLevel
+        ldy     marathon
+        cpy     #$03  ; 3 starts at level 0
+        lda     #$00
+@noStartAtZero:
         sta     levelNumber
         inc     gameModeState
         rts
@@ -983,8 +1382,9 @@ gameModeState_initGameState:
         ldx     #$04
         ldy     #$05
         jsr     memset_page
-        ldx     #$2A
+        jsr     setupRngBytes
         lda     #$00
+        ldx     #$4B
 ; statsByType
 @initStatsByType:
         sta     $0300,x
@@ -998,11 +1398,11 @@ gameModeState_initGameState:
         sta    statsPiecesTotal
         sta    statsPiecesTotal+1
 
-        lda     #$0A    ; starting on row 10 compensates for glitchy behavior 
+        lda     #$0A    ; starting on row 10 compensates for glitchy behavior
                         ; I *think* because the first time around is the only
                         ; time the full board is loaded (the rest only 4 at a time)
                         ; 40 new tiles worth of time was added to the process
-                        ; This work around causes only the bottom part of the 
+                        ; This work around causes only the bottom part of the
                         ; board to be redrawn
         sta     vramRow
         lda     #$00
@@ -1032,7 +1432,7 @@ gameModeState_initGameState:
         sta     $0499
         lda     #$09
         sta     lines
-        lda     #$00 
+        lda     #$00
         sta     lines+1
 .else
         sta     lines
@@ -1078,6 +1478,7 @@ gameModeState_initGameState:
         sta     renderMode
         lda     #$A0
         sta     autorepeatY
+        jsr     initializeSPS
         jsr     chooseNextTetrimino
 .ifdef DEBUG
         lda     #$3e
@@ -1158,7 +1559,7 @@ initPlayfieldForTypeB:
         lda     #$0C
         sta     generalCounter  ; decrements
 
-typeBRows:  
+typeBRows:
         lda     generalCounter
         beq     initCopyPlayfieldToPlayer2
         lda     #$16
@@ -1170,7 +1571,7 @@ typeBRows:
         lda     #$06
         sta     generalCounter3 ; column
 
-typeBGarbageInRow:  
+typeBGarbageInRow:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
@@ -1191,7 +1592,7 @@ typeBGarbageInRow:
         dec     generalCounter3
         jmp     typeBGarbageInRow
 
-typeBGuaranteeBlank:  
+typeBGuaranteeBlank:
         ldx     #$17
         ldy     #$02
         jsr     generateNextPseudorandomNumber
@@ -1212,8 +1613,8 @@ typeBGuaranteeBlank:
         dec     generalCounter
         bne     typeBRows
 
-initCopyPlayfieldToPlayer2:  
- 
+initCopyPlayfieldToPlayer2:
+
 ; Player1 Blank Lines
         ldx     startHeight
         lda     typeBBlankInitCountByHeightTable,x
@@ -1222,17 +1623,17 @@ initCopyPlayfieldToPlayer2:
         tay
         lda     #$EF
 
-typeBBlankInitPlayer1:  
+typeBBlankInitPlayer1:
         sta     (playfieldAddr),y
         dey
         cpy     #$FF
         bne     typeBBlankInitPlayer1
 
-endTypeBInit:  
+endTypeBInit:
         rts
 
 typeBBlankInitCountByHeightTable:
-        ; >>> "$" + ",$".join(f'{int(c,16)//10*7:02x}'.upper() 
+        ; >>> "$" + ",$".join(f'{int(c,16)//10*7:02x}'.upper()
         ;for c in "$C8,$AA,$96,$78,$64,$50".replace("$","").split(","))
         .byte   $8C,$77,$69,$54,$46,$38
 rngTable:
@@ -1314,7 +1715,7 @@ rotate_tetrimino:
 @restoreOrientationID:
         lda     originalY
         sta     currentPiece
-@ret:   
+@ret:
 
 
         rts
@@ -1385,7 +1786,13 @@ drop_tetrimino:
 
 @lookupDropSpeed:
         lda     #$01
+        ldx     marathon
+        beq     @notMarathon
+        ldx     startLevel ; use startLevel no matter what when marathon (1,2,3)
+        jmp     @tableLookup
+@notMarathon:
         ldx     levelNumber
+@tableLookup:
         cpx     #$1D
         bcs     @noTableLookup
         lda     framesPerDropTable,x
@@ -1412,68 +1819,68 @@ shift_tetrimino:
         sta     originalY
         lda     heldButtons
         and     #$04
-        bne     @ret
+        bne     shift_ret
         lda     newlyPressedButtons
         and     #$03
-        bne     @resetAutorepeatX
+        bne     resetAutorepeatX
         lda     heldButtons
         and     #$03
-        beq     @ret
-.ifdef ANYDAS
+        beq     shift_ret
+;.ifdef ANYDAS
         dec     autorepeatX
         lda     autorepeatX
         cmp     #$01
-        bpl     @ret
+        bpl     shift_ret
         lda     anydasARRValue
         sta     autorepeatX
-        jmp     @buttonHeldDown
-@resetAutorepeatX:
+        jmp     checkFor0Arr
+resetAutorepeatX:
         lda     anydasDASValue
-.else
-        inc     autorepeatX
-        lda     autorepeatX
-        cmp     #$10
-        bmi     @ret
-        lda     #$0A
+;.else ; original das code
+;        inc     autorepeatX
+;        lda     autorepeatX
+;        cmp     #$10
+;        bmi     shift_ret
+;        lda     #$0A
+;        sta     autorepeatX
+;        jmp     @buttonHeldDown
+;
+;@resetAutorepeatX:
+;        lda     #$00
+;.endif
         sta     autorepeatX
-        jmp     @buttonHeldDown
-
-@resetAutorepeatX:
-        lda     #$00
-.endif
-        sta     autorepeatX
-@buttonHeldDown:
+buttonHeldDown:
         lda     heldButtons
         and     #$01
-        beq     @notPressingRight
+        beq     notPressingRight
         inc     tetriminoX
         jsr     isPositionValid
-        bne     @restoreX
+        bne     restoreX
         lda     #$03
         sta     soundEffectSlot1Init
-        jmp     @ret
+        jmp     shift_ret
 
-@notPressingRight:
+notPressingRight:
         lda     heldButtons
         and     #$02
-        beq     @ret
+        beq     shift_ret
         dec     tetriminoX
         jsr     isPositionValid
-        bne     @restoreX
+        bne     restoreX
         lda     #$03
         sta     soundEffectSlot1Init
-        jmp     @ret
+        jmp     shift_ret
 
-@restoreX:
+restoreX:
         lda     originalY
         sta     tetriminoX
-.ifdef ANYDAS
+;.ifdef ANYDAS
         lda     #$01
-.else
-        lda     #$10
-.endif
+;.else ; original das code
+;        lda     #$10
+;.endif
         sta     autorepeatX
-@ret:   rts
+shift_ret:   rts
 
 
 stageSpriteForNextPiece:
@@ -1508,7 +1915,7 @@ stageSpriteForNextPiece:
         adc     generalCounter4
         sta     oamStaging,x ; stage y coordinate of mino
         inx
-        lda     (currentOrientationTile),y
+        lda     currentTile
         sta     oamStaging,x ; stage block type of mino
         inx
         lda     #$02
@@ -1531,12 +1938,8 @@ stageSpriteForNextPiece:
 @ret:   rts
 
 .include "orientation/orientation_to_next_offset.asm"
-        
+
 unreferenced_data2:
-        .byte   $00,$FF,$FE,$FD,$FC,$FD,$FE,$FF
-        .byte   $00,$01,$02,$03,$04,$05,$06,$07
-        .byte   $08,$09,$0A,$0B,$0C,$0D,$0E,$0F
-        .byte   $10,$11,$12,$13
 loadSpriteIntoOamStaging:
         clc
         lda     spriteIndexInOamContentLookup
@@ -1700,47 +2103,12 @@ sprite05PausePalette4:
         .byte   $00,$0E,$00,$20
         .byte   $FF
 sprite06TPiece:
-        .byte   $00,$7B,$02,$FC
-        .byte   $00,$7B,$02,$04
-        .byte   $00,$7B,$02,$0C
-        .byte   $08,$7B,$02,$04
-        .byte   $FF
 sprite07SPiece:
-        .byte   $00,$7D,$02,$04
-        .byte   $00,$7D,$02,$0C
-        .byte   $08,$7D,$02,$FC
-        .byte   $08,$7D,$02,$04
-        .byte   $FF
 sprite08ZPiece:
-        .byte   $00,$7C,$02,$FC
-        .byte   $00,$7C,$02,$04
-        .byte   $08,$7C,$02,$04
-        .byte   $08,$7C,$02,$0C
-        .byte   $FF
 sprite09JPiece:
-        .byte   $00,$7D,$02,$FC
-        .byte   $00,$7D,$02,$04
-        .byte   $00,$7D,$02,$0C
-        .byte   $08,$7D,$02,$0C
-        .byte   $FF
 sprite0ALPiece:
-        .byte   $00,$7C,$02,$FC
-        .byte   $00,$7C,$02,$04
-        .byte   $00,$7C,$02,$0C
-        .byte   $08,$7C,$02,$FC
-        .byte   $FF
 sprite0BOPiece:
-        .byte   $00,$7B,$02,$00
-        .byte   $00,$7B,$02,$08
-        .byte   $08,$7B,$02,$00
-        .byte   $08,$7B,$02,$08
-        .byte   $FF
 sprite0CIPiece:
-        .byte   $04,$7B,$02,$F8
-        .byte   $04,$7B,$02,$00
-        .byte   $04,$7B,$02,$08
-        .byte   $04,$7B,$02,$10
-        .byte   $FF
 sprite0EHighScoreNameCursor:
         .byte   $00,$FC,$21,$00,$FF
 ; Unused, but referenced from unreferenced_orientationToSpriteTable
@@ -2309,19 +2677,19 @@ isPositionValid:
         clc
         adc     (currentOrientationX),y     ; X offset
 ; Check if column is valid before getting normalized
-        cmp     #$0E    
+        cmp     #$0E
         bcs     @invalid
         tay
         lda     tetriminoXPlayfieldTable,y
         sta     playfieldAddr+1
         lda     effectiveTetriminoXTable,y
         lda     generalCounter4
-        clc     
+        clc
         adc     effectiveTetriminoXTable,y
         tay
         lda     (playfieldAddr),y
         ; Changed from a cmp.  $EF is always negative.  $7[BCD] is not.
-        bpl     @invalid 
+        bpl     @invalid
         inc     generalCounter5
         dec     generalCounter3
         bne     @checkSquare
@@ -2505,7 +2873,7 @@ updateLineClearingAnimation:
 updateLineClearingAnimation:
 .endif
         inc     playState
-@ret:   
+@ret:
         jmp     renderTetrisFlashAndSound
 
 leftColumns:
@@ -2598,11 +2966,7 @@ playState_spawnNextTetrimino:
         ldx     nextPiece
         lda     spawnOrientationFromOrientation,x
         sta     currentPiece
-.ifdef ANYDAS
         jsr     incrementStatsAndSetAutorepeatX
-.else
-        jsr     incrementPieceStat
-.endif
         jsr     chooseNextTetrimino
         sta     nextPiece
 @resetDownHold:
@@ -2721,7 +3085,7 @@ playState_lockTetrimino:
 @lockSquare:
         lda     generalCounter5
         tay
-        lda     (currentOrientationTile),y
+        lda     currentTile
         sta     generalCounter2
         lda     tetriminoY
         clc
@@ -2760,7 +3124,7 @@ playState_updateGameOverCurtain:
         and     #BUTTON_START
         beq     @startNotPressed
         lda     score+2
-        cmp     #$50
+        cmp     #$50    ; only show ending animation for 500k+
         bcc     @exitGame
         jsr     endingAnimation_maybe
 @exitGame:
@@ -2790,7 +3154,7 @@ playState_updateGameOverCurtain:
 @ret:
         rts
 
-        
+
 
 playState_updateGameOverCurtainOld:
         lda     curtainRow
@@ -2900,7 +3264,7 @@ playState_checkForCompletedRows:
         dey
 @movePlayfieldDownOneRow:
         cpy     #$F9
-        bcs     @skipOverflow 
+        bcs     @skipOverflow
         lda     leftPlayfield,y
         sta     leftPlayfield+7,y
         lda     rightPlayfield,y
@@ -3030,10 +3394,13 @@ incrementLines:
         inc     lines+1
 L9BC7:  lda     lines
         and     #$0F
-        bne     L9BFB
-        jmp     L9BD0
-
-L9BD0:  lda     lines+1
+        bne     @lineLoop
+        lda     marathon
+        cmp     #$01
+        beq     @lineLoop  ; marathon 1 never transitions
+        lda     sxtokl
+        bne     @nextLevel
+        lda     lines+1
         sta     generalCounter2
         lda     lines
         sta     generalCounter
@@ -3047,14 +3414,15 @@ L9BD0:  lda     lines+1
         ror     generalCounter
         lda     levelNumber
         cmp     generalCounter
-        bpl     L9BFB
+        bpl     @lineLoop
+@nextLevel:
         inc     levelNumber
         lda     #$06
         sta     soundEffectSlot1Init
         lda     outOfDateRenderFlags
         ora     #$02
         sta     outOfDateRenderFlags
-L9BFB:  dex
+@lineLoop:  dex
         bne     incrementLines
 addHoldDownPoints:
         lda     holdDownPoints
@@ -3085,7 +3453,13 @@ L9C27:  lda     outOfDateRenderFlags
 addLineClearPoints:
         lda     #$00
         sta     holdDownPoints
+        lda     marathon  ; use startLevel no matter what when marathon (1,2,3)
+        beq     @notMarathon
+        lda     startLevel
+        jmp     @marathon
+@notMarathon:
         lda     levelNumber
+@marathon:
         sta     generalCounter
         inc     generalCounter
 L9C37:  lda     completedLines
@@ -3196,7 +3570,7 @@ gameModeState_handleGameOver:
         ; next box to flicker during a line clear
         ; the comments in this link explain a lot
         ; https://github.com/kirjavascript/TetrisGYM/blob/master/src/gamemodestate/branch.asm
-        lda     #$01 
+        lda     #$01
         rts
 
 updateMusicSpeed:
@@ -3365,11 +3739,7 @@ gameModeState_checkForResetKeyCombo:
         rts
 
 @reset: jsr     updateAudio2
-.ifdef ANYDAS
-        lda     #$01
-.else
         lda     #$00
-.endif
         sta     gameMode
         rts
 
@@ -3625,8 +3995,8 @@ L9FE9:  ldy     #$00
         rts
 
 showHighScores:
-        jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
-        .addr   high_scores_nametable
+;        jsr     bulkCopyToPpu      ;not using @-label due to MMC1_Control in PAL
+;        .addr   high_scores_nametable
         lda     #$00
         sta     generalCounter2
         lda     gameType
@@ -4198,7 +4568,7 @@ togglePauseScreen:
         adc     #$03
         sta     generalCounter
         jsr     changeCHRBank0
-        lda     generalCounter 
+        lda     generalCounter
         jmp     changeCHRBank1
 .else
         beq     @gameMode
@@ -4332,12 +4702,12 @@ typebSuccessGraphicRightRow2:
 typebSuccessGraphicRightRow3:
         .byte   $3E,$3E,$3E,$3E,$3F
         .byte   $80
-        
+
 
 sleep_for_14_vblanks:
         lda     #$14
         sta     sleepCounter
-@loop: 
+@loop:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START
         bne     @break
@@ -4348,7 +4718,7 @@ sleep_for_14_vblanks:
 
 sleep_for_a_vblanks:
         sta     sleepCounter
-@loop:  
+@loop:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START
         bne     @break
@@ -5535,11 +5905,7 @@ defaultHighScoresTable:
 legal_screen_nametable:
         .incbin "gfx/nametables/legal_screen_nametable.bin"
 title_screen_nametable:
-.ifdef ANYDAS
-        .incbin "gfx/nametables/title_screen_nametable_anydas.bin"
-.else
         .incbin "gfx/nametables/title_screen_nametable.bin"
-.endif
 game_type_menu_nametable:
         .incbin "gfx/nametables/game_type_menu_nametable.bin"
 level_menu_nametable:
@@ -5550,15 +5916,23 @@ stats_nametable:
         .incbin "gfx/nametables/stats_nametable.bin"
 enter_high_score_nametable:
         .incbin "gfx/nametables/enter_high_score_nametable.bin"
-high_scores_nametable:
-        .incbin "gfx/nametables/high_scores_nametable.bin"
-height_menu_nametablepalette_patch:
-        .byte   $3F,$0A
-        .byte   $01,$16          ; attr 2,3 of background palette 3
-        .byte   $20,$6D,$01,$0A  ; sprite palette 0
-        .byte   $20,$F3,$48      ; attr 0,1,2 of sprite palette 1
-        .byte   $FF
 
+; actually custom menu nametable
+menu_options_nametable:
+        .incbin "gfx/nametables/menu_options_nametable.bin"
+
+show_scores_nametable_patch:
+        .byte $2A,$0F,$06
+        .byte $1C,$0C,$18,$1B,$0E,$1C ; SCORES
+        .byte $FF
+
+height_menu_nametablepalette_patch:
+        .byte   $3F,$0A,$01,$16 ; palette
+
+        .byte   $20,$6D,$01,$0A ; "A"
+        .byte   $28,$6D,$01,$0A ; "A"
+
+        .byte   $20,$F3,$48,$FF ; patch upper nt
         .byte   $21,$13,$48,$FF
         .byte   $21,$33,$48,$FF
         .byte   $21,$53,$47,$FF
@@ -5566,14 +5940,25 @@ height_menu_nametablepalette_patch:
         .byte   $21,$93,$47,$FF
         .byte   $21,$B3,$47,$FF
         .byte   $21,$D3,$47,$FF
-        .byte   $22,$33,$48,$FF
-        .byte   $22,$53,$48,$FF
-        .byte   $22,$73,$48,$FF
-        .byte   $22,$93,$47,$FF
-        .byte   $22,$B3,$47,$FF
-        .byte   $22,$D3,$47,$FF
-        .byte   $22,$F3,$47,$FF
-        .byte   $23,$13,$47,$FF
+
+        .byte   $28,$F3,$48,$FF ; patch lower nt
+        .byte   $29,$13,$48,$FF
+        .byte   $29,$33,$48,$FF
+        .byte   $29,$53,$47,$FF
+        .byte   $29,$73,$47,$FF
+        .byte   $29,$93,$47,$FF
+        .byte   $29,$B3,$47,$FF
+        .byte   $29,$D3,$47,$FF
+
+        ;.byte   $22,$33,$48,$FF ; from original game, useless
+        ;.byte   $22,$53,$48,$FF
+        ;.byte   $22,$73,$48,$FF
+        ;.byte   $22,$93,$47,$FF
+        ;.byte   $22,$B3,$47,$FF
+        ;.byte   $22,$D3,$47,$FF
+        ;.byte   $22,$F3,$47,$FF
+        ;.byte   $23,$13,$47,$FF
+
         .byte   $FF
 type_b_lvl9_ending_nametable:
         .incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
@@ -5584,33 +5969,26 @@ type_a_ending_nametable:
 
 
 setOrientationTable:
+        tax
+        lda    orientationTiles,x
+        sta    currentTile
+        txa
         asl
         tax
         lda    orientationTablesY,x
         sta    currentOrientationY
         lda    orientationTablesX,x
         sta    currentOrientationX
-        lda    orientationTablesTile,x
-        sta    currentOrientationTile
         inx
         lda    orientationTablesY,x
         sta    currentOrientationY+1
         lda    orientationTablesX,x
         sta    currentOrientationX+1
-        lda    orientationTablesTile,x
-        sta    currentOrientationTile+1
         rts
-
-
-
 
 .include "orientation/orientation_table.asm"
 
-
-
-.ifdef ANYDAS
 ; Anydas code by HydrantDude
-
 incrementStatsAndSetAutorepeatX:
         jsr     incrementPieceStat
         lda     anydasARECharge
@@ -5620,124 +5998,43 @@ incrementStatsAndSetAutorepeatX:
 @ret:   rts
 
 
+; 0 Arr code by Kirby703
+checkFor0Arr:
+        lda     anydasARRValue
+        beq     @zeroArr
+        jmp     buttonHeldDown
+@zeroArr:
+        lda     heldButtons
+        and     #BUTTON_RIGHT
+        beq     @checkLeftPressed
+@shiftRight:
+        inc     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToLeft
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftRight
+@checkLeftPressed:
+        lda     heldButtons
+        and     #BUTTON_LEFT
+        beq     @leftNotPressed
+@shiftLeft:
+        dec     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToRight
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftLeft
+@shiftBackToLeft:
+        dec     tetriminoX
+        dec     tetriminoX
+@shiftBackToRight:
+        inc     tetriminoX
+        lda     #$01
+        sta     autorepeatX
+@leftNotPressed:
+        rts
 
-renderAnydasMenu:
-        lda gameMode
-        cmp #$01
-        beq @continueRendering
-        jmp @clearOAMStagingAndReturn
-@continueRendering:
-        lda #$22
-        sta PPUADDR
-        lda #$70
-        sta PPUADDR
-        lda anydasDASValue
-        jsr twoDigsToPPU
-        lda #$22
-        sta PPUADDR
-        lda #$90
-        sta PPUADDR
-        lda anydasARRValue
-        jsr twoDigsToPPU
-        lda #$22
-        sta PPUADDR
-        lda #$B5
-        sta PPUADDR
-        lda anydasARECharge
-        bne @areChargeOn
-        lda #$0F
-        sta PPUDATA
-        sta PPUDATA
-        bne @drawArrow
-@areChargeOn:
-        lda #$17
-        sta PPUDATA
-@drawArrow:
-        lda #$FF
-        sta PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$72
-        sta PPUADDR
-        lda anydasMenu
-        bne @notDasOption
-        ldx #$63
-@notDasOption:
-        stx PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$92
-        sta PPUADDR
-        lda anydasMenu
-        cmp #$01
-        bne @notARROption
-        ldx #$63
-@notARROption:
-        stx PPUDATA
-        ldx #$FF
-        lda #$22
-        sta PPUADDR
-        lda #$B7
-        sta PPUADDR
-        lda anydasMenu
-        cmp #$02
-        bne @notAREOption
-        ldx #$63
-@notAREOption:
-        stx PPUDATA
-@clearOAMStagingAndReturn:
-        lda #$00
-        sta oamStagingLength
-        jmp returnFromAnydasRender
-
-anydasControllerInput:
-        jsr pollController
-        lda gameMode
-        cmp #$01
-        bne @ret3
-        lda newlyPressedButtons_player1
-        and #$0F
-        beq @ret3
-        and #$0C
-        beq @upDownNotPressed
-        and #$04
-        beq @downNotPressed
-        inc anydasMenu
-        lda anydasMenu
-        cmp #$03
-        bne @ret1
-        lda #$00
-        sta anydasMenu
-@ret1:  rts
-@downNotPressed:
-        dec anydasMenu
-        lda anydasMenu
-        cmp #$FF
-        bne @ret2
-        lda #$02
-        sta anydasMenu
-@ret2:
-        rts
-@upDownNotPressed:
-        ldx anydasMenu
-        cpx #$02
-        beq @toggleARECharge
-        lda newlyPressedButtons_player1
-        and #$01
-        beq @rightNotPressed
-        inc anydasDASValue,X
-        rts
-@rightNotPressed:
-        dec anydasDASValue,X
-        rts
-@toggleARECharge:
-        lda anydasARECharge
-        eor #$01
-        sta anydasARECharge
-@ret3:  rts
-.endif
 
 ; End of "PRG_chunk1" segment
 .code

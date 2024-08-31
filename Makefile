@@ -1,7 +1,7 @@
 WINDOWS := $(shell which wine ; echo $$?)
 UNAME_S := $(shell uname -s)
 
-VERSION := v1.3
+VERSION := v2.0beta
 
 pentris_obj := main.o pentris.o
 cc65Path := tools/cc65
@@ -62,7 +62,7 @@ tools:
 	$(MAKE) -C tools/cTools/
 
 patch: $(pentris_obj)
-patch: 
+patch:
 	tools/flips-linux --create clean.nes $(pentris) pentris.bps
 
 all:
@@ -73,13 +73,13 @@ all:
 	$(MAKE) patch
 	mv pentris.bps Pentris_$(VERSION).bps
 	mv pentris.nes Pentris_$(VERSION).nes
-	touch *.asm
-	touch gfx/nametables/*.py
-	touch gfx/*.png
-	$(MAKE) flags ANYDAS
-	$(MAKE) patch
-	mv pentris.bps PentrisAnydas_$(VERSION).bps
-	mv pentris.nes PentrisAnydas_$(VERSION).nes
+#	touch *.asm
+#	touch gfx/nametables/*.py
+#	touch gfx/*.png
+#	$(MAKE) flags ANYDAS
+#	$(MAKE) patch
+#	mv pentris.bps PentrisAnydas_$(VERSION).bps
+#	mv pentris.nes PentrisAnydas_$(VERSION).nes
 
 # Build tools when building the rom.
 # This has to happen before the rules are processed, since that's when scan_includes is run.
@@ -107,9 +107,12 @@ $(pentris_obj): %.o: %.asm $$(dep)
 orientation/orientation_table.py: orientation/orientations.py
 		touch orientation/orientation_table.py
 
+orientation/piece_to_stats_addresses.py: orientation/orientations.py
+		touch orientation/piece_to_stats_addresses.py
+
 orientation/spawn_table.py: orientation/orientations.py
 		touch orientation/spawn_table.py
-	
+
 orientation/rotation_table.py: orientation/orientations.py
 		touch orientation/rotation_table.py
 

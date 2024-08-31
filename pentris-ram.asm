@@ -2,13 +2,20 @@
 tmp1:	.res 1	; $0000
 tmp2:	.res 1	; $0001
 tmp3:	.res 1	; $0002
-.res 2 
 tmpBulkCopyToPpuReturnAddr: .res 2 ; $0005
-anydasMenu: .res 1
+menuOffset:
 anydasDASValue: .res 1
 anydasARRValue: .res 1
 anydasARECharge: .res 1
-.res 9
+tetriminoMode: .res 1
+sxtokl: .res 1
+marathon: .res 1
+seedPosition: .res 1
+sps_seed: .res 3
+set_seed: .res 2
+sps_shuffles: .res 1
+menuMode: .res 1 ; 0 = original, 1 = toggle, 2 = menu
+menuScreen: .res 1 ; 0 = original, 2 = menu screen
 patchToPpuAddr: .res 1             ; $0014
 .res 2
 rng_seed:	.res 2	; $0017
@@ -22,7 +29,7 @@ currentVramRender: .res 1
 tetriminoX:	.res 1	; $0040
 tetriminoY:	.res 1	; $0041
 currentPiece:	.res 1	; $0042
-.res 1
+currentRngByte: .res 1
 levelNumber:	.res 1	; $0044
 fallTimer:	.res 1	; $0045
 autorepeatX:	.res 1	; $0046
@@ -44,7 +51,8 @@ garbageHole:	.res 1	; $005A
 completedRow:	.res 5	; $0060
 currentOrientationY: .res 2 ;  $0065
 currentOrientationX: .res 2 ;  $0067
-currentOrientationTile: .res 2 ;  $0069
+currentTile: .res 1 ;  $0069
+validSeed: .res 1 ; 0 when invalid, 1 when valid
 statsPatchAddress:  .res 2 ;  $006B
 topRowValidityCheck: .res 1 ;  $006D
 statsPiecesTotal: .res 2  ; $006E
@@ -53,7 +61,9 @@ renderedVramRow:  .res 1 ; $0071
 renderedPlayfield:  .res 1 ; $0072
 pauseScreen: .res 1
 stackPointer: .res 1
-.res 43
+rngInitialY: .res 1
+currentWeightTable: .res 2
+.res 40
 
 spriteXOffset:	.res 1	; $00A0
 spriteYOffset:	.res 1	; $00A1
@@ -258,3 +268,5 @@ highScoreScoresA:	.res $C	; $0730
 highScoreScoresB:	.res $C	; $073C
 highScoreLevels:	.res $08	; $0748
 initMagic:	.res $05	; $0750
+
+.assert initMagic = $750, error, "Ram might be messed up"

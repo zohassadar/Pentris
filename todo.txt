@@ -1,0 +1,5 @@
+place tetrimino stats better, hide when off
+make b button go back in new menu
+add das to menu direction inputs
+fix level menu to game menu (ppuctrl)
+validate sps test?

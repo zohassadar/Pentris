@@ -874,7 +874,7 @@ t4_left = Orientation(
 t4 = Piece(
     name="T4",
     tile_index=0x7B,
-    stats_addr=0x2B07,
+    stats_addr=0x2B47,
     orientations=[
         t4_up,
         t4_right,
@@ -927,7 +927,7 @@ j4_down = Orientation(
 j4 = Piece(
     name="J4",
     tile_index=0x7D,
-    stats_addr=0x2B0C,
+    stats_addr=0x2B4C,
     orientations=[
         j4_left,
         j4_up,
@@ -963,7 +963,7 @@ z4_vertical = Orientation(
 z4 = Piece(
     name="Z4",
     tile_index=0x7C,
-    stats_addr=0x2B11,
+    stats_addr=0x2B51,
     orientations=[
         z4_horizontal,
         z4_vertical,
@@ -989,7 +989,7 @@ o4_solo = Orientation(
 o4 = Piece(
     name="O4",
     tile_index=0x7B,
-    stats_addr=0x2B16,
+    stats_addr=0x2B56,
     orientations=[
         o4_solo,
     ],
@@ -1020,7 +1020,7 @@ s4_vertical = Orientation(
 s4 = Piece(
     name="S4",
     tile_index=0x7D,
-    stats_addr=0x2B2A,
+    stats_addr=0x2B6A,
     orientations=[
         s4_horizontal,
         s4_vertical,
@@ -1069,7 +1069,7 @@ l4_up = Orientation(
 l4 = Piece(
     name="L4",
     tile_index=0x7C,
-    stats_addr=0x2B2F,
+    stats_addr=0x2B6F,
     orientations=[
         l4_right,
         l4_down,
@@ -1101,7 +1101,7 @@ i4_vertical = Orientation(
 )  # fmt: skip
 
 i4 = Piece(
-    stats_addr=0x2B34,
+    stats_addr=0x2B74,
     name="I4",
     tile_index=0x7B,
     orientations=[
@@ -1147,6 +1147,34 @@ weight_table = {
 }
 
 
+weight_table_tetriminos = {
+    i: 21,
+    j: 12,
+    l: 12,
+    x: 2,
+    s: 5,
+    z: 5,
+    n: 13,
+    g: 13,
+    u: 12,
+    t: 8,
+    f1: 2,
+    f2: 2,
+    p: 20,
+    q: 20,
+    w: 7,
+    y1: 10,
+    y2: 10,
+    v: 5,
+    t4: 11,
+    j4: 11,
+    z4: 11,
+    o4: 11,
+    s4: 11,
+    l4: 11,
+    i4: 11,
+        }
+
 table = OrientationTable(
     [
         f1,
@@ -1167,13 +1195,13 @@ table = OrientationTable(
         y1,
         y2,
         i,
-        # t4,
-        # j4,
-        # z4,
-        # o4,
-        # s4,
-        # l4,
-        # i4,
+        t4,
+        j4,
+        z4,
+        o4,
+        s4,
+        l4,
+        i4,
         hidden,
     ]
 )

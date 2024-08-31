@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+* Same Piece Sets
+* Marathon mode
+* Transition mode
+* Optional Tetriminos
+* Anydas part of main release
+* 0-Arr
 
 ## [1.3]
 * Restore proper glitched colors
