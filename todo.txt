@@ -1,1 +1,2 @@
 validate sps test?
+fix wrong level on scoreboard (shows starting level instead)
