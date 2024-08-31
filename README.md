@@ -24,11 +24,15 @@ Piece statistics are available by pressing A, B or any d-pad button when paused 
 
 ![Stats](./assets/stats.png)
 
-![StatsTetriminos](./assets/stats_tetriminos.png)
-
 ### DAS / ARR / ARE CHARGE
 
 The DAS setting, presented in hexadecimal, controls the initial delay in number of frames.  The Auto Repeat Rate (ARR), also presented in hexadecimal, controls how many frames between shifts after the initial delay.   The ARE Charge setting when enabled allows the DAS charge to occur during entry delay.
+
+The default settings reflect original NES Tetris mechanics
+
+* DAS 16
+* ARR 6
+* ARE Charge Off
 
 See [this page](https://tetris.wiki/ARE) for an explanation of ARE.
 
@@ -36,7 +40,9 @@ See [this page](https://tetris.wiki/ARE) for an explanation of ARE.
 
 ![Tetriminos](./assets/tetriminos.png)
 
-Adds the 7 tetriminos into the mix.
+![StatsTetriminos](./assets/stats_tetriminos.png)
+
+Adds the 7 original tetriminos into the mix.
 
 ### Transition
 
