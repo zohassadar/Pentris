@@ -3150,6 +3150,8 @@ playState_updateGameOverCurtain:
         lda     newlyPressedButtons_player1
         and     #BUTTON_START
         beq     @startNotPressed
+        lda     levelNumber
+        sta     endLevel  ; used to display on high score table
         lda     score+2
         cmp     #$50    ; only show ending animation for 500k+
         bcc     @exitGame
@@ -3791,6 +3793,8 @@ playState_noop:
         rts
 
 endingAnimation_maybe:
+        lda     levelNumber
+        sta     endLevel
         lda     #$02
         sta     spriteIndexInOamContentLookup
         lda     #$04
@@ -4203,7 +4207,7 @@ adjustHighScores:
         lda     score
         sta     highScoreScoresA,x
         ldx     highScoreEntryRawPos
-        lda     startLevel
+        lda     endLevel
         sta     highScoreLevels,x
         jmp     highScoreEntryScreen
 

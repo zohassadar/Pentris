@@ -23,7 +23,8 @@ spawnID:	.res 1	; $0019
 spawnCount:	.res 1	; $001A
 menuMoveThrottle: .res 1
 menuThrottleTmp: .res 1
-.res 22
+endLevel: .res 1 ; levelNumber clobbered by original game logic after b type
+.res 21
 verticalBlankingInterval:	.res 1	; $0033
 unused_0E: .res 1 ; $0034
 currentVramRender: .res 1
