@@ -1,2 +1,7 @@
+have scoreboard show start level for marathon mode?
+valid score lsfr bytes control b-type board
+fix line storage bug (copy gym?)
+arrow outline/no arrow when new menu isn't in use
+validate b type disappearing cursor bug is fixed on console
 validate sps test?
 update pentris.sha1 (after bugfixes)
