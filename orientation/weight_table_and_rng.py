@@ -21,7 +21,7 @@ initializeSPS:
         sta    bseed
         lda    sps_seed+1
         sta    set_seed+1
-        sta    bseed
+        sta    bseed+1
 
         lsr    ; store unused lsfr bit to combine with lower nybble of sps_seed+2
         lda    #$00
