@@ -414,7 +414,8 @@ gameMode_titleScreen:
         beq     @startButtonPressed
         lda     frameCounter+1
         cmp     #$05
-        beq     @timeout
+        ; uncomment to restore demo
+        ; beq     @timeout
         jmp     @waitForStartButton
 
 ; Show menu screens
@@ -426,12 +427,11 @@ gameMode_titleScreen:
 
 ; Start demo
 @timeout:
-        lda     #$02
-        sta     soundEffectSlot1Init
-; DISABLE DEMO
+        ; uncomment to restore demo
+        ; lda     #$02
+        ; sta     soundEffectSlot1Init
         ; lda     #$06
-        lda     #$00
-        sta     gameMode
+        ; sta     gameMode
         rts
 
 render_mode_legal_and_title_screens:

@@ -1,3 +1,2 @@
-restore demo OR disable sleep timer going back to legal screen
 validate sps test?
 update pentris.sha1 (after bugfixes)
