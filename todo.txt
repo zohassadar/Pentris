@@ -1,4 +1,3 @@
-have scoreboard show start level for marathon mode?
 valid score lsfr bytes control b-type board
 fix line storage bug (copy gym?)
 validate b type disappearing cursor bug is fixed on console

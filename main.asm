@@ -4211,8 +4211,14 @@ adjustHighScores:
         inx
         lda     score
         sta     highScoreScoresA,x
-        ldx     highScoreEntryRawPos
+
+; store starting level in marathon mode
+        lda     startLevel
+        ldx     marathon
+        bne     @storeStartLevel
         lda     endLevel
+@storeStartLevel:
+        ldx     highScoreEntryRawPos
         sta     highScoreLevels,x
         jmp     highScoreEntryScreen
 
