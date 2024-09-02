@@ -874,6 +874,11 @@ gameMode_levelMenu_processPlayer1Navigation:
 
         lda     menuMode
         bne     @newMenu
+
+        ; use outline of arrow when not in new menu
+        lda     #$5B
+        sta     oamStaging+1
+
         jmp     originalMenu
 @newMenu:
         jsr     flashNewMenuCursor
