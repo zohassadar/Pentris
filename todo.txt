@@ -1,4 +1,3 @@
 validate b type disappearing cursor bug is fixed on console
-make b-type ignore marathon modes
 validate sps test?
 update pentris.sha1 (after bugfixes)
