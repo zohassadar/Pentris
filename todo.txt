@@ -1,4 +1,3 @@
-valid score lsfr bytes control b-type board
 fix line storage bug (copy gym?)
 validate b type disappearing cursor bug is fixed on console
 make b-type ignore marathon modes

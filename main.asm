@@ -99,7 +99,7 @@ nmi:    pha
         sta     frameCounter+1
         ldx     #$17
         ldy     #$02
-        jsr     generateNextPseudorandomNumber
+        jsr     generateNextPseudoAndAlsoBSeed
 
         lda     #$01
         sta     verticalBlankingInterval
@@ -1604,10 +1604,10 @@ typeBRows:
         sta     generalCounter3 ; column
 
 typeBGarbageInRow:
-        ldx     #$17
+        ldx     bSeedSource  ; previously #rng_seed
         ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        lda     rng_seed
+        jsr     generateNextPseudoAndAlsoCopy
+        lda     bseedCopy ; previously rng_seed
         and     #$07
         tay
         lda     rngTable,y
@@ -1625,10 +1625,10 @@ typeBGarbageInRow:
         jmp     typeBGarbageInRow
 
 typeBGuaranteeBlank:
-        ldx     #$17
+        ldx     bSeedSource  ; previously #rng_seed
         ldy     #$02
-        jsr     generateNextPseudorandomNumber
-        lda     rng_seed
+        jsr     generateNextPseudoAndAlsoCopy
+        lda     bseedCopy ; previously rng_seed
         and     #$07
         cmp     #$07
         bpl     typeBGuaranteeBlank
@@ -6045,6 +6045,19 @@ incrementStatsAndSetAutorepeatX:
 
 .segment        "PRG_chunk2": absolute
 
+
+generateNextPseudoAndAlsoBSeed:
+        jsr generateNextPseudorandomNumber
+        ldx #bseed
+        ldy #$02
+        jmp generateNextPseudorandomNumber
+
+generateNextPseudoAndAlsoCopy:
+        jsr generateNextPseudorandomNumber
+        ldx bSeedSource
+        lda tmp1,x
+        sta bseedCopy
+        rts
 
 ; 0 Arr code by Kirby703
 checkFor0Arr:

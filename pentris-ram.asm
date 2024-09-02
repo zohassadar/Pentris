@@ -28,7 +28,11 @@ endLevel: .res 1 ; levelNumber clobbered by original game logic after b type
 verticalBlankingInterval:	.res 1	; $0033
 unused_0E: .res 1 ; $0034
 currentVramRender: .res 1
-.res 10
+.res 6
+bseed: .res $2
+bSeedSource: .res 1
+bseedCopy: .res 1
+
 tetriminoX:	.res 1	; $0040
 tetriminoY:	.res 1	; $0041
 currentPiece:	.res 1	; $0042
