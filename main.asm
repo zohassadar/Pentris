@@ -1427,6 +1427,7 @@ gameModeState_initGameState:
         lda     #$07
         sta     tetriminoX
         lda     #$00
+        sta    completedLines
         sta    statsPiecesTotal
         sta    statsPiecesTotal+1
 
