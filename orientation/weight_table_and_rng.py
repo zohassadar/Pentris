@@ -11,12 +11,17 @@ initializeSPS:
         ; L = lsfr
         ; S = spawnCount
         ; C = starting shuffle count
+        ldy    #rng_seed
         lda    validSeed
         beq    @ret
+        ldy    #bseed
+        sta    bSeedSource
         lda    sps_seed
         sta    set_seed
+        sta    bseed
         lda    sps_seed+1
         sta    set_seed+1
+        sta    bseed
 
         lsr    ; store unused lsfr bit to combine with lower nybble of sps_seed+2
         lda    #$00
@@ -43,6 +48,7 @@ initializeSPS:
         adc    #$02
         sta    sps_shuffles ; 3 - 18
 @ret:
+        sty    bSeedSource
         rts
 
 shuffleSPS:
