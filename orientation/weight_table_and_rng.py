@@ -6,6 +6,7 @@ import random
 
 
 assembly = """
+initializeSPS:
         ; y reg contains b seed's rng pointer
         ; LLLLLLLL LLLLLLLS CCCCSSSS
         ; L = lsfr
