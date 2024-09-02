@@ -1268,6 +1268,22 @@ hideTetriminoStatsPatch:
         .byte  $2B,$F1,$46,$FF ; attributes
         .byte  $FF
 
+patchSeedIfValid:
+        lda     validSeed
+        beq     @noSeed
+        lda     #$23
+        sta     PPUADDR
+        lda     #$57
+        sta     PPUADDR
+        lda     sps_seed
+        jsr     twoDigsToPPU
+        lda     sps_seed+1
+        jsr     twoDigsToPPU
+        lda     sps_seed+2
+        jsr     twoDigsToPPU
+@noSeed:
+        rts
+
 gameModeState_initGameBackground:
         jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr     disableNmi
@@ -1314,21 +1330,7 @@ gameModeState_initGameBackground:
         bne     @typeB
         lda     #$0A
         sta     PPUDATA
-
-; patch seed if valid
-        lda     validSeed
-        beq     @noSeed
-        lda     #$23
-        sta     PPUADDR
-        lda     #$57
-        sta     PPUADDR
-        lda     sps_seed
-        jsr     twoDigsToPPU
-        lda     sps_seed+1
-        jsr     twoDigsToPPU
-        lda     sps_seed+2
-        jsr     twoDigsToPPU
-@noSeed:
+        jsr     patchSeedIfValid
         lda     #$20
         sta     PPUADDR
         lda     #$97
@@ -1344,6 +1346,7 @@ gameModeState_initGameBackground:
 @typeB:
         lda     #$0B
         sta     PPUDATA
+        jsr     patchSeedIfValid
         lda     #$20
         sta     PPUADDR
         lda     #$97
