@@ -6,7 +6,7 @@ import random
 
 
 assembly = """
-initializeSPS:
+        ; y reg contains b seed's rng pointer
         ; LLLLLLLL LLLLLLLS CCCCSSSS
         ; L = lsfr
         ; S = spawnCount
@@ -15,7 +15,6 @@ initializeSPS:
         lda    validSeed
         beq    @ret
         ldy    #bseed
-        sta    bSeedSource
         lda    sps_seed
         sta    set_seed
         sta    bseed
