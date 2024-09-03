@@ -632,12 +632,11 @@ getSeedInput:
         sta     tmp1
         lda     #BUTTON_UP
         jsr     menuThrottle
-        beq     @upNotPressed
         bne     @upPressed
-@upNotPressed:
         lda     #BUTTON_DOWN
         jsr     menuThrottle
         beq     @upDownNotPressed
+        jsr     playBeep
         lda     sps_seed,x
         sec
         sbc     tmp1
@@ -659,6 +658,7 @@ getSeedInput:
         jmp     @upDownNotPressed
 
 @upPressed:
+        jsr     playBeep
         lda     sps_seed,x
         clc
         adc     tmp1
@@ -693,21 +693,25 @@ getMenuInput:
         beq     @leftRightNotPressed
         lda     #BUTTON_RIGHT
         jsr     menuThrottle
-        beq     @rightNotPressed
         bne     @rightPressed
-@rightNotPressed:
+
         lda     #BUTTON_LEFT
         jsr     menuThrottle
         beq     @leftRightNotPressed
+        jsr     playBeep
         dec     menuOffset-2,x
         bpl     @leftRightNotPressed
+        jsr     noBeep
         inc     menuOffset-2,x
         beq     @leftRightNotPressed
+
 @rightPressed:
+        jsr     playBeep
         inc     menuOffset-2,x
         lda     menuOffset-2,x
         cmp     menuLimits-2,x
         bne     @leftRightNotPressed
+        jsr     noBeep
         dec     menuOffset-2,x
 
 @leftRightNotPressed:
@@ -718,6 +722,7 @@ getMenuInput:
         lda     #BUTTON_UP
         jsr     menuThrottle
         beq     @upNotPressed
+        jsr     playBeep
         dec     menuMode
         jmp     @moveSpriteAndGo
 
@@ -726,9 +731,11 @@ getMenuInput:
         jsr     menuThrottle
         beq     @downNotPressed
         inc     menuMode
+        jsr     playBeep
         lda     menuMode
         cmp     #$0A
         bne     @moveSpriteAndGo
+        jsr     noBeep
         dec     menuMode
 @downNotPressed:
         lda     newlyPressedButtons_player1
@@ -737,6 +744,14 @@ getMenuInput:
         lda     menuMode
         cmp     #$09
         bne     @startOrANotPressed
+        lda     sps_seed+1
+        bne     @bloop
+        jsr     isSeedValid
+        beq     @noBloop
+@bloop:
+        lda     #$02
+        sta     soundEffectSlot1Init
+@noBloop:
         lda     #$00
         sta     sps_seed
         sta     sps_seed+1
@@ -854,6 +869,8 @@ toggleMenuScreen:
         ora     menuScreen
         sta     currentPpuCtrl
         sta     PPUCTRL
+        lda     #$02
+        sta     soundEffectSlot1Init
         jmp     showSelectionLevel
 
 gameMode_levelMenu_processPlayer1Navigation:
@@ -900,6 +917,7 @@ gameMode_levelMenu_processPlayer1Navigation:
         jsr     menuThrottle
         beq     @upNotPressed
         dec     menuMode
+        jsr     playBeep
 @upNotPressed:
         lda     #BUTTON_DOWN
         jsr     menuThrottle
@@ -907,9 +925,18 @@ gameMode_levelMenu_processPlayer1Navigation:
         lda     menuScreen
         beq     @downNotPressed
         inc     menuMode
+        jsr     playBeep
 @downNotPressed:
         jmp     checkBPressed
 
+noBeep:
+        lda     #$00
+        beq     storeBeep
+playBeep:
+        lda     #$01
+storeBeep:
+        sta     soundEffectSlot1Init
+        rts
 
 
 originalMenu:

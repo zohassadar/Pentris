@@ -1,4 +1,3 @@
-add beeps to new menu (and a bloop when resetting seed)
 rocket screen should only show when tetriminos off/marathon off
 validate sps test?
 update pentris.sha1 (after bugfixes)
