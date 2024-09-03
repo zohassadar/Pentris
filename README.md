@@ -4,15 +4,13 @@ This is NES tetris with an extra mino added.  This game includes 18 shapes each 
 
 ![Title](./assets/pentris.png)
 
-# Release
-
-This is released as a BPS patch file that can be applied to the USA version of tetris.nes using [Rom Patcher JS](https://www.romhacking.net/patch/) or any patching tool.
-
 ### Menu
 
 ![LevelMenu1](./assets/levelmenu1.png)
 
 ![LevelMenu2](./assets/levelmenu2.png)
+
+To access the menu, press down from the level or height select area and select `SHOW MENU` by pressing A or Start.
 
 ### Gameplay
 
@@ -56,6 +54,8 @@ Play as long as you are able to survive at a consistent speed.
 2. Levels will transition normally, but speed and points will remain fixed based on your starting level.
 3. Similar to 2, speed and points will remain fixed based on the starting level you choose, but actual game will begin at level 0.
 
+No effect for B-Type games.
+
 ### Seed
 
 ![Seed](./assets/seed.png)
@@ -65,6 +65,12 @@ Provides same piece sets for VS battles (or practice).  Compatible with Tetrimin
 Press `select` to generate a random seed.
 
 Choose `RESET SEED` to zero out and disable seed.
+
+When combined with B-Type games, the board will be determined by the first 4 digits of the seed.
+
+# Release
+
+This is released as a BPS patch file that can be applied to the USA version of tetris.nes using [Rom Patcher JS](https://www.romhacking.net/patch/) or any patching tool.
 
 # Build
 
@@ -95,7 +101,7 @@ Place a romfile named clean.nes with an md5sum of `ec58574d96bee8c8927884ae6e7a2
 make patch
 ```
 
-### Thanks
+# Thanks
 
 [CelestialAmber](https://github.com/CelestialAmber/TetrisNESDisasm) Original Disassembly
 
@@ -106,5 +112,9 @@ make patch
 [HydrantDude](https://github.com/hydrantdude) Original DAS Controls code
 
 [Kirby703](https://github.com/Kirby703) Original 0 Arr Code
+
+[jezevec10](https://github.com/jezevec10) Pentomino rotations from Jstris
+
+[shiromino](https://github.com/shiromino) Basis of Pentomino weights
 
 [qalle2](https://github.com/qalle2) nes utils
