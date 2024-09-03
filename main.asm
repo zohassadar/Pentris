@@ -3189,9 +3189,19 @@ playState_updateGameOverCurtain:
         and     #BUTTON_START
         beq     @startNotPressed
         lda     levelNumber
-        sta     endLevel  ; used to display on high score table
+        sta     endLevel        ; used to display on high score table
+
+        lda     marathon        ; no ending for marathon
+        bne     @exitGame
+
+        lda     tetriminoMode   ; no ending for tetriminos
+        bne     @exitGame
+
+        lda     validSeed       ; no ending for seeded mode
+        bne     @exitGame
+
         lda     score+2
-        cmp     #$50    ; only show ending animation for 500k+
+        cmp     #$50            ; rocket screen for normal games over 500k
         bcc     @exitGame
         jsr     endingAnimation_maybe
 @exitGame:
