@@ -6010,41 +6010,6 @@ show_scores_nametable_patch:
         .byte $2A,$0F,$06
         .byte $1C,$0C,$18,$1B,$0E,$1C ; SCORES
         .byte $FF
-
-height_menu_nametablepalette_patch:
-        .byte   $3F,$0A,$01,$16 ; palette
-
-        .byte   $20,$6D,$01,$0A ; "A"
-        .byte   $28,$6D,$01,$0A ; "A"
-
-        .byte   $20,$F3,$48,$FF ; patch upper nt
-        .byte   $21,$13,$48,$FF
-        .byte   $21,$33,$48,$FF
-        .byte   $21,$53,$47,$FF
-        .byte   $21,$73,$47,$FF
-        .byte   $21,$93,$47,$FF
-        .byte   $21,$B3,$47,$FF
-        .byte   $21,$D3,$47,$FF
-
-        .byte   $28,$F3,$48,$FF ; patch lower nt
-        .byte   $29,$13,$48,$FF
-        .byte   $29,$33,$48,$FF
-        .byte   $29,$53,$47,$FF
-        .byte   $29,$73,$47,$FF
-        .byte   $29,$93,$47,$FF
-        .byte   $29,$B3,$47,$FF
-        .byte   $29,$D3,$47,$FF
-
-        ;.byte   $22,$33,$48,$FF ; from original game, useless
-        ;.byte   $22,$53,$48,$FF
-        ;.byte   $22,$73,$48,$FF
-        ;.byte   $22,$93,$47,$FF
-        ;.byte   $22,$B3,$47,$FF
-        ;.byte   $22,$D3,$47,$FF
-        ;.byte   $22,$F3,$47,$FF
-        ;.byte   $23,$13,$47,$FF
-
-        .byte   $FF
 type_b_lvl9_ending_nametable:
         .incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
 type_b_ending_nametable:
@@ -6052,24 +6017,6 @@ type_b_ending_nametable:
 type_a_ending_nametable:
         .incbin "gfx/nametables/type_a_ending_nametable.bin"
 
-
-setOrientationTable:
-        tax
-        lda    orientationTiles,x
-        sta    currentTile
-        txa
-        asl
-        tax
-        lda    orientationTablesY,x
-        sta    currentOrientationY
-        lda    orientationTablesX,x
-        sta    currentOrientationX
-        inx
-        lda    orientationTablesY,x
-        sta    currentOrientationY+1
-        lda    orientationTablesX,x
-        sta    currentOrientationX+1
-        rts
 
 .include "orientation/orientation_table.asm"
 
@@ -6088,82 +6035,6 @@ incrementStatsAndSetAutorepeatX:
 
 .segment        "PRG_chunk2": absolute
 
-
-generateNextPseudoAndAlsoBSeed:
-        jsr generateNextPseudorandomNumber
-        ldx #bseed
-        ldy #$02
-        jmp generateNextPseudorandomNumber
-
-generateNextPseudoAndAlsoCopy:
-        jsr generateNextPseudorandomNumber
-        ldx bSeedSource
-        lda tmp1,x
-        sta bseedCopy
-        rts
-
-; 0 Arr code by Kirby703
-checkFor0Arr:
-        lda     anydasARRValue
-        beq     @zeroArr
-        jmp     buttonHeldDown
-@zeroArr:
-        lda     heldButtons
-        and     #BUTTON_RIGHT
-        beq     @checkLeftPressed
-@shiftRight:
-        inc     tetriminoX
-        jsr     isPositionValid
-        bne     @shiftBackToLeft
-        lda     #$03
-        sta     soundEffectSlot1Init
-        jmp     @shiftRight
-@checkLeftPressed:
-        lda     heldButtons
-        and     #BUTTON_LEFT
-        beq     @leftNotPressed
-@shiftLeft:
-        dec     tetriminoX
-        jsr     isPositionValid
-        bne     @shiftBackToRight
-        lda     #$03
-        sta     soundEffectSlot1Init
-        jmp     @shiftLeft
-@shiftBackToLeft:
-        dec     tetriminoX
-        dec     tetriminoX
-@shiftBackToRight:
-        inc     tetriminoX
-        lda     #$01
-        sta     autorepeatX
-@leftNotPressed:
-        rts
-
-
-menuThrottle: ; add DAS-like movement to the menu
-        sta menuThrottleTmp
-        lda newlyPressedButtons_player1
-        cmp menuThrottleTmp
-        beq menuThrottleNew
-        lda heldButtons_player1
-        cmp menuThrottleTmp
-        bne @endThrottle
-        dec menuMoveThrottle
-        beq menuThrottleContinue
-@endThrottle:
-        lda #0
-        rts
-
-menuThrottleStart := $10
-menuThrottleRepeat := $4
-menuThrottleNew:
-        lda #menuThrottleStart
-        sta menuMoveThrottle
-        rts
-menuThrottleContinue:
-        lda #menuThrottleRepeat
-        sta menuMoveThrottle
-        rts
 .include "data/demo_data.asm"
 
 ; canon is updateAudio
@@ -6305,15 +6176,6 @@ advanceAudioSlotFrame:
         sta     soundEffectSlot0FrameCounter,x
 @ret:   rts
 
-unreferenced_data3:
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $03,$7F,$0F,$C0
 ; Referenced by initSoundEffectShared
 soundEffectSlot0_gameOverCurtainInitData:
         .byte   $1F,$7F,$0F,$C0
@@ -7935,6 +7797,133 @@ music_endings_noiseScript:
         .addr   music_endings_noiseScript
 .include "audio/music/music_endings.asm"
 
+height_menu_nametablepalette_patch:
+        .byte   $3F,$0A,$01,$16 ; palette
+
+        .byte   $20,$6D,$01,$0A ; "A"
+        .byte   $28,$6D,$01,$0A ; "A"
+
+        .byte   $20,$F3,$48,$FF ; patch upper nt
+        .byte   $21,$13,$48,$FF
+        .byte   $21,$33,$48,$FF
+        .byte   $21,$53,$47,$FF
+        .byte   $21,$73,$47,$FF
+        .byte   $21,$93,$47,$FF
+        .byte   $21,$B3,$47,$FF
+        .byte   $21,$D3,$47,$FF
+
+        .byte   $28,$F3,$48,$FF ; patch lower nt
+        .byte   $29,$13,$48,$FF
+        .byte   $29,$33,$48,$FF
+        .byte   $29,$53,$47,$FF
+        .byte   $29,$73,$47,$FF
+        .byte   $29,$93,$47,$FF
+        .byte   $29,$B3,$47,$FF
+        .byte   $29,$D3,$47,$FF
+
+        ;.byte   $22,$33,$48,$FF ; from original game, useless
+        ;.byte   $22,$53,$48,$FF
+        ;.byte   $22,$73,$48,$FF
+        ;.byte   $22,$93,$47,$FF
+        ;.byte   $22,$B3,$47,$FF
+        ;.byte   $22,$D3,$47,$FF
+        ;.byte   $22,$F3,$47,$FF
+        ;.byte   $23,$13,$47,$FF
+
+        .byte   $FF
+setOrientationTable:
+        tax
+        lda    orientationTiles,x
+        sta    currentTile
+        txa
+        asl
+        tax
+        lda    orientationTablesY,x
+        sta    currentOrientationY
+        lda    orientationTablesX,x
+        sta    currentOrientationX
+        inx
+        lda    orientationTablesY,x
+        sta    currentOrientationY+1
+        lda    orientationTablesX,x
+        sta    currentOrientationX+1
+        rts
+
+generateNextPseudoAndAlsoBSeed:
+        jsr generateNextPseudorandomNumber
+        ldx #bseed
+        ldy #$02
+        jmp generateNextPseudorandomNumber
+
+generateNextPseudoAndAlsoCopy:
+        jsr generateNextPseudorandomNumber
+        ldx bSeedSource
+        lda tmp1,x
+        sta bseedCopy
+        rts
+
+; 0 Arr code by Kirby703
+checkFor0Arr:
+        lda     anydasARRValue
+        beq     @zeroArr
+        jmp     buttonHeldDown
+@zeroArr:
+        lda     heldButtons
+        and     #BUTTON_RIGHT
+        beq     @checkLeftPressed
+@shiftRight:
+        inc     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToLeft
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftRight
+@checkLeftPressed:
+        lda     heldButtons
+        and     #BUTTON_LEFT
+        beq     @leftNotPressed
+@shiftLeft:
+        dec     tetriminoX
+        jsr     isPositionValid
+        bne     @shiftBackToRight
+        lda     #$03
+        sta     soundEffectSlot1Init
+        jmp     @shiftLeft
+@shiftBackToLeft:
+        dec     tetriminoX
+        dec     tetriminoX
+@shiftBackToRight:
+        inc     tetriminoX
+        lda     #$01
+        sta     autorepeatX
+@leftNotPressed:
+        rts
+
+
+menuThrottle: ; add DAS-like movement to the menu
+        sta menuThrottleTmp
+        lda newlyPressedButtons_player1
+        cmp menuThrottleTmp
+        beq menuThrottleNew
+        lda heldButtons_player1
+        cmp menuThrottleTmp
+        bne @endThrottle
+        dec menuMoveThrottle
+        beq menuThrottleContinue
+@endThrottle:
+        lda #0
+        rts
+
+menuThrottleStart := $10
+menuThrottleRepeat := $4
+menuThrottleNew:
+        lda #menuThrottleStart
+        sta menuMoveThrottle
+        rts
+menuThrottleContinue:
+        lda #menuThrottleRepeat
+        sta menuMoveThrottle
+        rts
 ; End of "PRG_chunk2" segment
 .code
 
