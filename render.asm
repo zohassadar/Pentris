@@ -29,8 +29,22 @@ dumpRenderQueue:
     sendData 14
 .endrepeat
 
-; old piece and new piece
-.repeat 10
+; old piece
+.repeat 5
+    sendAddress
+    sendData 1
+.endrepeat
+
+sendAddress
+sendData 5
+
+.repeat 2
+    sendAddress
+    sendData 3
+.endrepeat
+
+; new piece
+.repeat 5
     sendAddress
     sendData 1
 .endrepeat
@@ -80,6 +94,7 @@ counter := generalCounter5
 
 
 stageSpriteForCurrentPiece:
+        jsr     stageSpawnPieces
         jsr     clearOldPiece
         lda     currentPiece
         cmpHiddenPiece
@@ -173,9 +188,9 @@ clearOldPiece:
 @normalClear:
         ldy     #$0C
 @blankPieceLoop:
-        lda stack+95,y
+        lda stack+95+17,y
         sta stack+80,y
-        lda stack+95+1,y
+        lda stack+95+17+1,y
         sta stack+80+1,y
         dey
         dey
@@ -201,6 +216,19 @@ stageRenderQueue:
         sta scoreAddress
         lda #$F7
         sta scoreAddress+1
+
+        lda #$20
+        sta spawnRow1Address
+        lda #$CB
+        sta spawnRow1Address+1
+        lda #$20
+        sta spawnRow2Address
+        lda #$EC
+        sta spawnRow2Address+1
+        lda #$21
+        sta spawnRow3Address
+        lda #$0C
+        sta spawnRow3Address+1
 
         lda #$22
         sta levelAddress

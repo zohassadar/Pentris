@@ -174,6 +174,12 @@ oldPiece3Address: .res $2
 oldPiece3Data: .res $1  ; always blank
 oldPiece4Address: .res $2
 oldPiece4Data: .res $1  ; always blank
+spawnRow1Address: .res $2
+spawnRow1Data: .res $5
+spawnRow2Address: .res $2
+spawnRow2Data: .res $3
+spawnRow3Address: .res $2
+spawnRow3Data: .res $3
 newPiece0Address: .res $2
 newPiece0Data: .res $1
 newPiece1Address: .res $2
@@ -198,7 +204,8 @@ paletteSpriteAddress: .res $2
 paletteSpriteData: .res $4
 statsAddress: .res $2
 statsData: .res $3
-.res $6d
+;.res 17
+.res $5c
 oamStaging:	.res $100	; $0200
 statsByType:	.res $100	; $0300
 leftPlayfield:	.res $C8	; $0400

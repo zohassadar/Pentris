@@ -1447,6 +1447,7 @@ gameModeState_initGameState:
         ldy     #$05
         jsr     memset_page
         jsr     setupRngBytes
+        jsr     stageSpawnPieces
         lda     #$00
         ldx     #$4B
 ; statsByType
@@ -7925,6 +7926,32 @@ menuThrottleContinue:
         sta menuMoveThrottle
         rts
 ; End of "PRG_chunk2" segment
+
+stageSpawnPieces:
+        lda   $0405
+        sta   spawnRow1Data
+        lda   $0406
+        sta   spawnRow1Data+1
+        lda   $0500
+        sta   spawnRow1Data+2
+        lda   $0501
+        sta   spawnRow1Data+3
+        lda   $0502
+        sta   spawnRow1Data+4
+        lda   $040D
+        sta   spawnRow2Data
+        lda   $0507
+        sta   spawnRow2Data+1
+        lda   $0508
+        sta   spawnRow2Data+2
+        lda   $0414
+        sta   spawnRow3Data
+        lda   $050E
+        sta   spawnRow3Data+1
+        lda   $050F
+        sta   spawnRow3Data+2
+        rts
+
 .code
 
 
