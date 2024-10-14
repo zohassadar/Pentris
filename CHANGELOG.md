@@ -1,12 +1,14 @@
 # Changelog
 
-## [2.0 (beta)]
+## [2.0]
+* Menu on level select screen
 * Same Piece Sets
 * Marathon mode
 * Transition mode
 * Optional Tetriminos
 * Anydas part of main release
 * 0-Arr
+* Fixed bug that caused overlapping spawn to temporarily disappear
 
 ## [1.3]
 * Restore proper glitched colors
