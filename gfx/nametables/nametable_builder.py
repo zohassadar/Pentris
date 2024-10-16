@@ -282,6 +282,12 @@ def build_nametable(
     for rect in rects:
         draw_rect(table_bytes, *rect)
 
+    if rle_compress:
+        compressed = konami_compress(table_bytes)
+        with open(output, "wb") as file:
+            file.write(compressed)
+        return
+
     output_bytes = []
     for length, starting_address in zip(lengths, starting_addresses):
         output_bytes.extend(starting_address)
@@ -298,15 +304,8 @@ def build_nametable(
     else:
         logger.info(f"Original nametable being rebuilt")
 
-    if rle_compress:
-        raw_output = output.parent / output.name.replace(".bin", ".raw")
-        with open(raw_output, "wb") as file:
-            file.write(output_data)
-        subprocess.run(["node", str(output.parent / "compress.js"), raw_output, output])
-        raw_output.unlink()
-    else:
-        with open(output, "wb") as file:
-            file.write(output_data)
+    with open(output, "wb") as file:
+        file.write(output_data)
 
 
 def draw_rect(buffer, x, y, w, h, offset):
@@ -322,11 +321,84 @@ def draw_rect(buffer, x, y, w, h, offset):
         }
     }
     """
-    x+=3
-    pixel = x + (y*32)
+    x += 3
+    pixel = x + (y * 32)
     for i in range(w):
         for j in range(h):
-            buffer[pixel+i+(j*32)] = offset + i + (j * 0x10)
+            buffer[pixel + i + (j * 32)] = offset + i + (j * 0x10)
+
+
+def konami_compress(buffer) -> bytes:
+    """
+    credit to kirjava
+    function konamiComp(buffer) {
+        const compressed = [];
+
+        for (let i = 0; i < buffer.length;) {
+            const byte = buffer[i];
+
+            // count extra dupes
+            let peek = 0;
+            for (;byte ==buffer[i+1+peek];peek++);
+            const count = Math.min(peek + 1, 0x80);
+
+            if (peek > 0) {
+                compressed.push([count, byte]);
+                i+= count;
+            } else {
+                // we have already peeked the next byte and know it's not a double
+                // so start checking from there
+                const start = i + 1;
+                const nextDouble = buffer.slice(start, start + 0x7F)
+                    .findIndex((d,i,a)=>d==a[i+1]);
+
+                const count = Math.min(nextDouble === -1
+                    ? buffer.length - i
+                    : nextDouble + 1, 0x7F);
+
+                compressed.push([0x80 + count, buffer.slice(i, count + i)]);
+                i += count;
+            }
+        }
+
+        compressed.push(0xFF);
+
+        return compressed.flat(Infinity);
+    }
+    """
+    compressed = []
+    i = 0
+    while i < len(buffer):
+        byte = buffer[i]
+
+        # count duplicates
+        peek = 0
+        while True:
+            if i + peek + 1 == len(buffer) or peek == 0x80:
+                break
+            if byte == buffer[i + peek + 1]:
+                peek += 1
+            else:
+                break
+        count = min(peek + 1, 0x80)
+        if peek:
+            compressed.extend([count, byte])
+            i += count
+            continue
+
+        # count non duplicates
+        start = i + 1
+        for count, check in enumerate(buffer[i : i + 0x7F]):
+            if i + count + 1 == len(buffer):
+                break
+            if check == buffer[i + count + 1]:
+                break
+        compressed.append(0x80 + count)
+        compressed.extend(buffer[i : i + count])
+        i += count
+
+    return bytes(compressed + [0xFF])
+
 
 def get_args():
     parser = argparse.ArgumentParser()
