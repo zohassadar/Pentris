@@ -169,9 +169,9 @@ class TileHelper:
             y = 29
         if y > 29:
             y = 0
-        self.nametable_data_displayed[
-            self.current_nt_tile
-        ] = self.nametable_data_modified[self.current_nt_tile]
+        self.nametable_data_displayed[self.current_nt_tile] = (
+            self.nametable_data_modified[self.current_nt_tile]
+        )
         self.clear_nt_tile_highlight()
         self.current_nt_tile = y * 32 + x
         self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
@@ -184,9 +184,9 @@ class TileHelper:
         self.clear_nt_tile_highlight()
         old_tile, old_nt_location = self.undo_bucket.pop()
         self.current_nt_tile = old_nt_location
-        self.nametable_data_displayed[
-            self.current_nt_tile
-        ] = self.nametable_data_modified[self.current_nt_tile] = old_tile
+        self.nametable_data_displayed[self.current_nt_tile] = (
+            self.nametable_data_modified[self.current_nt_tile]
+        ) = old_tile
         self.highlight_chr_tile(self.nametable_data_displayed[self.current_nt_tile])
         self.update_nt_tile()
 
@@ -204,9 +204,9 @@ class TileHelper:
         self.print(
             f"Committing nametable tile #{self.current_nt_tile} to chr index #{self.current_chr_tile}. {undo=}"
         )
-        self.nametable_data_modified[
-            self.current_nt_tile
-        ] = self.nametable_data_displayed[self.current_nt_tile]
+        self.nametable_data_modified[self.current_nt_tile] = (
+            self.nametable_data_displayed[self.current_nt_tile]
+        )
 
     def on_key_press(self, event: tk.Event):
         match event.keycode, event.char:

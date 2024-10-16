@@ -283,21 +283,18 @@ def build_nametable(
         draw_rect(table_bytes, *rect)
 
     if rle_compress:
-        compressed = konami_compress(table_bytes)
-        with open(output, "wb") as file:
-            file.write(compressed)
-        return
+        output_data = konami_compress(table_bytes)
+    else:
+        output_bytes = []
+        for length, starting_address in zip(lengths, starting_addresses):
+            output_bytes.extend(starting_address)
+            output_bytes.append(length)
+            output_bytes.extend(table_bytes[:length])
+            table_bytes = table_bytes[length:]
 
-    output_bytes = []
-    for length, starting_address in zip(lengths, starting_addresses):
-        output_bytes.extend(starting_address)
-        output_bytes.append(length)
-        output_bytes.extend(table_bytes[:length])
-        table_bytes = table_bytes[length:]
+        output_bytes.append(255)
+        output_data = bytes(output_bytes)
 
-    output_bytes.append(255)
-
-    output_data = bytes(output_bytes)
     sha1sum = hashlib.sha1(output_data).hexdigest()
     if sha1sum != original_sha1sum:
         logger.warning(f"Warning! {sha1sum} does not match original {original_sha1sum}")

@@ -1,4 +1,3 @@
-
 import pathlib
 import sys
 
@@ -114,4 +113,3 @@ if __name__ == "__main__":
             f"Unable to build nametable: {type(exc).__name}: {exc!s}", file=sys.stderr
         )
         sys.exit(1)
-
