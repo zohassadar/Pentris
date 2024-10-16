@@ -299,7 +299,7 @@ def build_nametable(
     if sha1sum != original_sha1sum:
         logger.warning(f"Warning! {sha1sum} does not match original {original_sha1sum}")
     else:
-        logger.info(f"Original nametable being rebuilt")
+        logger.debug(f"Original nametable being rebuilt")
 
     with open(output, "wb") as file:
         file.write(output_data)

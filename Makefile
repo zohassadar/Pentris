@@ -1,4 +1,4 @@
-WINDOWS := $(shell which wine ; echo $$?)
+WINDOWS := $(shell which wine 2>/dev/null; echo $$?)
 UNAME_S := $(shell uname -s)
 
 VERSION := v2.0beta3
