@@ -77,7 +77,6 @@ This is released as a BPS patch file that can be applied to the USA version of t
 ### Requirements
 
 * Python 3 along with the Pillow library.
-* nodejs
 * make
 * gcc
 
