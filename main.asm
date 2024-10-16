@@ -3328,9 +3328,6 @@ playState_checkForCompletedRows:
         iny
         dex
         bne @checkIfRowComplete
-.ifdef AEPPOZ
-        jmp @rowNotComplete
-.endif
 @AEPPOZSkip:
         lda #$0A
         sta soundEffectSlot1Init
@@ -3617,6 +3614,15 @@ updatePlayfield:
 @ret:   rts
 
 gameModeState_handleGameOver:
+.ifdef AEPPOZ
+        lda newlyPressedButtons_player1
+        and #BUTTON_SELECT
+        beq @continue
+        lda #$0A ; playState_checkStartGameOver
+        sta playState
+        jmp @ret
+@continue:
+.endif
         lda #$05
         sta generalCounter2
         lda playState
