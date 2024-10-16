@@ -1,3 +1,5 @@
+; idea for dumping tiles using stack from EOR #$FF: 6502 Ponderables and Befuddlements
+
 .macro sendAddress
         pla
         sta PPUADDR
