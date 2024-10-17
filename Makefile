@@ -97,29 +97,14 @@ $(pentris_obj): %.o: %.asm $$(dep)
 %.chr: %.png
 		$(nesChrEncode) $< $@
 
-orientation/orientation_table.py: orientation/orientations.py
-		touch orientation/orientation_table.py
-
-orientation/piece_to_stats_addresses.py: orientation/orientations.py
-		touch orientation/piece_to_stats_addresses.py
-
-orientation/spawn_table.py: orientation/orientations.py
-		touch orientation/spawn_table.py
-
-orientation/rotation_table.py: orientation/orientations.py
-		touch orientation/rotation_table.py
-
-orientation/spawn_from_orientation.py: orientation/orientations.py
-		touch orientation/spawn_from_orientation.py
-
-orientation/type_from_orientation.py: orientation/orientations.py
-		touch orientation/type_from_orientation.py
-
-orientation/orientation_to_next_offset.py: orientation/orientations.py
-		touch orientation/orientation_to_next_offset.py
-
-orientation/hidden_piece_id.py: orientation/orientations.py
-		touch orientation/hidden_piece_id.py
-
-orientation/weight_table_and_rng.py: orientation/orientations.py
-		touch orientation/weight_table_and_rng.py
+# reprocess all orientation scripts if orientations.py is changed
+orientation/*_*.py: orientation/orientations.py
+		@touch orientation/orientation_table.py
+		@touch orientation/piece_to_stats_addresses.py
+		@touch orientation/spawn_table.py
+		@touch orientation/rotation_table.py
+		@touch orientation/spawn_from_orientation.py
+		@touch orientation/type_from_orientation.py
+		@touch orientation/orientation_to_next_offset.py
+		@touch orientation/hidden_piece_id.py
+		@touch orientation/weight_table_and_rng.py
