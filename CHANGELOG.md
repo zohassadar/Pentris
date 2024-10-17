@@ -8,7 +8,7 @@
 * Optional Tetriminos
 * Anydas part of main release
 * 0-Arr
-* Fixed bug that caused overlapping spawn to temporarily disappear
+* Fixed bug that caused overlapping spawn tiles to temporarily disappear
 
 ## [1.3]
 * Restore proper glitched colors
