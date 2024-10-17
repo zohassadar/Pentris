@@ -1,7 +1,7 @@
 WINDOWS := $(shell which wine 2>/dev/null; echo $$?)
 UNAME_S := $(shell uname -s)
 
-VERSION := v2.0beta3
+VERSION := v2.0
 
 pentris_obj := main.o pentris.o
 cc65Path := tools/cc65
