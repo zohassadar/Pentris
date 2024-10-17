@@ -3042,6 +3042,129 @@ playState_spawnNextTetrimino:
 
 .include "orientation/weight_table_and_rng.asm"
 
+initializeSPS:
+        ; y reg contains b seed's rng pointer
+        ; LLLLLLLL LLLLLLLS CCCCSSSS
+        ; L = lsfr
+        ; S = spawnCount
+        ; C = starting shuffle count
+        ldy #rng_seed
+        lda validSeed
+        beq @ret
+        ldy #bseed
+        lda sps_seed
+        sta set_seed
+        sta bseed
+        lda sps_seed+1
+        sta set_seed+1
+        sta bseed+1
+
+        lsr    ; store unused lsfr bit to combine with lower nybble of sps_seed+2
+        lda #$00
+        rol
+        rol
+        rol
+        rol
+        rol
+        sta generalCounter
+        lda sps_seed+2
+        and #$0F
+        ora generalCounter
+        sta spawnCount
+
+        lda sps_seed+2
+        lsr
+        lsr
+        lsr
+        lsr
+        bne @no16
+        lda #$10
+@no16:
+        clc
+        adc #$02
+        sta sps_shuffles ; 3 - 18
+@ret:
+        sty bSeedSource
+        rts
+
+shuffleSPS:
+        lda rng_seed
+        sta currentRngByte
+        lda validSeed
+        beq @ret
+        lda sps_shuffles
+        sta generalCounter
+@loop:
+        ldx #set_seed
+        ldy #$02
+        jsr generateNextPseudorandomNumber
+        dec generalCounter
+        bne @loop
+        lda set_seed
+        sta currentRngByte
+
+; varying number of shuffles
+        inc sps_shuffles
+        lda sps_shuffles
+        cmp #$13
+        bne @ret
+        lda #$03
+        sta sps_shuffles
+@ret:
+        rts
+
+rngInitYMacro
+
+setupRngBytes:
+        ; to be called from initGameState
+        ldx tetriminoMode
+        lda rngInitYValues,x
+        sta rngInitialY
+        txa
+        asl
+        tax
+        lda weightTables,x
+        sta currentWeightTable
+        lda weightTables+1,x
+        sta currentWeightTable+1
+        rts
+
+chooseNextTetrimino:
+        lda gameMode
+        cmp #$05
+        bne pickRandomTetrimino
+        ldx demoIndex
+        inc demoIndex
+        lda demoTetriminoTypeTable,x
+        tax
+        lda spawnTable,x
+        rts
+
+pickRandomTetrimino:
+        jsr shuffleSPS
+        ldy rngInitialY
+        inc spawnCount
+        lda currentRngByte
+        clc
+        adc spawnCount
+@nextPiece:
+        cmp (currentWeightTable),y
+        bcs @foundPiece
+        dey
+        bmi @foundPiece
+        jmp @nextPiece
+@foundPiece:
+        iny
+        lda spawnTable,y
+        sta spawnID
+        rts
+
+weightTables:
+    .addr  weightTable
+    .addr  weightTableTetriminos
+
+weightTablesMacro
+
 ; ORIENTATION
 tetriminoTypeFromOrientation:
 .include "orientation/type_from_orientation.asm"
