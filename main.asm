@@ -5963,7 +5963,7 @@ switch_s_plus_2a:
         jmp (tmp1)
 
 
-.include "gfx/nametables/rle.asm"
+.include "rle.asm"
 
 
 .ifdef CNROM
