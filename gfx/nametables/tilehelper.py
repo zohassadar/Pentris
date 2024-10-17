@@ -1,3 +1,10 @@
+"""
+originally used to redesign nametables for Pentris
+
+Does not work with the ending tilesets or RLE compressed nametables
+
+May be useful in the future with some work
+"""
 import pathlib
 import tkinter as tk
 from collections import deque
