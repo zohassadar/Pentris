@@ -4,8 +4,10 @@ from orientations import table, weight_table, weight_table_tetriminos
 from orientation_base import output_bytes, validate_table
 import random
 
+table_diff = -(len(weight_table_tetriminos) - len(weight_table) + 1)
 
-pento_table_indexes = table.indexes()[:-8] + table.indexes()[-1:]
+pento_table_indexes = table.indexes()[:table_diff] + table.indexes()[-1:]
+
 output = __file__.replace(".py", ".asm")
 if len(sys.argv) > 1:
     output = False
@@ -43,7 +45,7 @@ if validation != 256:
     )
 
 weight_list_pentos = []
-for piece in table.pieces[:-8] + table.pieces[-1:]:
+for piece in table.pieces[:table_diff] + table.pieces[-1:]:
     if piece.hidden:
         continue
     weight_list_pentos.append(weight_table[piece])
