@@ -39,6 +39,8 @@ MMC1_CHR0       := $BFFF
 MMC1_CHR1       := $DFFF
 MMC1_PRG        := $FFFF
 
+LFFFF           := $FFFF ; used in music tables
+
 CNROM_BANK0 := $00
 CNROM_BANK1 := $01
 CNROM_BANK2 := $02
@@ -8328,7 +8330,6 @@ reset:
 
         .addr   nmi
         .addr   reset
-LFFFF           := * + 1
         .addr   irq
 
 ; End of "VECTORS" segment
