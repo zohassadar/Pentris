@@ -66,10 +66,12 @@ ALMOST_ANY := BUTTON_DOWN+BUTTON_UP+BUTTON_LEFT+BUTTON_RIGHT+BUTTON_A+BUTTON_B
 .segment        "PRG_chunk1": absolute
 
 ; incremented to reset MMC1 reg
-initRam:ldx     #$00
+initRam:
+        ldx #$00
         jmp initRamContinued
 
-nmi:    pha
+nmi:
+        pha
         txa
         pha
         tya
@@ -126,9 +128,11 @@ nmi:    pha
         pla
         tax
         pla
-irq:    rti
+irq:
+        rti
 
-render: lda     renderMode
+render:
+        lda renderMode
         cmp #$03
         beq skip_switch_s_plus_2a
         jsr switch_s_plus_2a
@@ -487,7 +491,8 @@ gameMode_gameTypeMenu:
         ldx musicType
         lda musicSelectionTable,x
         jsr setMusicTrack
-L830B:  lda     #$FF
+L830B:
+        lda #$FF
         ldx #$02
         ldy #$02
         jsr memset_page
@@ -1946,7 +1951,8 @@ restoreX:
 ;        lda     #$10
 ;.endif
         sta autorepeatX
-shift_ret:   rts
+shift_ret:
+        rts
 
 
 stageSpriteForNextPiece:
@@ -3201,7 +3207,8 @@ incrementPieceStat:
         clc
         adc #$01
         sta statsByType+1,x
-L9996:  lda     generalCounter
+L9996:
+        lda generalCounter
         sta statsByType,x
 
         lda statsPiecesTotal
@@ -3224,7 +3231,8 @@ L9996:  lda     generalCounter
         clc
         adc #$01
         sta statsPiecesTotal+1
-L9996A: lda     generalCounter
+L9996A:
+        lda generalCounter
         sta statsPiecesTotal
 
         lda outOfDateRenderFlags
@@ -3590,7 +3598,8 @@ incrementLines:
         and #$0F
         sta lines
         inc lines+1
-L9BC7:  lda     lines
+L9BC7:
+        lda lines
         and #$0F
         bne @lineLoop
         lda marathon
@@ -3637,7 +3646,8 @@ addHoldDownPoints:
         clc
         adc #$06
         sta score
-L9C18:  lda     score
+L9C18:
+        lda score
         and #$F0
         cmp #$A0
         bcc L9C27
@@ -3645,7 +3655,8 @@ L9C18:  lda     score
         adc #$60
         sta score
         inc score+1
-L9C27:  lda     outOfDateRenderFlags
+L9C27:
+        lda outOfDateRenderFlags
         ora #$04
         sta outOfDateRenderFlags
 addLineClearPoints:
@@ -3660,7 +3671,8 @@ addLineClearPoints:
 @marathon:
         sta generalCounter
         inc generalCounter
-L9C37:  lda     completedLines
+L9C37:
+        lda completedLines
         asl a
         tax
         lda pointsTable,x
@@ -3673,7 +3685,8 @@ L9C37:  lda     completedLines
         adc #$60
         sta score
         inc score+1
-L9C4E:  inx
+L9C4E:
+        inx
         lda pointsTable,x
         clc
         adc score+1
@@ -3685,7 +3698,8 @@ L9C4E:  inx
         clc
         adc #$06
         sta score+1
-L9C64:  lda     score+1
+L9C64:
+        lda score+1
         and #$F0
         cmp #$A0
         bcc L9C75
@@ -3694,7 +3708,8 @@ L9C64:  lda     score+1
         adc #$60
         sta score+1
         inc score+2
-L9C75:  lda     score+2
+L9C75:
+        lda score+2
         and #$0F
         cmp #$0A
         bcc L9C84
@@ -3702,7 +3717,8 @@ L9C75:  lda     score+2
         clc
         adc #$06
         sta score+2
-L9C84:  lda     score+2
+L9C84:
+        lda score+2
         ; and     #$F0
         ; cmp     #$A0
         ; bcc     L9C94
@@ -3710,7 +3726,8 @@ L9C84:  lda     score+2
         ; sta     score
         ; sta     score+1
         ; sta     score+2
-L9C94:  dec     generalCounter
+L9C94:
+        dec generalCounter
         bne L9C37
         lda outOfDateRenderFlags
         ora #$04
@@ -3981,7 +3998,8 @@ endingAnimation_maybe:
         bne L9E49
         jmp LA926
 
-L9E49:  ldx     levelNumber
+L9E49:
+        ldx levelNumber
         lda levelDisplayTable,x
         and #$0F
         sta levelNumber
@@ -4050,7 +4068,8 @@ L9E96:
 .endif
         jsr bulkCopyToPpu
         .addr   type_b_ending_nametable
-L9EA4:  jsr     bulkCopyToPpu
+L9EA4:
+        jsr bulkCopyToPpu
         .addr   ending_palette
         jsr ending_initTypeBVars
         jsr waitForVBlankAndEnableNmi
@@ -4079,7 +4098,8 @@ L9EA4:  jsr     bulkCopyToPpu
         jsr render_endingUnskippable
         lda generalCounter4
         beq L9F12
-L9EE8:  dec     generalCounter4
+L9EE8:
+        dec generalCounter4
         lda generalCounter4
         and #$0F
         cmp #$0F
@@ -4088,7 +4108,8 @@ L9EE8:  dec     generalCounter4
         and #$F0
         ora #$09
         sta generalCounter4
-L9EFA:  lda     generalCounter4
+L9EFA:
+        lda generalCounter4
         jsr L9F62
         lda #$01
         sta soundEffectSlot1Init
@@ -4098,9 +4119,11 @@ L9EFA:  lda     generalCounter4
         bne L9EE8
         lda #$40
         jsr render_endingUnskippable
-L9F12:  lda     generalCounter5
+L9F12:
+        lda generalCounter5
         beq L9F45
-L9F16:  dec     generalCounter5
+L9F16:
+        dec generalCounter5
         lda generalCounter5
         and #$0F
         cmp #$0F
@@ -4109,7 +4132,8 @@ L9F16:  dec     generalCounter5
         and #$F0
         ora #$09
         sta generalCounter5
-L9F28:  lda     generalCounter5
+L9F28:
+        lda generalCounter5
         jsr L9F62
         lda #$01
         sta soundEffectSlot1Init
@@ -4121,7 +4145,8 @@ L9F28:  lda     generalCounter5
         sta soundEffectSlot1Init
         lda #$40
         jsr render_endingUnskippable
-L9F45:  jsr     render_ending
+L9F45:
+        jsr render_ending
         jsr updateAudioWaitForNmiAndResetOamStaging
         lda newlyPressedButtons_player1
         cmp #$10
@@ -4134,7 +4159,8 @@ L9F45:  jsr     render_ending
         sta score+2
         rts
 
-L9F62:  lda     #$01
+L9F62:
+        lda #$01
         clc
         adc $DD
         sta $DD
@@ -4145,7 +4171,8 @@ L9F62:  lda     #$01
         clc
         adc #$06
         sta $DD
-L9F76:  and     #$F0
+L9F76:
+        and #$F0
         cmp #$A0
         bcc L9F85
         lda $DD
@@ -4153,7 +4180,8 @@ L9F76:  and     #$F0
         adc #$60
         sta $DD
         inc $DE
-L9F85:  lda     $DE
+L9F85:
+        lda $DE
         and #$0F
         cmp #$0A
         bcc L9F94
@@ -4161,7 +4189,8 @@ L9F85:  lda     $DE
         clc
         adc #$06
         sta $DE
-L9F94:  rts
+L9F94:
+        rts
 
 render_mode_ending_animation:
         lda #$20
@@ -4198,7 +4227,8 @@ render_mode_ending_animation:
         jsr twoDigsToPPU
         lda $DC
         jsr twoDigsToPPU
-L9FE9:  ldy     #$00
+L9FE9:
+        ldy #$00
         sty PPUSCROLL
         sty PPUSCROLL
         rts
@@ -4275,7 +4305,8 @@ showHighScores:
         beq showHighScores_ret
         jmp @copyEntry
 
-showHighScores_ret:  rts
+showHighScores_ret:
+        rts
 
 highScorePpuAddrTable:
         .dbyt   $2289,$22C9,$2309
@@ -5291,8 +5322,10 @@ ending_computeTypeBCathedralYTableIndex:
         tax
         rts
 
-LA6BC:  ldx     #$00
-LA6BE:  lda     LA735,x
+LA6BC:
+        ldx #$00
+LA6BE:
+        lda LA735,x
         cmp ending_customVars
         bne LA6D0
         lda ending_customVars+3,x
@@ -5301,12 +5334,14 @@ LA6BE:  lda     LA735,x
         sbc #$01
         sta ending_customVars+3,x
         inc ending_customVars
-LA6D0:  inx
+LA6D0:
+        inx
         cpx #$04
         bne LA6BE
         lda #$00
         sta ending_currentSprite
-LA6D9:  ldx     ending_currentSprite
+LA6D9:
+        ldx ending_currentSprite
         lda ending_customVars+3,x
         beq LA72C
         sta generalCounter
@@ -5320,7 +5355,8 @@ LA6D9:  ldx     ending_currentSprite
         cmp #$A0
         bcs LA6F7
         dec generalCounter
-LA6F7:  lda     generalCounter
+LA6F7:
+        lda generalCounter
         sta ending_customVars+3,x
         sta spriteYOffset
         lda domeNumberToXOffsetTable,x
@@ -5345,22 +5381,29 @@ LA6F7:  lda     generalCounter
         adc #$51
         sta spriteIndexInOamContentLookup
         jsr loadSpriteIntoOamStaging
-LA72C:  inc     ending_currentSprite
+LA72C:
+        inc ending_currentSprite
         lda ending_currentSprite
         cmp #$04
         bne LA6D9
         rts
 
-LA735:  .byte   $05,$07,$09,$0B
+LA735:
+        .byte   $05,$07,$09,$0B
 domeNumberToXOffsetTable:
         .byte   $60,$90,$70,$7E
-LA73D:  .byte   $BC
-LA73E:  .byte   $B8
-LA73F:  .byte   $BC
-LA740:  .byte   $B3
+LA73D:
+        .byte   $BC
+LA73E:
+        .byte   $B8
+LA73F:
+        .byte   $BC
+LA740:
+        .byte   $B3
 domeNumberToSpriteTable:
         .byte   $4D,$50,$4E,$4F
-LA745:  .byte   $00,$00,$00,$02
+LA745:
+        .byte   $00,$00,$00,$02
 ; Frames before changing to next frame's sprite
 ending_typeBCathedralAnimSpeed:
         .byte   $02,$04,$06,$03,$10,$03,$05,$06
@@ -5369,9 +5412,11 @@ ending_typeBCathedralAnimSpeed:
 ending_typeBCathedralFrameDelayTable:
         .byte   $03,$01,$01,$01,$02,$05,$01,$02
         .byte   $01,$01
-LA75D:  .byte   $02,$02,$FE,$FE,$02,$FE,$02,$02
+LA75D:
+        .byte   $02,$02,$FE,$FE,$02,$FE,$02,$02
         .byte   $FE,$02
-LA767:  .byte   $00,$00,$00,$02,$F0,$10,$F0,$F0
+LA767:
+        .byte   $00,$00,$00,$02,$F0,$10,$F0,$F0
         .byte   $20,$F0
 ending_typeBCathedralVectorTable:
         .byte   $01,$01,$FF,$FC,$01,$FF,$02,$02
@@ -5463,7 +5508,8 @@ ending_patchToPpu_typeAOver120k:
         .byte   $FD
 unreferenced_data6:
         .byte   $FC
-LA926:  jsr     updateAudioWaitForNmiAndDisablePpuRendering
+LA926:
+        jsr updateAudioWaitForNmiAndDisablePpuRendering
         jsr disableNmi
 .ifdef CNROM
         lda #CNROM_BANK1
@@ -5491,7 +5537,8 @@ LA926:  jsr     updateAudioWaitForNmiAndDisablePpuRendering
         jsr setMusicTrack
         lda #$80
         jsr render_endingUnskippable
-LA95D:  jsr     render_ending
+LA95D:
+        jsr render_ending
         jsr updateAudioWaitForNmiAndResetOamStaging
         lda ending_customVars
         bne LA95D
@@ -5500,7 +5547,8 @@ LA95D:  jsr     render_ending
         bne LA95D
         rts
 
-LA96E:  lda     #$00
+LA96E:
+        lda #$00
         sta ending
         lda score+2
         cmp #$05
@@ -5573,17 +5621,21 @@ ending_typeA:
         lda frameCounter
         and #$01
         bne LAA0B
-LA9FC:  lda     #$03
+LA9FC:
+        lda #$03
         sta soundEffectSlot0Init
         dec ending_customVars
         lda ending_customVars
         cmp #$80
         bcs LAA0B
         dec ending_customVars
-LAA0B:  jmp     LAA10
+LAA0B:
+        jmp LAA10
 
-LAA0E:  inc     ending_customVars+1
-LAA10:  rts
+LAA0E:
+        inc ending_customVars+1
+LAA10:
+        rts
 
 rocketToSpriteTable:
         .byte   $3E,$41,$44,$47,$4A
@@ -5594,7 +5646,8 @@ rocketToJetXOffsetTable:
         .byte   $00,$00,$00,$00,$00
 rocketToXOffsetTable:
         .byte   $54,$54,$50,$48,$A0
-LAA2A:  .byte   $BF,$BF,$BF,$BF,$C7
+LAA2A:
+        .byte   $BF,$BF,$BF,$BF,$C7
 ; canon is waitForVerticalBlankingInterval
 updateAudioWaitForNmiAndResetOamStaging:
         jsr stage_playfield_render
@@ -5651,7 +5704,8 @@ _updatePpuCtrl:
         sta currentPpuCtrl
         rts
 
-LAA82:  ldx     #$FF
+LAA82:
+        ldx #$FF
         ldy #$00
         jsr memset_ppu_page_and_more
         rts
@@ -5668,7 +5722,8 @@ bulkCopyToPpu:
         jsr copyAddrAtReturnAddressToTmp_incrReturnAddrBy2
         jmp copyToPpu
 
-LAA9E:  pha
+LAA9E:
+        pha
         sta PPUADDR
         iny
         lda (tmp1),y
@@ -5681,7 +5736,8 @@ LAA9E:  pha
         ora #$04
         bcs LAAB5
         and #$FB
-LAAB5:  sta     PPUCTRL
+LAAB5:
+        sta PPUCTRL
         sta currentPpuCtrl
         pla
         asl a
@@ -5689,16 +5745,20 @@ LAAB5:  sta     PPUCTRL
         bcc LAAC2
         ora #$02
         iny
-LAAC2:  plp
+LAAC2:
+        plp
         clc
         bne LAAC7
         sec
-LAAC7:  ror     a
+LAAC7:
+        ror a
         lsr a
         tax
-LAACA:  bcs     LAACD
+LAACA:
+        bcs LAACD
         iny
-LAACD:  lda     (tmp1),y
+LAACD:
+        lda (tmp1),y
         sta PPUDATA
         dex
         bne LAACA
@@ -5709,7 +5769,8 @@ LAACD:  lda     (tmp1),y
         stx PPUADDR
         stx PPUADDR
         stx PPUADDR
-LAAE6:  sec
+LAAE6:
+        sec
         tya
         adc tmp1
         sta tmp1
@@ -5724,7 +5785,8 @@ copyToPpu:
         bpl LAAFC
         rts
 
-LAAFC:  cmp     #$60
+LAAFC:
+        cmp #$60
         bne LAB0A
         pla
         sta tmp2
@@ -5732,7 +5794,8 @@ LAAFC:  cmp     #$60
         sta tmp1
         ldy #$02
         bne LAAE6
-LAB0A:  cmp     #$4C
+LAB0A:
+        cmp #$4C
         bne LAA9E
         lda tmp1
         pha
@@ -5848,7 +5911,8 @@ diffOldAndNewButtons:
 
 unreferenced_func1:
         jsr pollController_actualRead
-LABD1:  ldy     newlyPressedButtons_player1
+LABD1:
+        ldy newlyPressedButtons_player1
         lda newlyPressedButtons_player2
         pha
         jsr pollController_actualRead
@@ -5860,7 +5924,8 @@ LABD1:  ldy     newlyPressedButtons_player1
         beq diffOldAndNewButtons
         jsr pollController_actualRead
         jsr addExpansionPortInputAsControllerInput
-LABEA:  ldy     newlyPressedButtons_player1
+LABEA:
+        ldy newlyPressedButtons_player1
         lda newlyPressedButtons_player2
         pha
         jsr pollController_actualRead
@@ -5877,7 +5942,8 @@ LABEA:  ldy     newlyPressedButtons_player1
         lda tmp2
         sta heldButtons_player2
         ldx #$03
-LAC0D:  lda     newlyPressedButtons_player1,x
+LAC0D:
+        lda newlyPressedButtons_player1,x
         tay
         eor $F1,x
         and newlyPressedButtons_player1,x
@@ -5904,9 +5970,11 @@ memset_ppu_page_and_more:
         cmp #$20
         bcs LAC40
         ldx tmp3
-LAC40:  ldy     #$00
+LAC40:
+        ldy #$00
         lda tmp2
-LAC44:  sta     PPUDATA
+LAC44:
+        sta PPUDATA
         dey
         bne LAC44
         dex
@@ -5920,10 +5988,12 @@ LAC44:  sta     PPUDATA
         lda #$C0
         sta PPUADDR
         ldx #$40
-LAC61:  sty     PPUDATA
+LAC61:
+        sty PPUDATA
         dex
         bne LAC61
-LAC67:  ldx     tmp2
+LAC67:
+        ldx tmp2
         rts
 
 ; reg a: value; reg x: start page; reg y: end page (inclusive)
@@ -6175,7 +6245,8 @@ updateAudio_jmp:
 updateAudio2:
         jmp soundEffectSlot2_makesNoSound
 
-LE006:  jmp     LE1D8
+LE006:
+        jmp LE1D8
 
 ; Referenced via updateSoundEffectSlotShared
 soundEffectSlot0Init_table:
@@ -6416,7 +6487,8 @@ updateSoundEffectSlotShared:
 updateSoundEffectSlotShared_rts:
         rts
 
-LE1D8:  lda     #$0F
+LE1D8:
+        lda #$0F
         sta SND_CHN
         lda #$55
         sta soundRngSeed
@@ -6482,14 +6554,16 @@ muteAudioAndClearTriControl:
         sta musicChanControl+2
         rts
 
-LE253:  lda     #$00
+LE253:
+        lda #$00
         sta musicChanInhibit
         sta musicChanInhibit+1
         sta musicChanInhibit+2
         sta musicStagingNoiseLo
         sta resetSq12ForMusic
         tay
-LE265:  lda     #$00
+LE265:
+        lda #$00
         sta soundEffectSlot0Playing,y
         iny
         tya
@@ -6621,7 +6695,8 @@ getSoundEffectNoiseNibble:
         lsr a
         rts
 
-LE33B:  lda     soundEffectSlot1Playing
+LE33B:
+        lda soundEffectSlot1Playing
         cmp #$04
         beq LE34E
         cmp #$06
@@ -6630,7 +6705,8 @@ LE33B:  lda     soundEffectSlot1Playing
         beq LE34E
         cmp #$0A
         beq LE34E
-LE34E:  rts
+LE34E:
+        rts
 
 soundEffectSlot1_chirpChirpPlaying:
         lda soundEffectSlot1TertiaryCounter
@@ -6746,7 +6822,8 @@ soundEffectSlot1_tetrisAchievedPlaying:
         bne LE43A
         ldy #<soundEffectSlot1_tetrisAchievedInitData
         bne LE442
-LE417:  jmp     initSoundEffectShared
+LE417:
+        jmp initSoundEffectShared
 
 soundEffectSlot1_lineCompletedInit:
         lda #$05
@@ -6764,14 +6841,17 @@ soundEffectSlot1_lineClearingInit:
         ldy #<soundEffectSlot1_lineClearingInitData
         jsr LE417
         lda #$00
-LE437:  sta     soundEffectSlot1TertiaryCounter
-LE43A:  rts
+LE437:
+        sta soundEffectSlot1TertiaryCounter
+LE43A:
+        rts
 
 soundEffectSlot1_lineClearingPlaying:
         jsr advanceAudioSlotFrame
         bne LE43A
         ldy #<soundEffectSlot1_lineClearingInitData
-LE442:  jsr     copyToSq1Channel
+LE442:
+        jsr copyToSq1Channel
         clc
         lda soundEffectSlot1TertiaryCounter
         adc soundEffectSlot1SecondaryCounter
@@ -6789,10 +6869,13 @@ LE442:  jsr     copyToSq1Channel
         sta currentAudioSlot
         jmp soundEffectSlot1_lineClearingInit
 
-LE46C:  jmp     soundEffectSlot1Playing_stop
+LE46C:
+        jmp soundEffectSlot1Playing_stop
 
-LE46F:  inc     soundEffectSlot1SecondaryCounter
-LE472:  rts
+LE46F:
+        inc soundEffectSlot1SecondaryCounter
+LE472:
+        rts
 
 soundEffectSlot1_menuScreenSelectInit:
         lda #$03
@@ -6811,7 +6894,8 @@ soundEffectSlot1_menuScreenSelectPlaying:
         bne LE493
         jmp soundEffectSlot1Playing_stop
 
-LE493:  lda     soundEffectSlot1SecondaryCounter
+LE493:
+        lda soundEffectSlot1SecondaryCounter
         lsr a
         lsr a
         lsr a
@@ -6823,8 +6907,10 @@ LE493:  lda     soundEffectSlot1SecondaryCounter
         sta soundEffectSlot1SecondaryCounter
         sta SQ1_LO
         lda #$28
-LE4AC:  sta     SQ1_HI
-LE4AF:  rts
+LE4AC:
+        sta SQ1_HI
+LE4AF:
+        rts
 
 soundEffectSlot1_lineClearing_vol:
         .byte   $9E,$9B,$99,$96,$94,$93,$92,$91
@@ -6844,7 +6930,8 @@ soundEffectSlot1_levelUpPlaying:
         lda #$28
         jmp LE4AC
 
-LE4E9:  jmp     soundEffectSlot1Playing_stop
+LE4E9:
+        jmp soundEffectSlot1Playing_stop
 
 soundEffectSlot1_levelUpInit:
         lda #$06
@@ -6865,7 +6952,8 @@ soundEffectSlot2_lowBuzz:
         ldy #$60
         ldx #$0E
         bne LE51B
-LE51B:  sta     DMC_LEN
+LE51B:
+        sta DMC_LEN
         sty DMC_START
         stx DMC_FREQ
         lda #$0F
@@ -6989,7 +7077,8 @@ musicLoOffset_8AndC:
         pla
         lda #$00
         beq musicLoOffset_setLoAndSaveFrameCounter
-LE613:  pla
+LE613:
+        pla
         jmp musicLoOffset_setLoAndSaveFrameCounter
 
 ; Doesn't loop
@@ -7564,7 +7653,8 @@ playNoise:
         sta NOISE_HI
 @ret:   rts
 
-playDmc:tya
+playDmc:
+        tya
         and #$C0
         cmp #$40
         beq @loadDmc0
@@ -7632,37 +7722,59 @@ musicChanVolControlTable:
         .addr   LEB0A
         .addr   LEB0D
         .addr   LEB10
-LEA76:  .byte   $46,$89,$87,$76,$66,$55,$44,$33
+LEA76:
+        .byte   $46,$89,$87,$76,$66,$55,$44,$33
         .byte   $22,$21,$11,$F0
-LEA82:  .byte   $86,$55,$44,$44,$31,$11,$11,$11
+LEA82:
+        .byte   $86,$55,$44,$44,$31,$11,$11,$11
         .byte   $F0
-LEA8B:  .byte   $54,$43,$33,$22,$11,$F0
-LEA91:  .byte   $23,$45,$77,$66,$55,$44,$44,$44
+LEA8B:
+        .byte   $54,$43,$33,$22,$11,$F0
+LEA91:
+        .byte   $23,$45,$77,$66,$55,$44,$44,$44
         .byte   $FF
-LEA9A:  .byte   $32,$22,$22,$22,$22,$22,$22,$FF
-LEAA2:  .byte   $99,$81,$FF
-LEAA5:  .byte   $58,$71,$FF
-LEAA8:  .byte   $E7,$99,$81,$FF
-LEAAC:  .byte   $A8,$66,$55,$54,$43,$43,$32,$22
+LEA9A:
+        .byte   $32,$22,$22,$22,$22,$22,$22,$FF
+LEAA2:
+        .byte   $99,$81,$FF
+LEAA5:
+        .byte   $58,$71,$FF
+LEAA8:
+        .byte   $E7,$99,$81,$FF
+LEAAC:
+        .byte   $A8,$66,$55,$54,$43,$43,$32,$22
         .byte   $22,$21,$11,$11,$11,$F0
-LEABA:  .byte   $97,$65,$44,$33,$33,$33,$22,$22
+LEABA:
+        .byte   $97,$65,$44,$33,$33,$33,$22,$22
         .byte   $11,$11,$11,$11,$F0
-LEAC7:  .byte   $65,$44,$44,$33,$22,$22,$11,$11
+LEAC7:
+        .byte   $65,$44,$44,$33,$22,$22,$11,$11
         .byte   $11,$11,$11,$11,$F0
-LEAD4:  .byte   $44,$33,$22,$22,$11,$11,$11,$11
+LEAD4:
+        .byte   $44,$33,$22,$22,$11,$11,$11,$11
         .byte   $11,$F0
-LEADE:  .byte   $22,$22,$11,$11,$11,$11,$11,$11
+LEADE:
+        .byte   $22,$22,$11,$11,$11,$11,$11,$11
         .byte   $11,$F0
-LEAE8:  .byte   $97,$65,$32,$43,$21,$11,$32,$21
+LEAE8:
+        .byte   $97,$65,$32,$43,$21,$11,$32,$21
         .byte   $11,$FF
-LEAF2:  .byte   $D8,$76,$54,$32,$FF
-LEAF7:  .byte   $B8,$76,$53,$21,$FF
-LEAFC:  .byte   $85,$43,$21,$11,$FF
-LEB01:  .byte   $53,$22,$11,$FF
-LEB05:  .byte   $EB,$97,$53,$21,$FF
-LEB0A:  .byte   $A9,$91,$F0
-LEB0D:  .byte   $85,$51,$F0
-LEB10:  .byte   $63,$31,$F0
+LEAF2:
+        .byte   $D8,$76,$54,$32,$FF
+LEAF7:
+        .byte   $B8,$76,$53,$21,$FF
+LEAFC:
+        .byte   $85,$43,$21,$11,$FF
+LEB01:
+        .byte   $53,$22,$11,$FF
+LEB05:
+        .byte   $EB,$97,$53,$21,$FF
+LEB0A:
+        .byte   $A9,$91,$F0
+LEB0D:
+        .byte   $85,$51,$F0
+LEB10:
+        .byte   $63,$31,$F0
 ; Rounds slightly differently, but can use for reference: https://web.archive.org/web/20180315161431if_/http://www.freewebs.com:80/the_bott/NotesTableNTSC.txt
 noteToWaveTable:
         ; $00: A1, rest, C2, Db2
@@ -8041,7 +8153,8 @@ checkFor0Arr:
         rts
 
 
-menuThrottle: ; add DAS-like movement to the menu
+menuThrottle:
+        ; add DAS-like movement to the menu
         sta menuThrottleTmp
         lda newlyPressedButtons_player1
         cmp menuThrottleTmp
@@ -8110,7 +8223,8 @@ stageSpawnAreaTiles:
 .segment        "PRG_chunk3": absolute
 
 ; incremented to reset MMC1 reg
-reset:  cld
+reset:
+        cld
         sei
         ldx #$00
         stx PPUCTRL
