@@ -296,7 +296,8 @@ gameModeState_updatePlayer1:
         rts
 
 gameModeState_updatePlayer2:
-@ret:   inc     gameModeState
+@ret:
+        inc gameModeState
         rts
 
 gameMode_playAndEndingHighScore:
@@ -1137,7 +1138,8 @@ skipShowingSelectionLevel:
         lda heightToPpuLowAddr,x
         sta spriteXOffset
         jsr loadSpriteIntoOamStaging
-@ret:   rts
+@ret:
+        rts
 
 levelToSpriteYOffset:
         .byte   $53,$53,$53,$53,$53,$63,$63,$63
@@ -1615,7 +1617,8 @@ makePlayer2Active:
 
 ; Copies $40 to $60
 savePlayer1State:
-@ret:   rts
+@ret:
+        rts
 
 ; Copies $40 to $80
 savePlayer2State:
@@ -1749,7 +1752,8 @@ gameModeState_updateCountersAndNonPlayerState:
         eor #$01
         sta displayNextPiece
 .endif
-@ret:   inc     gameModeState
+@ret:
+        inc gameModeState
         rts
 
 rotate_tetrimino:
@@ -1833,7 +1837,8 @@ drop_tetrimino:
         lda #$01
         sta autorepeatY
         inc holdDownPoints
-@drop:  lda     #$00
+@drop:
+        lda #$00
         sta fallTimer
         lda tetriminoY
         sta originalY
@@ -1853,7 +1858,8 @@ drop_tetrimino:
         lda #$02
         sta playState
         jsr updatePlayfield
-@ret:   rts
+@ret:
+        rts
 
 @lookupDropSpeed:
         lda #$01
@@ -2007,7 +2013,8 @@ stageSpriteForNextPiece:
         bne @stageMino
         txa
         sta oamStagingLength
-@ret:   rts
+@ret:
+        rts
 
 .include "orientation/orientation_to_next_offset.asm"
 
@@ -2053,7 +2060,8 @@ loadSpriteIntoOamStaging:
         sta oamStagingLength
         jmp @whileNotFF
 
-@ret:   rts
+@ret:
+        rts
 
 oamContentLookup:
         .addr   sprite00LevelSelectCursor
@@ -2894,7 +2902,8 @@ copyPlayfieldRowToVRAM:
         bmi @ret
         lda #$20
         sta vramRow
-@ret:   rts
+@ret:
+        rts
 
 .ifndef AEPPOZ
 updateLineClearingAnimation:
@@ -2955,7 +2964,8 @@ rightColumns:
 ; Set Background palette 2 and Sprite palette 2
 updatePaletteForLevel:
         lda levelNumber
-@mod10: cmp     #$0A
+@mod10:
+        cmp #$0A
         bmi @copyPalettes
         sec
         sbc #$0A
@@ -3017,7 +3027,8 @@ noop_disabledVramRowIncr:
         lda #$20
         sta vramRow
 @player2:
-@ret:   rts
+@ret:
+        rts
 
 playState_spawnNextTetrimino:
         lda vramRow
@@ -3044,7 +3055,8 @@ playState_spawnNextTetrimino:
 @resetDownHold:
         lda #$00
         sta autorepeatY
-@ret:   rts
+@ret:
+        rts
 
 .include "orientation/weight_table_and_rng.asm"
 
@@ -3314,7 +3326,8 @@ playState_lockTetrimino:
         jsr updatePlayfield
         jsr updateMusicSpeed
         inc playState
-@ret:   rts
+@ret:
+        rts
 
 playState_updateGameOverCurtain:
         lda newlyPressedButtons_player1
@@ -3396,7 +3409,8 @@ playState_updateGameOverCurtainOld:
         lda curtainRow
         cmp #$14
         bne @ret
-@ret:   rts
+@ret:
+        rts
 
 @curtainFinished:
         lda score+2
@@ -3415,7 +3429,8 @@ playState_updateGameOverCurtainOld:
         lda #$00
         sta playState
         sta newlyPressedButtons_player1
-@ret2:  rts
+@ret2:
+        rts
 
 playState_checkForCompletedRows:
         lda vramRow
@@ -3522,13 +3537,16 @@ playState_checkForCompletedRows:
         inc playState
         lda #$07
         sta soundEffectSlot1Init
-@ret:   rts
+@ret:
+        rts
 
 playState_receiveGarbage:
         ldaHiddenPiece
         sta currentPiece
-@ret:  inc     playState
-@delay:  rts
+@ret:
+        inc playState
+@delay:
+        rts
 
 garbageLines:
         .byte   $00,$00,$01,$02,$04
@@ -3629,7 +3647,8 @@ L9BC7:
         lda outOfDateRenderFlags
         ora #$02
         sta outOfDateRenderFlags
-@lineLoop:  dex
+@lineLoop:
+        dex
         bne incrementLines
 addHoldDownPoints:
         lda holdDownPoints
@@ -3751,7 +3770,8 @@ updatePlayfield:
         cmp vramRow
         bpl @ret
         sta vramRow
-@ret:   rts
+@ret:
+        rts
 
 gameModeState_handleGameOver:
 .ifdef AEPPOZ
@@ -3789,7 +3809,8 @@ gameModeState_handleGameOver:
         sta gameMode
         rts
 
-@ret:   inc     gameModeState
+@ret:
+        inc gameModeState
         ; If a 4 is left in the accumulator then the game waits for NMI, blanking out the sprites and causing the
         ; next box to flicker during a line clear
         ; the comments in this link explain a lot
@@ -3832,7 +3853,8 @@ updateMusicSpeed:
         tax
         lda musicSelectionTable,x
         jsr setMusicTrack
-@ret:   rts
+@ret:
+        rts
 
 pollControllerButtons:
         lda gameMode
@@ -3880,7 +3902,8 @@ pollControllerButtons:
 @holdButtons:
         lda demo_heldButtons
         sta heldButtons_player1
-@ret:   rts
+@ret:
+        rts
 
 @startButtonPressed:
         lda #>demoButtonsTable
@@ -3922,7 +3945,8 @@ pollControllerButtons:
         inc demo_repeats
         rts
 
-@ret2:  rts
+@ret2:
+        rts
 
 demoButtonsTable_indexIncr:
         lda demoButtonsAddr
@@ -3952,7 +3976,8 @@ setMusicTrack:
         bne @ret
         lda #$FF
         sta musicTrack
-@ret:   rts
+@ret:
+        rts
 
 ; A+B+Select+Start
 gameModeState_checkForResetKeyCombo:
@@ -3962,7 +3987,8 @@ gameModeState_checkForResetKeyCombo:
         inc gameModeState
         rts
 
-@reset: jsr     updateAudio2
+@reset:
+        jsr updateAudio2
         lda #$00
         sta gameMode
         rts
@@ -4371,7 +4397,8 @@ handleHighScoreIfNecessary:
         beq @ret
         jmp @compareWithPos
 
-@ret:   rts
+@ret:
+        rts
 
 adjustHighScores:
         lda highScoreEntryRawPos
@@ -4660,7 +4687,8 @@ highScoreEntryScreen:
         jsr updateAudioWaitForNmiAndResetOamStaging
         jmp @renderFrame
 
-@ret:   jsr     updateAudioWaitForNmiAndResetOamStaging
+@ret:
+        jsr updateAudioWaitForNmiAndResetOamStaging
         rts
 
 highScorePosToY:
@@ -4696,7 +4724,8 @@ render_mode_congratulations_screen:
         sta ppuScrollY
         sta PPUSCROLL
         sta outOfDateRenderFlags
-@ret:   rts
+@ret:
+        rts
 
 ; Handles pausing and exiting demo
 gameModeState_startButtonHandling:
@@ -4730,7 +4759,8 @@ gameModeState_startButtonHandling:
         bne @pause
         jmp @ret
 
-@pause: lda     #$05
+@pause:
+        lda #$05
         sta musicStagingNoiseHi
         lda #$05
         sta renderMode
@@ -4791,7 +4821,8 @@ gameModeState_startButtonHandling:
         sta vramRow
         lda #$03
         sta renderMode
-@ret:   inc     gameModeState
+@ret:
+        inc gameModeState
         rts
 
 togglePauseScreen:
@@ -4917,7 +4948,8 @@ playState_bTypeGoalCheck:
 
 
 
-@graphicCopied:  lda     #$00
+@graphicCopied:
+        lda #$00
         sta vramRow
         jsr sleep_for_14_vblanks
         lda #$00
@@ -4960,7 +4992,8 @@ sleep_for_14_vblanks:
         jsr updateAudioWaitForNmiAndResetOamStaging
         lda sleepCounter
         bne @loop
-@break: rts
+@break:
+        rts
 
 sleep_for_a_vblanks:
         sta sleepCounter
@@ -4971,7 +5004,8 @@ sleep_for_a_vblanks:
         jsr updateAudioWaitForNmiAndResetOamStaging
         lda sleepCounter
         bne @loop
-@break: rts
+@break:
+        rts
 
 ending_initTypeBVars:
         lda #$00
@@ -5082,7 +5116,8 @@ patchToPpu:
         sta PPUDATA
         jmp @patchValue
 
-@ret:   rts
+@ret:
+        rts
 
 render_ending:
         lda gameType
@@ -5162,7 +5197,8 @@ ending_typeBConcert:
         sta spriteIndexInOamContentLookup
         jsr loadSpriteIntoOamStaging
         inc ending
-@bowser:lda     #$30
+@bowser:
+        lda #$30
         sta spriteXOffset
         lda #$A7
         sta spriteYOffset
@@ -5191,7 +5227,8 @@ ending_typeBConcert:
         adc #$1D
         sta spriteIndexInOamContentLookup
         jsr loadSpriteIntoOamStaging
-@samus: lda     #$A8
+@samus:
+        lda #$A8
         sta spriteXOffset
         lda #$D7
         sta spriteYOffset
@@ -5205,7 +5242,8 @@ ending_typeBConcert:
         adc #$1A
         sta spriteIndexInOamContentLookup
         jsr loadSpriteIntoOamStaging
-@link:  lda     #$C8
+@link:
+        lda #$C8
         sta spriteXOffset
         lda #$D7
         sta spriteYOffset
@@ -5283,13 +5321,15 @@ ending_typeBCathedral:
         inc ending_currentSprite
         jmp @spriteLoop
 
-@done:  ldx     levelNumber
+@done:
+        ldx levelNumber
         lda ending_typeBCathedralFrameDelayTable,x
         cmp ending_typeBCathedralFrameDelayCounter
         bne @ret
         lda #$00
         sta ending_typeBCathedralFrameDelayCounter
-@ret:   rts
+@ret:
+        rts
 
 ending_typeBCathedralSetSprite:
         inc ending
@@ -6227,7 +6267,8 @@ incrementStatsAndSetAutorepeatX:
         cmp #$01
         bne @ret
         sta autorepeatX
-@ret:   rts
+@ret:
+        rts
 
 ; End of "PRG_chunk1" segment
 .code
@@ -6339,7 +6380,8 @@ computeSoundEffMethod:
         sta AUDIOTMP3
         lda #>soundEffectSlot0Init_table
         sta AUDIOTMP4
-@ret:   pla
+@ret:
+        pla
         sta currentAudioSlot
         rts
 
@@ -6375,7 +6417,8 @@ advanceAudioSlotFrame:
         bne @ret
         lda #$00
         sta soundEffectSlot0FrameCounter,x
-@ret:   rts
+@ret:
+        rts
 
 ; removing this messes up the piece shifting sound
 unreferenced_data3:
@@ -6520,7 +6563,8 @@ updateAudio_pause:
         jsr copyToSq1Channel
 @incAndRet:
         inc musicPauseSoundEffectLengthCounter
-@ret:   rts
+@ret:
+        rts
 
 ; Disables APU frame interrupt
 updateAudio:
@@ -6600,13 +6644,17 @@ initSoundEffectShared:
         beq @slot3
         rts
 
-@slot1: jsr     copyToSq1Channel
+@slot1:
+        jsr copyToSq1Channel
         beq @continue
-@slot2: jsr     copyToSq2Channel
+@slot2:
+        jsr copyToSq2Channel
         beq @continue
-@slot3: jsr     copyToTriChannel
+@slot3:
+        jsr copyToTriChannel
         beq @continue
-@slot0: jsr     copyToNoiseChannel
+@slot0:
+        jsr copyToNoiseChannel
 @continue:
         lda currentAudioSlot
         sta soundEffectSlot0Playing,x
@@ -6688,7 +6736,8 @@ getSoundEffectNoiseNibble:
         and #$0F
         rts
 
-@shift4:lda     AUDIOTMP5
+@shift4:
+        lda AUDIOTMP5
         lsr a
         lsr a
         lsr a
@@ -6717,7 +6766,8 @@ soundEffectSlot1_chirpChirpPlaying:
         bne soundEffectSlot1Playing_ret
         jmp soundEffectSlot1Playing_stop
 
-@stage1:lda     soundEffectSlot1SecondaryCounter
+@stage1:
+        lda soundEffectSlot1SecondaryCounter
         and #$03
         tay
         lda soundEffectSlot1_chirpChirpSq1Vol_table,y
@@ -6774,7 +6824,8 @@ soundEffectSlot1_menuOptionSelectPlaying:
         bne @stage2
         jmp soundEffectSlot1Playing_stop
 
-@stage2:ldy     #<soundEffectSlot1Playing_menuOptionSelectStage2
+@stage2:
+        ldy #<soundEffectSlot1Playing_menuOptionSelectStage2
         jmp copyToSq1Channel
 
 soundEffectSlot1_menuOptionSelectInit:
@@ -6804,11 +6855,13 @@ soundEffectSlot1_rotateTetriminoPlaying:
         bne soundEffectSlot1_rotateTetrimino_ret
         jmp soundEffectSlot1Playing_stop
 
-@stage2:ldy     #<soundEffectSlot1_rotateTetriminoInitData
+@stage2:
+        ldy #<soundEffectSlot1_rotateTetriminoInitData
         jmp copyToSq1Channel
 
 ; On first glance it appears this is used twice, but the first beq does nothing because the inc result will never be 0
-@stage3:ldy     #<soundEffectSlot1Playing_rotateTetriminoStage3
+@stage3:
+        ldy #<soundEffectSlot1Playing_rotateTetriminoStage3
         jmp copyToSq1Channel
 
 soundEffectSlot1_tetrisAchievedInit:
@@ -7060,7 +7113,8 @@ updateMusicFrame_setChanLo:
         jsr updateMusicFrame_setChanLoOffset
 @incAndRet:
         inc musicChanLoFrameCounter,x
-@ret:   rts
+@ret:
+        rts
 
 musicLoOffset_8AndC:
         lda AUDIOTMP3
@@ -7121,7 +7175,8 @@ updateMusicFrame_setChanLoOffset:
         cmp #$C0
         beq musicLoOffset_8AndC
 ; Loops between 0-9
-@2AndE: lda     AUDIOTMP3
+@2AndE:
+        lda AUDIOTMP3
         cmp #$0A
         bne @2AndE_lessThanA
         lda #$00
@@ -7131,7 +7186,8 @@ updateMusicFrame_setChanLoOffset:
         jmp musicLoOffset_setLoAndSaveFrameCounter
 
 ; Ends by looping in 2 and E table
-@A:     lda     AUDIOTMP3
+@A:
+        lda AUDIOTMP3
         cmp #$2B
         bne @A_lessThan2B
         lda #$21
@@ -7154,7 +7210,8 @@ musicLoOffset_setLo:
         sta SQ1_LO,y
         rts
 
-@ret:   pla
+@ret:
+        pla
         rts
 
 ; Values are signed
@@ -7240,7 +7297,8 @@ initSq12IfTrashedBySoundEffect:
         sta SQ2_LO
         lda musicStagingSq2Hi
         sta SQ2_HI
-@setSq1:lda     #$7F
+@setSq1:
+        lda #$7F
         sta SQ1_SWEEP
         lda musicStagingSq1Lo
         sta SQ1_LO
@@ -7301,12 +7359,14 @@ updateMusicFrame_setChanVol:
         tay
 @advanceFrameAndSetVol:
         inc musicChanVolFrameCounter,x
-@setVol:lda     musicChanInhibit,x
+@setVol:
+        lda musicChanInhibit,x
         bne @ret
         tya
         ldy musicChannelOffset
         sta SQ1_VOL,y
-@ret:   rts
+@ret:
+        rts
 
 @constVolAtEnd:
         ldy musicChanVolume,x
@@ -7651,7 +7711,8 @@ playNoise:
         sta NOISE_LO
         lda noises_table+2,y
         sta NOISE_HI
-@ret:   rts
+@ret:
+        rts
 
 playDmc:
         tya
@@ -7689,7 +7750,8 @@ playDmc:
         sta DMC_RAW
         lda #$1F
         sta SND_CHN
-@ret:   rts
+@ret:
+        rts
 
 ; input x: music channel. output a: next value
 musicGetNextInstructionByte:
