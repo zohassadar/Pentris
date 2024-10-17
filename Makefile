@@ -29,7 +29,7 @@ endif
 CA65 := $(WINE) $(cc65Path)/bin/ca65
 LD65 := $(WINE) $(cc65Path)/bin/ld65
 
-nesChrEncode := python3 tools/nes-util/nes_chr_encode.py
+nesChrEncode := python tools/nes-util/nes_chr_encode.py
 pythonExecutable := python
 
 pentris.nes: pentris.o main.o
@@ -55,7 +55,7 @@ compare: $(pentris)
 	$(SHA1SUM) -c pentris.sha1
 
 clean:
-	rm -f  $(pentris_obj) $(pentris) *.d pentris.dbg pentris.lbl gfx/*.chr gfx/nametables/*.bin orientation/*.asm
+	rm -f  $(pentris_obj) $(pentris) *.d *.o *.dbg *.lbl *.map gfx/*.chr gfx/nametables/*.bin orientation/*.asm
 	$(MAKE) clean -C tools/cTools/
 
 tools:
@@ -69,10 +69,11 @@ all:
 	touch *.asm
 	touch gfx/nametables/*.py
 	touch gfx/*.png
+	touch orientation/orientations.py
 	$(MAKE)
-	$(MAKE) compare
 	$(MAKE) patch
 	cp pentris.nes Pentris_$(VERSION).nes
+	$(MAKE) compare
 
 # Build tools when building the rom.
 # This has to happen before the rules are processed, since that's when scan_includes is run.
