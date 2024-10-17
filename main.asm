@@ -101,7 +101,7 @@ nmi:
         lda #$00
         adc frameCounter+1
         sta frameCounter+1
-        ldx #$17
+        ldx #rng_seed
         ldy #$02
         jsr generateNextPseudoAndAlsoBSeed
 
@@ -987,7 +987,7 @@ checkBPressed:
         rts
 
 chooseRandomHole_player1:
-        ldx #$17
+        ldx #rng_seed
         ldy #$02
         jsr generateNextPseudorandomNumber
         lda rng_seed
@@ -996,7 +996,7 @@ chooseRandomHole_player1:
         bpl chooseRandomHole_player1
         ;sta     garbageHole
 @chooseRandomHole_player2:
-        ldx #$17
+        ldx #rng_seed
         ldy #$02
         jsr generateNextPseudorandomNumber
         lda rng_seed
@@ -1568,7 +1568,7 @@ gameModeState_initGameState:
         clc
         adc spawnOffsets,x
         sta tetriminoY
-        ldx #$17
+        ldx #rng_seed
         ldy #$02
         jsr generateNextPseudorandomNumber
         jsr chooseNextTetrimino
