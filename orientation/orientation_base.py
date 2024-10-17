@@ -4,8 +4,7 @@ import re
 from dataclasses import dataclass
 
 
-class InvalidPiece(Exception):
-    ...
+class InvalidPiece(Exception): ...
 
 
 class OrientationBase:

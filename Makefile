@@ -1,4 +1,4 @@
-WINDOWS := $(shell which wine ; echo $$?)
+WINDOWS := $(shell which wine 2>/dev/null; echo $$?)
 UNAME_S := $(shell uname -s)
 
 VERSION := v2.0beta3
@@ -63,23 +63,16 @@ tools:
 
 patch: $(pentris_obj)
 patch:
-	tools/flips-linux --create clean.nes $(pentris) pentris.bps
+	tools/flips-linux --create clean.nes $(pentris) Pentris_$(VERSION).bps
 
 all:
 	touch *.asm
 	touch gfx/nametables/*.py
 	touch gfx/*.png
 	$(MAKE)
+	$(MAKE) compare
 	$(MAKE) patch
-	mv pentris.bps Pentris_$(VERSION).bps
-	mv pentris.nes Pentris_$(VERSION).nes
-#	touch *.asm
-#	touch gfx/nametables/*.py
-#	touch gfx/*.png
-#	$(MAKE) flags ANYDAS
-#	$(MAKE) patch
-#	mv pentris.bps PentrisAnydas_$(VERSION).bps
-#	mv pentris.nes PentrisAnydas_$(VERSION).nes
+	cp pentris.nes Pentris_$(VERSION).nes
 
 # Build tools when building the rom.
 # This has to happen before the rules are processed, since that's when scan_includes is run.

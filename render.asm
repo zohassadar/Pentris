@@ -1,91 +1,93 @@
+; idea for dumping tiles using stack from EOR #$FF: 6502 Ponderables and Befuddlements
+
 .macro sendAddress
-    pla
-    sta PPUADDR
-    pla
-    sta PPUADDR
+        pla
+        sta PPUADDR
+        pla
+        sta PPUADDR
 .endmacro
 
 .macro sendData bytes
 .repeat bytes
-    pla
-    sta PPUDATA
+        pla
+        sta PPUDATA
 .endrepeat
 .endmacro
 
 dumpRenderQueue:
-    lda playState
-    cmp #$4
-    bne @normalDump
-    jmp updateLineClearingAnimation
+        lda playState
+        cmp #$4
+        bne @normalDump
+        jmp updateLineClearingAnimation
 @normalDump:
-    tsx
-    stx stackPointer
-    ldx #$FF
-    txs
+        tsx
+        stx stackPointer
+        ldx #$FF
+        txs
 
 ; rows
 .repeat 5
-    sendAddress
-    sendData 14
+        sendAddress
+        sendData 14
 .endrepeat
 
 ; old piece
 .repeat 5
-    sendAddress
-    sendData 1
+        sendAddress
+        sendData 1
 .endrepeat
 
 ; spawn area tiles
 sendAddress
 sendData 5
 .repeat 2
-    sendAddress
-    sendData 3
+        sendAddress
+        sendData 3
 .endrepeat
 
 ; new piece
 .repeat 5
-    sendAddress
-    sendData 1
+        sendAddress
+        sendData 1
 .endrepeat
 
 ; score
-    sendAddress
-    sendData 6
+        sendAddress
+        sendData 6
 
 ; lines
-    sendAddress
-    sendData 3
+        sendAddress
+        sendData 3
 
 ; level
-    sendAddress
-    sendData 2
+        sendAddress
+        sendData 2
 
 ; palette bg tetris
-    sendAddress
-    sendData 1
+        sendAddress
+        sendData 1
 
 ; palette bg pieces
-    sendAddress
-    sendData 4
+        sendAddress
+        sendData 4
 
 ; palette bg sprites
-    sendAddress
-    sendData 4
+        sendAddress
+        sendData 4
 
 ; stats
-    sendAddress
-    sendData 3
+        sendAddress
+        sendData 3
 
-    ldx stackPointer
-    txs
+        ldx stackPointer
+        txs
 
-    lda currentPpuCtrl
-    sta PPUCTRL
-    ldy #$00
-    sty PPUSCROLL
-    sty PPUSCROLL
-    rts
+        lda currentPpuCtrl
+        sta PPUCTRL
+        ldy #$00
+        sty PPUSCROLL
+        sty PPUSCROLL
+        rts
 
 tmpYOffset := generalCounter
 tmpXOffset := generalCounter2
@@ -94,6 +96,7 @@ counter := generalCounter5
 
 
 stageSpriteForCurrentPiece:
+        ; not really a sprite
         jsr stageSpawnAreaTiles
         jsr clearOldPiece
         lda currentPiece
@@ -101,33 +104,32 @@ stageSpriteForCurrentPiece:
         beq @ret
         jsr setOrientationTable
         lda #$00
-        sta counter ; iterate through all five minos
+        sta counter             ; iterate through all five minos
         tay
 @pieceLoop:
         lda (currentOrientationY),y
-        sta tmpYOffset               ; Y offset
+        sta tmpYOffset          ; Y offset
         lda (currentOrientationX),y
-        sta tmpXOffset              ; X offset
+        sta tmpXOffset          ; X offset
         lda currentTile
-        sta tmpTile              ; Tile
+        sta tmpTile             ; Tile
 
         tya
-        pha             ; store Y
+        pha                     ; store Y
 
         lda counter
         asl
         clc
         adc counter
-        tay                       ; counter multiplied by 3 (addr, addr, data)
-
+        tay                     ; counter multiplied by 3 (addr, addr, data)
 
         lda tmpYOffset
         clc
         adc tetriminoY
         asl
-        tax                                             ; y + offset to get row
+        tax                     ; y + offset to get row
 
-        ; x should only be negative if piece is hidden??
+        ; x should only be negative if piece is hidden
         bpl @notHidden
         lda #$00
         sta newPiece0Address,y
@@ -146,7 +148,7 @@ stageSpriteForCurrentPiece:
         sta newPiece0Address+2,y
 
 @resume:
-        pla
+        pla                     ; restore Y
         tay
 
         iny
@@ -164,26 +166,16 @@ clearOldPiece:
         cmpHiddenPiece
         bne @normalClear
         lda #$00
-        sta oldPiece0Address  ; is all of this necessary?
+        sta oldPiece0Address
         sta oldPiece1Address
         sta oldPiece2Address
         sta oldPiece3Address
         sta oldPiece4Address
-        ; sta     oldPiece0Address+1
-        ; sta     oldPiece1Address+1
-        ; sta     oldPiece2Address+1
-        ; sta     oldPiece3Address+1
-        ; sta     oldPiece4Address+1
         sta newPiece0Address
         sta newPiece1Address
         sta newPiece2Address
         sta newPiece3Address
         sta newPiece4Address
-        ; sta     newPiece0Address+1
-        ; sta     newPiece1Address+1
-        ; sta     newPiece2Address+1
-        ; sta     newPiece3Address+1
-        ; sta     newPiece4Address+1
         rts
 @normalClear:
         ldy #$0C
@@ -217,6 +209,7 @@ stageRenderQueue:
         lda #$F7
         sta scoreAddress+1
 
+        ; 3 rows that represent where pieces can spawn
         lda #$20
         sta spawnRow1Address
         lda #$CB
@@ -258,9 +251,8 @@ stage_playfield_render:
         cmp #$04
         bne @normalRender
         rts
-@normalRender:
 
-;lines
+@normalRender:
 
         lda lines+1
         sta linesData

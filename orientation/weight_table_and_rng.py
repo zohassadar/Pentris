@@ -146,8 +146,8 @@ indexed_weights = list(zip([weight[1] for weight in weights], pento_table_indexe
 indexed_weights_tetriminos = list(
     zip([weight[1] for weight in weights_tetriminos], table.indexes())
 )
-#pprint(indexed_weights)
-#pprint(indexed_weights_tetriminos)
+# pprint(indexed_weights)
+# pprint(indexed_weights_tetriminos)
 
 # for repeat, index in indexed_weights:
 #    print(repeat, index)
@@ -158,7 +158,9 @@ if validation != 256:
 
 validation = sum(repeats for repeats, index in indexed_weights_tetriminos)
 if validation != 256:
-    sys.exit(f"Piece ID repeats for tetriminos must add up to 256.  This adds up to {validation}")
+    sys.exit(
+        f"Piece ID repeats for tetriminos must add up to 256.  This adds up to {validation}"
+    )
 
 weight_list_pentos = []
 for piece in table.pieces[:-8] + table.pieces[-1:]:
@@ -198,8 +200,8 @@ try:
         file=file,
     )
     print("weightTables:", file=file)
-    print("    .addr  weightTable",file=file)
-    print("    .addr  weightTableTetriminos\n",file=file)
+    print("    .addr  weightTable", file=file)
+    print("    .addr  weightTableTetriminos\n", file=file)
     print("weightTable:", file=file)
     for i in range(0, len(weight_list_pentos) - 1, 8):
         print(

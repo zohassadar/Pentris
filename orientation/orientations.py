@@ -884,7 +884,6 @@ t4 = Piece(
 )
 
 
-
 j4_left = Orientation(
     ("....."
      "..X.."
@@ -937,8 +936,6 @@ j4 = Piece(
 )
 
 
-
-
 z4_horizontal = Orientation(
     ("....."
      "....."
@@ -969,7 +966,6 @@ z4 = Piece(
         z4_vertical,
     ],
 )
-
 
 
 o4_solo = Orientation(
@@ -1111,7 +1107,6 @@ i4 = Piece(
 )
 
 
-
 hidden_orientation = HiddenOrientation(5)
 
 
@@ -1173,7 +1168,7 @@ weight_table_tetriminos = {
     s4: 11,
     l4: 11,
     i4: 11,
-        }
+}
 
 table = OrientationTable(
     [

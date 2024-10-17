@@ -1,10 +1,13 @@
 """Convert an image file into an NES CHR data file."""
 
 import argparse
+import logging
 import os
 import sys
 from PIL import Image  # Pillow
 import neslib
+
+logger = logging.getLogger(__name__)
 
 def decode_color_code(color):
     """Decode a 6-digit hexadecimal color code. Return (R, G, B)."""
@@ -46,7 +49,7 @@ def parse_arguments():
     if not os.path.isfile(args.input_file):
         sys.exit("Input file not found.")
     if os.path.exists(args.output_file):
-        print("Output file already exists and will be overwritten.")
+        logger.debug("Output file already exists and will be overwritten.")
     if len(set(decode_color_code(c) for c in args.palette)) < 4:
         sys.exit("All colors in --palette must be distinct.")
 
@@ -100,7 +103,7 @@ def prepare_image(img, palette):
         sys.exit("Invalid image height.")
     if img.mode not in ("P", "L", "RGB"):
         img = img.convert('RGB')
-        print(f'The image mode has been converted to RGB')
+        logger.debug(f'The image mode has been converted to RGB')
     validate_number_of_colors(img)
 
     # convert grayscale/RGB image into indexed color
