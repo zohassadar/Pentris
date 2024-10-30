@@ -1,4 +1,6 @@
 # Changelog
+## [2.1]
+* Fixed glitch that can occur if stats screen is triggered then reset sequence triggered within one frame after topout
 
 ## [2.0]
 * Menu on level select screen
