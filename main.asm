@@ -3990,7 +3990,7 @@ gameModeState_checkForResetKeyCombo:
         rts
 
 @reset:
-        jsr updateAudio2
+        jsr resetPauseScreenThenUpdateAudio2
         lda #$00
         sta gameMode
         rts
@@ -8272,6 +8272,11 @@ stageSpawnAreaTiles:
         lda $050F
         sta spawnRow3Data+2
         rts
+
+resetPauseScreenThenUpdateAudio2:
+    lda #$00
+    sta pauseScreen
+    jmp updateAudio2
 
 .code
 
