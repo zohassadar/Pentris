@@ -38,7 +38,7 @@ ______________________
 __DAS_____________00__
 __ARR_____________00__
 __ARE_CHARGE_____OFF__
-__TETRIMINOS_____OFF__
+__TETRIMINOS______ON__
 __TRANSITION_____OFF__
 __MARATHON_______OFF__
 __SEED________000000__

@@ -1,6 +1,10 @@
         .setcpu "6502"
 ; see https://github.com/CelestialAmber/TetrisNESDisasm/blob/master/main.asm for comments related to memory
 
+HALF_WIDTH = 6
+VISIBLE_HEIGHT = 24
+BOARD_HEIGHT = 26
+
 .include "pentris-ram.asm"
 
 PPUCTRL         := $2000
@@ -200,7 +204,7 @@ initRamContinued:
 ; default das values
         lda #$10
         sta anydasDASValue
-        lda #$06
+        lda #$05
         sta anydasARRValue
 
         ldx #$89
@@ -243,6 +247,10 @@ initRamContinued:
         ldx #$04
         ldy #$05
         jsr memset_page
+        lda #$01
+        sta tetriminoMode    ; <-- DEFAULT ON at power-on
+        lda #$03
+        sta musicType
         jsr waitForVBlankAndEnableNmi
         jsr updateAudioWaitForNmiAndResetOamStaging
         jsr updateAudioWaitForNmiAndEnablePpuRendering
@@ -868,9 +876,6 @@ toggleMenuScreen:
         lda menuScreen
         eor #$02
         sta menuScreen
-        ;lda     #$16
-        ;sta     currentPpuMask
-        ;sta     PPUMASK
         jsr updateAudioWaitForNmiAndResetOamStaging
         lda currentPpuCtrl
         and #$FD
@@ -1295,13 +1300,17 @@ writeOnWithoutSpace:
         rts
 
 hideTetriminoStatsPatch:
-        .byte  $2B,$23,$01,$FD ; lower left corner
-        .byte  $2B,$3C,$01,$FF ; lower right corner
-        .byte  $2B,$04,$58,$F7 ; inner black stripe
-        .byte  $2B,$24,$58,$FE ; border stripe
+        .byte  $2A,$83,$01,$FD ; lower left corner
+        .byte  $2A,$9C,$01,$FF ; lower right corner
+        .byte  $2A,$44,$58,$F7 ; inner black stripe
+        .byte  $2A,$64,$58,$F7 ; inner black stripe
+        .byte  $2A,$84,$58,$FE ; border stripe
+        .byte  $2A,$A0,$60,$F7 ; 2 black stripes
+        .byte  $2A,$C0,$40,$F7 ; 2 black stripes
+        .byte  $2B,$00,$40,$F7 ; 2 black stripes
         .byte  $2B,$40,$40,$F7 ; 2 black stripes
-        .byte  $2B,$80,$60,$F7 ; 1 black stripes
-        .byte  $2B,$F1,$46,$FF ; attributes
+        .byte  $2B,$80,$40,$F7 ; 2 black stripes
+        .byte  $2B,$E9,$46,$FF ; $2B,$F1,$46,$FF ; attributes
         .byte  $FF
 
 patchSeedIfValid:
@@ -1358,9 +1367,9 @@ gameModeState_initGameBackground:
         jsr bulkCopyToPpu
         .addr   hideTetriminoStatsPatch
 @tetriminoMode:
-        lda #$23
+        lda #$20
         sta PPUADDR
-        lda #$57
+        lda #$42
         sta PPUADDR
         lda gameType
         bne @typeB
@@ -1369,7 +1378,7 @@ gameModeState_initGameBackground:
         jsr patchSeedIfValid
         lda #$20
         sta PPUADDR
-        lda #$97
+        lda #$98
         sta PPUADDR
         lda highScoreScoresA
         jsr twoDigsToPPU
@@ -1385,7 +1394,7 @@ gameModeState_initGameBackground:
         jsr patchSeedIfValid
         lda #$20
         sta PPUADDR
-        lda #$97
+        lda #$98
         sta PPUADDR
         lda highScoreScoresB
         jsr twoDigsToPPU
@@ -1415,7 +1424,7 @@ gameModeState_initGameBackground:
 @endOfPpuPatching:
         lda #$22
         sta PPUADDR
-        lda #$DA
+        lda #$FB
         sta PPUADDR
         lda #$24
         sta PPUDATA
@@ -1466,7 +1475,7 @@ gameModeState_initGameState:
         bpl @initStatsByType
         lda #$04
         sta renderedPlayfield
-        lda #$07
+        lda #HALF_WIDTH
         sta tetriminoX
         lda #$00
         sta completedLines
@@ -1497,7 +1506,7 @@ gameModeState_initGameState:
         sta leftPlayfield,y
         sta rightPlayfield,y
         dey
-        cpy #$76
+        cpy #$65
         bne @plantBlocks
         lda #$EF
         sta $047d
@@ -1638,7 +1647,7 @@ initPlayfieldForTypeB:
 typeBRows:
         lda generalCounter
         beq initCopyPlayfieldToPlayer2
-        lda #$16
+        lda #$18
         sec
         sbc generalCounter
         sta generalCounter2  ; row (22 - generalCounter)
@@ -1657,7 +1666,7 @@ typeBGarbageInRow:
         lda rngTable,y
         sta generalCounter4 ; random square or blank
         ldx generalCounter2
-        lda multBy7Table,x
+        lda multByHalfWidthTable,x
         clc
         adc generalCounter3
         tay
@@ -1673,13 +1682,13 @@ typeBGuaranteeBlank:
         ldy #$02
         jsr generateNextPseudoAndAlsoCopy
         lda bseedCopy ; previously rng_seed
-        and #$07
-        cmp #$07
+        and #HALF_WIDTH
+        cmp #HALF_WIDTH
         bpl typeBGuaranteeBlank
 
         sta generalCounter5 ; blanked column
         ldx generalCounter2
-        lda multBy7Table,x
+        lda multByHalfWidthTable,x
         clc
         adc generalCounter5
         tay
@@ -1970,7 +1979,7 @@ stageSpriteForNextPiece:
 @continue:
         lda displayNextPiece
         bne @ret
-        lda #$CC
+        lda #$D4
         ldx nextPiece
         clc
         adc nextOffsetX,x
@@ -2722,12 +2731,12 @@ sprite55Penguin2:
         .byte   $FF
 
 effectiveTetriminoXTable:
-        .byte   $00,$01,$02,$03,$04,$05,$06
-        .byte   $00,$01,$02,$03,$04,$05,$06
+        .byte   $00,$01,$02,$03,$04,$05
+        .byte   $00,$01,$02,$03,$04,$05
 
 tetriminoXPlayfieldTable:
-        .byte   $04,$04,$04,$04,$04,$04,$04
-        .byte   $05,$05,$05,$05,$05,$05,$05
+        .byte   $04,$04,$04,$04,$04,$04
+        .byte   $05,$05,$05,$05,$05,$05
 
 isPositionValid:
         lda currentPiece
@@ -2746,20 +2755,22 @@ isPositionValid:
         sta generalCounter
         clc
         adc #$02
-        cmp #$18
+        cmp #$1A
         bcs @invalid
         lda generalCounter
-        asl a
-        asl a
-        asl a
-        sec
-        sbc generalCounter
+
+        lda generalCounter     ; R
+        asl a                  ; R*2
+        sta generalCounter4    ; temp = R*2
+        asl a                  ; R*4
+        clc
+        adc generalCounter4    ; R*4 + R*2 = R*6
         sta generalCounter4
         lda tetriminoX
         clc
         adc (currentOrientationX),y     ; X offset
 ; Check if column is valid before getting normalized
-        cmp #$0E
+        cmp #$0C
         bcs @invalid
         tay
         lda tetriminoXPlayfieldTable,y
@@ -2823,18 +2834,33 @@ levelDisplayTable:
         .byte   $08,$09,$10,$11,$12,$13,$14,$15
         .byte   $16,$17,$18,$19,$20,$21,$22,$23
         .byte   $24,$25,$26,$27,$28,$29
-multBy7Table:
-        .byte   $00,$07,$0e,$15,$1c,$23,$2a,$31
-        .byte   $38,$3f,$46,$4d,$54,$5b,$62,$69
-        .byte   $70,$77,$7e,$85,$8c,$93
+;multBy7Table:
+        ;.byte   $00,$07,$0e,$15,$1c,$23,$2a,$31
+        ;.byte   $38,$3f,$46,$4d,$54,$5b,$62,$69
+        ;.byte   $70,$77,$7e,$85,$8c,$93
+multByHalfWidthTable:
+.repeat BOARD_HEIGHT, I
+    .byte I * HALF_WIDTH
+.endrepeat
 ; addresses
 vramPlayfieldRows:
-        .word   $20C6,$20E6,$2106,$2126
-        .word   $2146,$2166,$2186,$21A6
-        .word   $21C6,$21E6,$2206,$2226
-        .word   $2246,$2266,$2286,$22A6
-        .word   $22C6,$22E6,$2306,$2326
-        .word   $2346,$2366
+
+        ;.word   $206A,$208A,$20AA,$20CA
+        ;.word   $20EA,$210A,$212A,$214A
+        ;.word   $216A,$218A,$21AA,$21CA
+        ;.word   $21EA,$220A,$222A,$224A
+        ;.word   $226A,$228A,$22AA,$22CA
+        ;.word   $22EA,$230A,$232A,$234A
+        ;.word   ,$236A
+
+        .word   $208A,$20AA,$20CA,$20EA
+        .word   $210A,$212A,$214A,$216A
+        .word   $218A,$21AA,$21CA,$21EA
+        .word   $220A,$222A,$224A,$226A
+        .word   $228A,$22AA,$22CA,$22EA
+        .word   $230A,$232A,$234A,$236A
+        ;.word
+
 twoDigsToPPU:
         sta generalCounter
         and #$F0
@@ -2850,9 +2876,9 @@ twoDigsToPPU:
 
 copyPlayfieldRowToVRAM:
         ldx vramRow
-        cpx #$16
+        cpx #$18
         bpl @ret
-        lda multBy7Table,x
+        lda multByHalfWidthTable,x
         tay
         txa
         asl a
@@ -2869,38 +2895,25 @@ copyPlayfieldRowToVRAM:
         pla
         sta stack,x
         inx
-        ; sta     PPUADDR
-        ; dex
-;         lda     playfieldAddr+1
-;         cmp     #$05
-;         beq     @rightPlayfield
-;         jmp     @leftPlayfield
-; @rightPlayfield:
-;         lda     vramPlayfieldRows,x
-;         clc
-;         adc     #$07
-;         sta     PPUADDR
-;         jmp     @copyRow
 
-; @leftPlayfield:
-        ; lda     vramPlayfieldRows,x
-        ; sta     PPUADDR
 ; @copyRow:
-        lda #$07
+        lda #$06
         sta generalCounter
 @copyByte:
         lda leftPlayfield,y
         sta stack,x
         lda rightPlayfield,y
-        sta stack+7,x
-        iny
+        sta stack+6,x            ; right tiles offset by HALF_WIDTH
         inx
+        iny
         dec generalCounter
-        bne @copyByte
+        bne @copyByte            ; loop 6 times
 
+        ; --- increment row counter ---
         inc vramRow
+        ;stx currentVramRender
         lda vramRow
-        cmp #$16
+        cmp #$18
         bmi @ret
         lda #$20
         sta vramRow
@@ -2950,7 +2963,7 @@ updateLineClearingAnimation:
         bne @whileCounter3LessThan5
         inc rowY
         lda rowY
-        cmp #$07
+        cmp #$06
         bmi @ret
 .ifdef AEPPOZ
 updateLineClearingAnimation:
@@ -2960,9 +2973,9 @@ updateLineClearingAnimation:
         jmp renderTetrisFlashAndSound
 
 leftColumns:
-        .byte   $06,$05,$04,$03,$02,$01,$00
+        .byte   $05,$04,$03,$02,$01,$00
 rightColumns:
-        .byte   $07,$08,$09,$0A,$0B,$0C,$0D
+        .byte   $06,$07,$08,$09,$0A,$0B
 ; Set Background palette 2 and Sprite palette 2
 updatePaletteForLevel:
         lda levelNumber
@@ -3004,27 +3017,14 @@ colorTable:
 ; borrowed from https://github.com/kirjavascript/TetrisGYM/blob/ca3000722e52777b2309dcd16273082da5a1b7f2/src/nmi/render_mode_play_and_demo.asm#L353
         .dbyt   $0F30,$2112,$0F30,$291A,$0F30,$2414,$0F30,$2A12
         .dbyt   $0F30,$2B15,$0F30,$222B,$0F30,$0016,$0F30,$0513
-        .dbyt   $0F30,$1612,$0F30,$2716,$60E6,$69A5,$69C9,$1430
-        .dbyt   $04A9,$2085,$69E6,$89A5,$89C9,$1430,$04A9,$2085
-        .dbyt   $8960,$A549,$C920,$3056,$A5BE,$C901,$F020,$A5A4
-        .dbyt   $C900,$D00E,$E6A4,$A5B7,$85A5,$20EB,$9885,$A64C
-        .dbyt   $EA98,$A5A5,$C5B7,$D036,$A5A4,$C91C,$D030,$A900
-        .dbyt   $85A4,$8545,$8541,$A901,$8548,$A905,$8540,$A6BF
-        .dbyt   $BD56,$9985,$4220,$6999,$A5BE,$C901,$F007,$A5A6
-        .dbyt   $85BF,$4CE6,$9820,$EB98,$85BF,$A900,$854E,$60A5
-        .dbyt   $C0C9,$05D0,$12A6,$D3E6,$D3BD,$00DF,$4A4A,$4A4A
-        .dbyt   $2907,$AABD,$4E99,$6020,$0799,$60E6,$1AA5,$1718
-        .dbyt   $651A,$2907,$C907,$F008,$AABD,$4E99,$C519,$D01C
-        .dbyt   $A217,$A002,$2047,$ABA5,$1729,$0718,$6519,$C907
-        .dbyt   $9006,$38E9,$074C,$2A99,$AABD,$4E99,$8519,$6000
-        .dbyt   $0000,$0001,$0101,$0102,$0203,$0404,$0505,$0505
+        .dbyt   $0F30,$1612,$0F30,$2716
 
 ; This increment and clamping is performed in copyPlayfieldRowToVRAM instead of here
 noop_disabledVramRowIncr:
         rts
         inc vramRow
         lda vramRow
-        cmp #$14
+        cmp #$16
         bmi @player2
         lda #$20
         sta vramRow
@@ -3046,7 +3046,7 @@ playState_spawnNextTetrimino:
         sta tetriminoY
         lda #$01
         sta playState
-        lda #$07
+        lda #HALF_WIDTH
         sta tetriminoX
         ldx nextPiece
         lda spawnOrientationFromOrientation,x
@@ -3277,14 +3277,27 @@ playState_lockTetrimino:
         lda vramRow
         cmp #$20
         bmi @ret
-        lda tetriminoY
-        asl a
-        asl a
-        asl a
-        sec
-        sbc tetriminoY
+        lda tetriminoY      ; R
+
+        asl a               ; R*2
+        sta generalCounter4
+
+        asl a               ; R*4
+        clc
+        adc generalCounter4 ; R*6
+
         clc
         adc tetriminoX
+
+        ;lda tetriminoY
+        ;asl a
+        ;asl a
+        ;asl a
+        ;sec
+        ;sbc tetriminoY
+        ;clc
+        ;adc tetriminoX
+
         sta generalCounter
         lda currentPiece
         jsr setOrientationTable
@@ -3300,14 +3313,28 @@ playState_lockTetrimino:
         sta generalCounter2
         lda tetriminoY
         clc
-        adc (currentOrientationY),y         ; Y offset
-        sta generalCounter
-        asl a
-        asl a
-        asl a
-        sec
-        sbc generalCounter
-        sta generalCounter
+        adc (currentOrientationY),y
+        sta generalCounter      ; save R
+
+        asl a                   ; R*2
+        sta generalCounter4     ; temp = R*2
+
+        asl a                   ; R*4
+        clc
+        adc generalCounter4     ; R*4 + R*2 = R*6
+        sta generalCounter      ; final row offset
+
+        ;lda tetriminoY
+        ;clc
+        ;adc (currentOrientationY),y         ; Y offset
+        ;sta generalCounter
+        ;asl a
+        ;asl a
+        ;asl a
+        ;sec
+        ;sbc generalCounter
+        ;sta generalCounter
+
         lda tetriminoX
         clc
         adc (currentOrientationX),y
@@ -3382,14 +3409,14 @@ playState_updateGameOverCurtain:
 
 playState_updateGameOverCurtainOld:
         lda curtainRow
-        cmp #$16
+        cmp #$18
         beq @curtainFinished
         lda frameCounter
         and #$03
         bne @ret
         ldx curtainRow
         bmi @incrementCurtainRow
-        lda multBy7Table,x
+        lda multByHalfWidthTable,x
         tay
         lda #$00
         sta generalCounter3
@@ -3402,14 +3429,14 @@ playState_updateGameOverCurtainOld:
         iny
         inc generalCounter3
         lda generalCounter3
-        cmp #$07
+        cmp #HALF_WIDTH
         bne @drawCurtainRow
         lda curtainRow
         sta vramRow
 @incrementCurtainRow:
         inc curtainRow
         lda curtainRow
-        cmp #$14
+        cmp #$16
         bne @ret
 @ret:
         rts
@@ -3449,15 +3476,33 @@ playState_checkForCompletedRows:
 @yInRange:
         clc
         adc lineIndex
-        sta generalCounter2
-        asl a
-        asl a
-        asl a
-        sec
-        sbc generalCounter2
-        sta generalCounter
+        sta generalCounter2      ; save row value
+
+        ; Multiply row by 6
+        lda generalCounter2      ; R
+
+        asl a                    ; R*2
+        sta generalCounter       ; temp = R*2
+
+        asl a                    ; R*4
+        clc
+        adc generalCounter       ; R*4 + R*2 = R*6
+        sta generalCounter       ; final row offset
+
         tay
-        ldx #$07
+
+;@yInRange:
+        ;clc
+        ;adc lineIndex
+        ;sta generalCounter2
+        ;asl a
+        ;asl a
+        ;asl a
+        ;sec
+        ;sbc generalCounter2
+        ;sta generalCounter
+        ;tay
+        ldx #HALF_WIDTH
 @checkIfRowComplete:
         lda leftPlayfield,y
         cmp #$EF
@@ -3489,9 +3534,9 @@ playState_checkForCompletedRows:
         cpy #$F9
         bcs @skipOverflow
         lda leftPlayfield,y
-        sta leftPlayfield+7,y
+        sta leftPlayfield+6,y
         lda rightPlayfield,y
-        sta rightPlayfield+7,y
+        sta rightPlayfield+6,y
 @skipOverflow:
         dey
         cpy #$FF
@@ -3502,7 +3547,7 @@ playState_checkForCompletedRows:
         sta leftPlayfield,y
         sta rightPlayfield,y
         iny
-        cpy #$07
+        cpy #HALF_WIDTH
         bne @clearRowTopRow
         ldaHiddenPiece
         sta currentPiece
@@ -3822,9 +3867,9 @@ gameModeState_handleGameOver:
 
 updateMusicSpeed:
         ldx #$05
-        lda multBy7Table,x
+        lda multByHalfWidthTable,x
         tay
-        ldx #$07
+        ldx #$06
 @checkForBlockInRow:
         lda leftPlayfield,y
         cmp #$EF
@@ -4767,16 +4812,13 @@ gameModeState_startButtonHandling:
         lda #$05
         sta renderMode
         jsr updateAudioAndWaitForNmi
-        ; lda     #$16
-        ; sta     PPUMASK
-        ; lda     #$FF
         ldx #$02
         ldy #$02
         jsr memset_page
 @pauseLoop:
         lda pauseScreen
         bne @skipSprites
-        lda #$58
+        lda #$6C
         sta spriteXOffset
         lda #$4b
         sta spriteYOffset
@@ -4880,7 +4922,7 @@ playState_bTypeGoalCheck:
 @success:
         lda #$02
         jsr setMusicTrack
-        ldy #$3A
+        ldy #$37
         ldx #$00
 @copySuccessGraphicLeftRow1:
         lda typebSuccessGraphicLeftRow1,x
@@ -4891,7 +4933,7 @@ playState_bTypeGoalCheck:
         iny
         jmp @copySuccessGraphicLeftRow1
 @startRow2:
-        ldy #$41
+        ldy #$3D
         ldx #$00
 @copySuccessGraphicLeftRow2:
         lda typebSuccessGraphicLeftRow2,x
@@ -4902,7 +4944,7 @@ playState_bTypeGoalCheck:
         iny
         jmp @copySuccessGraphicLeftRow2
 @startLeftRow3:
-        ldy #$48
+        ldy #$43
         ldx #$00
 
 @copySuccessGraphicLeftRow3:
@@ -4915,7 +4957,7 @@ playState_bTypeGoalCheck:
         jmp @copySuccessGraphicLeftRow3
 
 @startright:
-        ldy #$38
+        ldy #$36
         ldx #$00
 @copySuccessGraphicRightRow1:
         lda typebSuccessGraphicRightRow1,x
@@ -4926,7 +4968,7 @@ playState_bTypeGoalCheck:
         iny
         jmp @copySuccessGraphicRightRow1
 @startLeftRow2:
-        ldy #$3F
+        ldy #$3C
         ldx #$00
 @copySuccessGraphicRightRow2:
         lda typebSuccessGraphicRightRow2,x
@@ -4937,7 +4979,7 @@ playState_bTypeGoalCheck:
         iny
         jmp @copySuccessGraphicRightRow2
 @startRightRow3:
-        ldy #$46
+        ldy #$42
         ldx #$00
 @copySuccessGraphicRightRow3:
         lda typebSuccessGraphicRightRow3,x
@@ -6253,7 +6295,7 @@ show_scores_nametable_patch:
         .byte $1C,$0C,$18,$1B,$0E,$1C ; SCORES
         .byte $FF
 type_b_lvl9_ending_nametable:
-        .incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
+        ;.incbin "gfx/nametables/type_b_lvl9_ending_nametable.bin"
 type_b_ending_nametable:
         .incbin "gfx/nametables/type_b_ending_nametable.bin"
 type_a_ending_nametable:
@@ -8244,14 +8286,14 @@ menuThrottleContinue:
         rts
 ; End of "PRG_chunk2" segment
 
-; xxxxx12345xxxx
-; xxxxxx678xxxxx
-; xxxxxx9ABxxxxx
+; xxxxx12 345xxxx
+; xxxxxx6 78xxxxx
+; xxxxxx9 ABxxxxx
 
 stageSpawnAreaTiles:
-        lda $0405
+        lda $0404
         sta spawnRow1Data
-        lda $0406
+        lda $0405
         sta spawnRow1Data+1
         lda $0500
         sta spawnRow1Data+2
@@ -8259,17 +8301,17 @@ stageSpawnAreaTiles:
         sta spawnRow1Data+3
         lda $0502
         sta spawnRow1Data+4
-        lda $040D
+        lda $040B
         sta spawnRow2Data
-        lda $0507
+        lda $0506
         sta spawnRow2Data+1
-        lda $0508
+        lda $0507
         sta spawnRow2Data+2
-        lda $0414
+        lda $0411
         sta spawnRow3Data
-        lda $050E
+        lda $050C
         sta spawnRow3Data+1
-        lda $050F
+        lda $050D
         sta spawnRow3Data+2
         rts
 

@@ -155,15 +155,15 @@ currentPpuCtrl:	.res 1	; $00FF
 .bss
 stack:
 row0Address: .res $2
-row0Data: .res $E
+row0Data: .res $C
 row1Address: .res $2
-row1Data: .res $E
+row1Data: .res $C
 row2Address: .res $2
-row2Data: .res $E
+row2Data: .res $C
 row3Address: .res $2
-row3Data: .res $E
+row3Data: .res $C
 row4Address: .res $2
-row4Data: .res $E
+row4Data: .res $C
 oldPiece0Address: .res $2
 oldPiece0Data: .res $1   ; always blank
 oldPiece1Address: .res $2
@@ -204,6 +204,7 @@ paletteSpriteAddress: .res $2
 paletteSpriteData: .res $4
 statsAddress: .res $2
 statsData: .res $3
+.res 10
 ;.res 17
 .res $5c
 oamStaging:	.res $100	; $0200

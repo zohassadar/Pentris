@@ -1,7 +1,7 @@
 WINDOWS := $(shell which wine 2>/dev/null; echo $$?)
 UNAME_S := $(shell uname -s)
 
-VERSION := v2.1
+VERSION := n-minos
 
 pentris_obj := main.o pentris.o
 cc65Path := tools/cc65
@@ -26,8 +26,8 @@ else
   WINE := wine
 endif
 
-CA65 := $(WINE) $(cc65Path)/bin/ca65
-LD65 := $(WINE) $(cc65Path)/bin/ld65
+CA65 := ca65
+LD65 := ld65
 
 nesChrEncode := python tools/nes-util/nes_chr_encode.py
 pythonExecutable := python

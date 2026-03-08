@@ -28,7 +28,7 @@ dumpRenderQueue:
 ; rows
 .repeat 5
         sendAddress
-        sendData 14
+        sendData 12 ;14
 .endrepeat
 
 ; old piece
@@ -180,10 +180,14 @@ clearOldPiece:
 @normalClear:
         ldy #$0C
 @blankPieceLoop:
-        lda stack+95+17,y
-        sta stack+80,y
-        lda stack+95+17+1,y
-        sta stack+80+1,y
+        lda newPiece0Address,y
+        sta oldPiece0Address,y
+        lda newPiece0Address+1,y
+        sta oldPiece0Address+1,y
+        ;lda stack+95+17,y
+        ;sta stack+80,y
+        ;lda stack+95+17+1,y
+        ;sta stack+80+1,y
         dey
         dey
         dey
@@ -199,33 +203,37 @@ stageRenderQueue:
         sta oldPiece3Data
         sta oldPiece4Data
 
-        lda #$20
+        lda #$23
         sta linesAddress
-        lda #$6F
+        lda #$59
         sta linesAddress+1
 
         lda #$20
         sta scoreAddress
-        lda #$F7
+        lda #$F8
         sta scoreAddress+1
 
         ; 3 rows that represent where pieces can spawn
         lda #$20
         sta spawnRow1Address
-        lda #$CB
+        lda #$8E
         sta spawnRow1Address+1
         lda #$20
         sta spawnRow2Address
-        lda #$EC
+        lda #$AF
         sta spawnRow2Address+1
-        lda #$21
+        lda #$20
         sta spawnRow3Address
-        lda #$0C
+        lda #$CF
         sta spawnRow3Address+1
 
         lda #$22
         sta levelAddress
-        lda #$D8
+        lda #$FA
+        beq @doneLevelShift
+        sec
+        sbc #$01          ; shift left for B-type
+        @doneLevelShift:
         sta levelAddress+1
 
         lda #$3F
@@ -330,8 +338,11 @@ stage_playfield_render:
 
         jsr updatePaletteForLevel
 
-        ldx #$4F
+        ;ldx #$4F
+        ldx #(14*5-1)
         lda #$00
+
+
 @clearRenderQueue:
         sta stack,x
         dex
@@ -340,15 +351,15 @@ stage_playfield_render:
         lda #$0
         sta currentVramRender
         jsr copyPlayfieldRowToVRAM
-        lda #$10
+        lda #14
         sta currentVramRender
         jsr copyPlayfieldRowToVRAM
-        lda #$20
+        lda #28
         sta currentVramRender
         jsr copyPlayfieldRowToVRAM
-        lda #$30
+        lda #42
         sta currentVramRender
         jsr copyPlayfieldRowToVRAM
-        lda #$40
+        lda #56
         sta currentVramRender
         jmp copyPlayfieldRowToVRAM

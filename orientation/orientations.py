@@ -1,5 +1,162 @@
 from orientation_base import Orientation, Piece, OrientationTable, HiddenOrientation
 
+i1_u = Orientation(
+    ("....."
+     "....."
+     "..X.."
+     "....."
+     "....."),
+    spawn=True,
+    next_offset_y=4,
+    # spawn_offset_y=1,
+    name="I1Up",
+)  # fmt: skip
+
+i1 = Piece(
+    name="I1",
+    tile_index=0x7C,
+    stats_addr=0x2B35,
+    orientations=[
+        i1_u,
+    ],
+)
+
+i2_up = Orientation(
+    ("....."
+     "....."
+     "....."
+     ".XX.."
+     "....."),
+    spawn=True,
+    next_offset_y=252,
+    next_offset_x=4,
+    spawn_offset_y=255,
+    name="I2Up",
+)  # fmt: skip
+
+i2_right = Orientation(
+    ("....."
+     "....."
+     "..X.."
+     "..X.."
+     "....."),
+    name="I2Right",
+)  # fmt: skip
+
+i2_down = Orientation(
+    ("....."
+     "....."
+     ".XX.."
+     "....."
+     "....."),
+    name="I2Down",
+)  # fmt: skip
+
+i2_left = Orientation(
+    ("....."
+     "....."
+     ".X..."
+     ".X..."
+     "....."),
+    name="I2Left",
+)  # fmt: skip
+
+i2 = Piece(
+    name="I2",
+    tile_index=0x7B,
+    stats_addr=0x2B2B,
+    orientations=[
+        i2_up,
+        i2_left,
+        i2_down,
+        i2_right,
+    ],
+)
+
+
+v3_up = Orientation(
+    ("....."
+     "....."
+     ".XX.."
+     "..X.."
+     "....."),
+    name="V3Up",
+)  # fmt: skip
+
+v3_right = Orientation(
+    ("....."
+     "....."
+     "..X.."
+     ".XX.."
+     "....."),
+    name="V3Right",
+)  # fmt: skip
+
+v3_down = Orientation(
+    ("....."
+     "....."
+     ".X..."
+     ".XX.."
+     "....."),
+    name="V3Down",
+)  # fmt: skip
+
+v3_left = Orientation(
+    ("....."
+     "....."
+     ".XX.."
+     ".X..."
+     "....."),
+    spawn=True,
+    next_offset_x=4,
+    name="V3Left",
+)  # fmt: skip
+
+v3 = Piece(
+    name="V3",
+    tile_index=0x7D,
+    stats_addr=0x2AF0,
+    orientations=[
+        v3_up,
+        v3_right,
+        v3_down,
+        v3_left,
+    ],
+)
+
+
+i3h = Orientation(
+    ("....."
+     "....."
+     ".XXX."
+     "....."
+     "....."),
+    spawn=True,
+    next_offset_y=4,
+    # spawn_offset_y=1,
+    name="I3Horizontal",
+)  # fmt: skip
+
+i3v = Orientation(
+    ("....."
+     "..X.."
+     "..X.."
+     "..X.."
+     "....."),
+    name="I3Vertical",
+)  # fmt: skip
+
+i3 = Piece(
+    name="I3",
+    tile_index=0x7C,
+    stats_addr=0x2AF8,
+    orientations=[
+        i3h,
+        i3v,
+    ],
+)
+
+
 f1_up = Orientation(
     ("....."
      "..XX."
@@ -42,7 +199,7 @@ f1_left = Orientation(
 f1 = Piece(
     name="F1",
     tile_index=0x7D,
-    stats_addr=0x2A10,
+    stats_addr=0x29B0, #2A10,
     orientations=[
         f1_up,
         f1_right,
@@ -94,7 +251,7 @@ f2_left = Orientation(
 f2 = Piece(
     name="F2",
     tile_index=0x7C,
-    stats_addr=0x2A18,
+    stats_addr=0x29B8, #2A18,
     orientations=[
         f2_up,
         f2_right,
@@ -116,31 +273,33 @@ j_left = Orientation(
 
 j_up = Orientation(
     ("....."
-     ".X..."
-     ".XXXX"
+     "X...."
+     "XXXX."
      "....."
      "....."),
     name="JUp",
 )  # fmt: skip
 
 j_right = Orientation(
-    ("....."
-     "..XX."
-     "..X.."
-     "..X.."
-     "..X.."),
+    (".XX.."
+     ".X..."
+     ".X..."
+     ".X..."
+     "....."),
     name="JRight",
 )  # fmt: skip
 
 j_down = Orientation(
     ("....."
-     "....."
      "XXXX."
      "...X."
+     "....."
      "....."),
     name="JDown",
     spawn=True,
     next_offset_x=4,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 j = Piece(
@@ -157,10 +316,10 @@ j = Piece(
 
 
 l_right = Orientation(
-    ("..X.."
-     "..X.."
-     "..X.."
-     "..XX."
+    (".X..."
+     ".X..."
+     ".X..."
+     ".XX.."
      "....."),
     name="LRight",
 )  # fmt: skip
@@ -168,21 +327,23 @@ l_right = Orientation(
 
 l_down = Orientation(
     ("....."
+     "XXXX."
+     "X...."
      "....."
-     ".XXXX"
-     ".X..."
      "....."),
     name="LDown",
     spawn=True,
-    next_offset_x=252,
+    spawn_offset_y=1,
+    next_offset_x=4,
+    next_offset_y=8,
 )  # fmt: skip
 
 l_left = Orientation(
-    ("....."
-     ".XX.."
+    (".XX.."
      "..X.."
      "..X.."
-     "..X.."),
+     "..X.."
+     "....."),
     name="LLeft",
 )  # fmt: skip
 
@@ -224,7 +385,7 @@ x_solo = Orientation(
 x = Piece(
     name="X",
     tile_index=0x7B,
-    stats_addr=0x2A68,
+    stats_addr=0x29A8, #2A68,
     orientations=[
         x_solo,
     ],
@@ -255,7 +416,7 @@ s_vertical = Orientation(
 s = Piece(
     name="S",
     tile_index=0x7D,
-    stats_addr=0x2A70,
+    stats_addr=0x29F0, #2A70,
     orientations=[
         s_horizontal,
         s_vertical,
@@ -287,7 +448,7 @@ z_vertical = Orientation(
 z = Piece(
     name="Z",
     tile_index=0x7C,
-    stats_addr=0x2A78,
+    stats_addr=0x29F8, #2A78,
     orientations=[
         z_horizontal,
         z_vertical,
@@ -297,37 +458,39 @@ z = Piece(
 
 q_up = Orientation(
     ("....."
-     "..X.."
-     "..XX."
-     "..XX."
+     ".X..."
+     ".XX.."
+     ".XX.."
      "....."),
     name="QUp",
 )  # fmt: skip
 
 q_right = Orientation(
     ("....."
-     "....."
      ".XXX."
      ".XX.."
+     "....."
      "....."),
     name="QRight",
     spawn=True,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 q_down = Orientation(
     ("....."
-     ".XX.."
-     ".XX.."
-     "..X.."
+     "..XX."
+     "..XX."
+     "...X."
      "....."),
     name="QDown",
 )  # fmt: skip
 
 q_left = Orientation(
     ("....."
+     "....."
      "..XX."
      ".XXX."
-     "....."
      "....."),
     name="QLeft",
 )  # fmt: skip
@@ -335,7 +498,7 @@ q_left = Orientation(
 q = Piece(
     name="Q",
     tile_index=0x7D,
-    stats_addr=0x2AD0,
+    stats_addr=0x2A30, #2AD0,
     orientations=[
         q_up,
         q_right,
@@ -346,45 +509,47 @@ q = Piece(
 
 p_up = Orientation(
     ("....."
-     "..X.."
-     ".XX.."
-     ".XX.."
+     "...X."
+     "..XX."
+     "..XX."
      "....."),
     name="PUp",
 )  # fmt: skip
 
 p_right = Orientation(
     ("....."
+     "....."
      ".XX.."
      ".XXX."
-     "...."
      "....."),
     name="PRight",
 )  # fmt: skip
 
 p_down = Orientation(
     ("....."
-     "..XX."
-     "..XX."
-     "..X.."
+     ".XX.."
+     ".XX.."
+     ".X..."
      "....."),
     name="PDown",
 )  # fmt: skip
 
 p_left = Orientation(
     ("....."
-     "....."
      ".XXX."
      "..XX."
+     "....."
      "....."),
     name="PLeft",
     spawn=True,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 p = Piece(
     name="P",
     tile_index=0x7C,
-    stats_addr=0x2AD8,
+    stats_addr=0x2A38, #2AD8,
     orientations=[
         p_up,
         p_right,
@@ -405,37 +570,39 @@ n_up = Orientation(
 
 n_right = Orientation(
     ("....."
-     ".XX.."
-     "..XXX"
-     "...."
+     "XX..."
+     ".XXX."
+     "....."
      "....."),
     name="NRight",
 )  # fmt: skip
 
 n_down = Orientation(
-    ("....."
-     "...X."
-     "..XX."
-     "..X.."
-     "..X.."),
+    ("..X.."
+     ".XX.."
+     ".X..."
+     ".X..."
+     "....."),
     name="NDown",
 )  # fmt: skip
 
 n_left = Orientation(
     ("....."
-     "....."
      "XXX.."
      "..XX."
+     "....."
      "....."),
     name="NLeft",
     spawn=True,
     next_offset_x=4,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 n = Piece(
     name="N",
     tile_index=0x7C,
-    stats_addr=0x29B8,
+    stats_addr=0x2978, #29B8,
     orientations=[
         n_up,
         n_right,
@@ -445,31 +612,33 @@ n = Piece(
 )
 
 g_up = Orientation(
-    ("..X.."
+    (".X..."
+     ".X..."
+     ".XX.."
      "..X.."
-     "..XX."
-     "...X."
      "....."),
     name="GUp",
 )  # fmt: skip
 
 g_right = Orientation(
     ("....."
+     ".XXX."
+     "XX..."
      "....."
-     "..XXX"
-     ".XX.."
      "....."),
     name="GRight",
     spawn=True,
-    next_offset_x=252,
+    next_offset_x=4,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 g_down = Orientation(
-    ("....."
-     ".X..."
+    (".X..."
      ".XX.."
      "..X.."
-     "..X.."),
+     "..X.."
+     "....."),
     name="GDown",
 )  # fmt: skip
 
@@ -485,7 +654,7 @@ g_left = Orientation(
 g = Piece(
     name="G",
     tile_index=0x7D,
-    stats_addr=0x29B0,
+    stats_addr=0x2970, #29B0,
     orientations=[
         g_up,
         g_right,
@@ -496,39 +665,40 @@ g = Piece(
 
 
 t_up = Orientation(
-    ("..X.."
+    ("....."
+     "..X.."
      "..X.."
      ".XXX."
-     "....."
      "....."),
     name="TUp",
 )  # fmt: skip
 
 t_right = Orientation(
     ("....."
-     "..X.."
-     "..XXX"
-     "..X.."
+     ".X..."
+     ".XXX."
+     ".X..."
      "....."),
     name="TRight",
 )  # fmt: skip
 
 t_down = Orientation(
     ("....."
-     "....."
      ".XXX."
      "..X.."
-     "..X.."),
+     "..X.."
+     "....."),
     name="TDown",
     spawn=True,
-    next_offset_y=252,
+    next_offset_y=4,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 t_left = Orientation(
     ("....."
-     "..X.."
-     "XXX.."
-     "..X.."
+     "...X."
+     ".XXX."
+     "...X."
      "....."),
     name="TLeft",
 )  # fmt: skip
@@ -536,7 +706,7 @@ t_left = Orientation(
 t = Piece(
     name="T",
     tile_index=0x7B,
-    stats_addr=0x2A08,
+    stats_addr=0x29E8, #2A08,
     orientations=[
         t_up,
         t_right,
@@ -547,37 +717,39 @@ t = Piece(
 
 u_up = Orientation(
     ("....."
+     "....."
      ".X.X."
      ".XXX."
-     "....."
      "....."),
     name="UUp",
 )  # fmt: skip
 
 u_right = Orientation(
     ("....."
-     "..XX."
-     "..X.."
-     "..XX."
+     ".XX.."
+     ".X..."
+     ".XX.."
      "....."),
     name="URight",
 )  # fmt: skip
 
 u_down = Orientation(
     ("....."
-     "....."
      ".XXX."
      ".X.X."
+     "....."
      "....."),
-    name="UDown",
     spawn=True,
+    next_offset_y=8,
+    spawn_offset_y=1,
+    name="UDown",
 )  # fmt: skip
 
 u_left = Orientation(
     ("....."
-     ".XX.."
-     "..X.."
-     ".XX.."
+     "..XX."
+     "...X."
+     "..XX."
      "....."),
     name="ULeft",
 )  # fmt: skip
@@ -637,7 +809,7 @@ v_left = Orientation(
 v = Piece(
     name="V",
     tile_index=0x7B,
-    stats_addr=0x29A8,
+    stats_addr=0x2968, #29A8,
     orientations=[
         v_up,
         v_right,
@@ -689,7 +861,7 @@ w_left = Orientation(
 w = Piece(
     name="W",
     tile_index=0x7B,
-    stats_addr=0x2948,
+    stats_addr=0x2928, #0x2948,
     orientations=[
         w_up,
         w_right,
@@ -711,37 +883,39 @@ y1_left = Orientation(
 
 y1_up = Orientation(
     ("....."
-     "..X.."
-     ".XXXX"
+     ".X..."
+     "XXXX."
      "....."
      "....."),
     name="Y1Up",
 )  # fmt: skip
 
 y1_right = Orientation(
-    ("....."
-     "..X.."
-     "..XX."
-     "..X.."
-     "..X.."),
+    (".X..."
+     ".XX.."
+     ".X..."
+     ".X..."
+     "....."),
     name="Y1Right",
 )  # fmt: skip
 
 y1_down = Orientation(
     ("....."
-     "....."
      "XXXX."
      "..X.."
+     "....."
      "....."),
     name="Y1Down",
     spawn=True,
     next_offset_x=4,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 y1 = Piece(
     name="Y1",
     tile_index=0x7D,
-    stats_addr=0x2950,
+    stats_addr=0x2930, #2950,
     orientations=[
         y1_left,
         y1_up,
@@ -752,10 +926,10 @@ y1 = Piece(
 
 
 y2_right = Orientation(
-    ("..X.."
-     "..X.."
-     "..XX."
-     "..X.."
+    (".X..."
+     ".X..."
+     ".XX.."
+     ".X..."
      "....."),
     name="Y2Right",
 )  # fmt: skip
@@ -763,21 +937,23 @@ y2_right = Orientation(
 
 y2_down = Orientation(
     ("....."
+     "XXXX."
+     ".X..."
      "....."
-     ".XXXX"
-     "..X.."
      "....."),
     name="Y2Down",
     spawn=True,
-    next_offset_x=252,
+    next_offset_x=4,
+    next_offset_y=8,
+    spawn_offset_y=1,
 )  # fmt: skip
 
 y2_left = Orientation(
-    ("....."
-     "..X.."
+    ("..X.."
      ".XX.."
      "..X.."
-     "..X.."),
+     "..X.."
+     "....."),
     name="Y2Left",
 )  # fmt: skip
 
@@ -793,7 +969,7 @@ y2_up = Orientation(
 y2 = Piece(
     name="Y2",
     tile_index=0x7C,
-    stats_addr=0x2958,
+    stats_addr=0x2938, #2958,
     orientations=[
         y2_right,
         y2_down,
@@ -825,7 +1001,7 @@ i_vertical = Orientation(
 )  # fmt: skip
 
 i = Piece(
-    stats_addr=0x2AC8,
+    stats_addr=0x2A28, #2AC8,
     name="I",
     tile_index=0x7B,
     orientations=[
@@ -874,7 +1050,7 @@ t4_left = Orientation(
 t4 = Piece(
     name="T4",
     tile_index=0x7B,
-    stats_addr=0x2B06,
+    stats_addr=0x2A68, #2B06,
     orientations=[
         t4_up,
         t4_right,
@@ -926,7 +1102,7 @@ j4_down = Orientation(
 j4 = Piece(
     name="J4",
     tile_index=0x7D,
-    stats_addr=0x2B0C,
+    stats_addr=0x2A70, #2B0C,
     orientations=[
         j4_left,
         j4_up,
@@ -960,7 +1136,7 @@ z4_vertical = Orientation(
 z4 = Piece(
     name="Z4",
     tile_index=0x7C,
-    stats_addr=0x2B12,
+    stats_addr=0x2AB8, #2B12,
     orientations=[
         z4_horizontal,
         z4_vertical,
@@ -985,7 +1161,7 @@ o4_solo = Orientation(
 o4 = Piece(
     name="O4",
     tile_index=0x7B,
-    stats_addr=0x2B18,
+    stats_addr=0x2AA8, #2B18,
     orientations=[
         o4_solo,
     ],
@@ -1016,7 +1192,7 @@ s4_vertical = Orientation(
 s4 = Piece(
     name="S4",
     tile_index=0x7D,
-    stats_addr=0x2B48,
+    stats_addr=0x2AB0, #2B48,
     orientations=[
         s4_horizontal,
         s4_vertical,
@@ -1065,7 +1241,7 @@ l4_up = Orientation(
 l4 = Piece(
     name="L4",
     tile_index=0x7C,
-    stats_addr=0x2B4E,
+    stats_addr=0x2A78, #2B4E,
     orientations=[
         l4_right,
         l4_down,
@@ -1097,7 +1273,7 @@ i4_vertical = Orientation(
 )  # fmt: skip
 
 i4 = Piece(
-    stats_addr=0x2B54,
+    stats_addr=0x2AE8, #2B54,
     name="I4",
     tile_index=0x7B,
     orientations=[
@@ -1143,32 +1319,70 @@ weight_table = {
 
 
 weight_table_tetriminos = {
-    i: 21,
-    j: 12,
-    l: 12,
-    x: 2,
-    s: 5,
-    z: 5,
-    n: 13,
-    g: 13,
-    u: 12,
-    t: 8,
-    f1: 2,
-    f2: 2,
-    p: 20,
-    q: 20,
-    w: 7,
-    y1: 10,
-    y2: 10,
-    v: 5,
-    t4: 11,
-    j4: 11,
-    z4: 11,
-    o4: 11,
-    s4: 11,
-    l4: 11,
-    i4: 11,
+    i: 9,
+    j: 9,
+    l: 9,
+    x: 8,
+    s: 9,
+    z: 9,
+    n: 9,
+    g: 9,
+    u: 9,
+    t: 9,
+    f1: 9,
+    f2: 9,
+    p: 9,
+    q: 9,
+    w: 8,
+    y1: 9,
+    y2: 9,
+    v: 9,
+    t4: 9,
+    j4: 9,
+    z4: 8,
+    o4: 9,
+    s4: 8,
+    l4: 9,
+    i4: 9,
+    i1: 9,
+    i2: 9,
+    v3: 8,
+    i3: 9,
 }
+
+
+# weight_table_tetriminos = {
+#     i: 50,
+#     j: 1,
+#     l: 1,
+#     x: 1,
+#     s: 1,
+#     z: 1,
+#     n: 1,
+#     g: 1,
+#     u: 1,
+#     t: 1,
+#     f1: 50,
+#     f2: 1,
+#     p: 1,
+#     q: 1,
+#     w: 1,
+#     y1: 1,
+#     y2: 1,
+#     v: 50,
+#     t4: 26,
+#     j4: 1,
+#     z4: 1,
+#     o4: 1,
+#     s4: 1,
+#     l4: 1,
+#     i4: 1,
+#     i1: 1,
+#     i2: 56,
+#     v3: 1,
+#     i3: 1,
+# }
+
 
 table = OrientationTable(
     [
@@ -1197,6 +1411,10 @@ table = OrientationTable(
         s4,
         l4,
         i4,
+        i1,
+        i2,
+        v3,
+        i3,
         hidden,
     ]
 )

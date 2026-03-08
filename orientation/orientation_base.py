@@ -121,8 +121,8 @@ def validate_table(table: OrientationTable):
                     f"Orientation must only consist of 'X' or 'x'.  {orientation.name} contains: {''.join(characters)}"
                 )
 
-            squares_chars_len = len([c for c in orientation.orientation if c == "X"])
-            if squares_chars_len < 4:
-                raise InvalidPiece(
-                    f"Orientation must contain 4 or 5 squares.  {orientation.name} has {squares_chars_len}"
-                )
+            # squares_chars_len = len([c for c in orientation.orientation if c == "X"])
+            # if squares_chars_len < 0:
+            #     raise InvalidPiece(
+            #         f"Orientation must contain 4 or 5 squares.  {orientation.name} has {squares_chars_len}"
+            #     )
